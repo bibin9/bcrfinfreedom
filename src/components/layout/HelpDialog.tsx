@@ -24,6 +24,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { FeedbackDialog } from "@/components/layout/FeedbackDialog";
 
 /**
  * The in-app user manual. Designed for "first-time, never-heard-of-FIRE"
@@ -92,6 +93,9 @@ function Manual() {
         <p className="mt-1 text-xs text-muted-foreground">
           Every country, every goal, every edge case here comes from solving a real problem —
           not a product manager guessing. Free, no signup, your data never leaves your device.
+        </p>
+        <p className="mt-2 text-xs">
+          Something confusing or missing? <FeedbackDialog />
         </p>
       </div>
 

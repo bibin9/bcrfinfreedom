@@ -3,6 +3,8 @@ import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Disclaimer } from "@/components/layout/Disclaimer";
+import { FeedbackDialog } from "@/components/layout/FeedbackDialog";
+import { useI18n } from "@/i18n";
 import { DashboardNav } from "@/components/layout/DashboardNav";
 import { AllocationCard } from "@/components/dashboard/AllocationCard";
 import { AssetsCard } from "@/components/dashboard/AssetsCard";
@@ -41,6 +43,7 @@ import { projectWindfalls, totalWindfallsAtRetirement } from "@/lib/windfalls";
 import { toUserInput, useUserStore } from "@/store/userStore";
 
 export function Dashboard() {
+  const { t } = useI18n();
   const inputs = useUserStore((s) => s.inputs);
   const setPhase = useUserStore((s) => s.setPhase);
   const setSavingsRate = useUserStore((s) => s.setSavingsRate);
@@ -433,6 +436,14 @@ export function Dashboard() {
               taxCalculator={<NRITaxDrawer />}
             />
           )}
+
+          <div className="flex flex-col gap-3 rounded-lg border border-dashed border-orange-500/40 bg-orange-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold">{t("feedback.cardTitle")}</p>
+              <p className="text-xs text-muted-foreground">{t("feedback.cardBody")}</p>
+            </div>
+            <FeedbackDialog variant="button" />
+          </div>
         </div>
 
         <aside className="space-y-4 sm:space-y-6">

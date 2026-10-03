@@ -133,4 +133,20 @@ export const en = {
   languageSwitcher: {
     label: "Change language",
   },
+  feedback: {
+    open: "Send feedback",
+    title: "Help make this app better",
+    intro: "Takes 30 seconds. Honest answers help most — especially what confused you.",
+    easyQuestion: "How easy was the app to understand?",
+    confusingQuestion: "What confused you?",
+    confusingPlaceholder: "e.g. I didn't understand what SIP means…",
+    missingQuestion: "What's missing, or what do you wish it did?",
+    missingPlaceholder: "e.g. I want to plan for my sister's wedding…",
+    privacy: "We never include your income or savings — only your country, language and the screen you were on.",
+    send: "Send by email",
+    copy: "Copy feedback",
+    copied: "Copied — paste it into an email to",
+    cardTitle: "Was this useful?",
+    cardBody: "Tell us what confused you or what's missing. Every message is read.",
+  },
 };

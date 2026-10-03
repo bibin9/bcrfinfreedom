@@ -5,6 +5,7 @@ import { I18nProvider } from "@/i18n";
 import { Header } from "@/components/layout/Header";
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import { InstallPrompt } from "@/components/layout/InstallPrompt";
+import { FeedbackDialog } from "@/components/layout/FeedbackDialog";
 import { AIChatButton } from "@/components/dashboard/AIChatButton";
 import { Landing } from "@/pages/Landing";
 import { Onboarding } from "@/pages/Onboarding";
@@ -66,6 +67,9 @@ export default function App() {
           </p>
           <p className="mt-1">
             Educational use only · Not financial advice · © BibinCutRiver
+          </p>
+          <p className="mt-2">
+            <FeedbackDialog />
           </p>
         </footer>
         <InstallPrompt />
