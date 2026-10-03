@@ -22,6 +22,7 @@ import { MFAllocationCard } from "@/components/dashboard/MFAllocationCard";
 import { NRIOptionsCard } from "@/components/dashboard/NRIOptionsCard";
 import { NRITaxDrawer } from "@/components/dashboard/NRITaxDrawer";
 import { RealityCheckCard } from "@/components/dashboard/RealityCheckCard";
+import { RNORWindowCard } from "@/components/dashboard/RNORWindowCard";
 import { ReturnsCard } from "@/components/dashboard/ReturnsCard";
 import { RoadmapCard } from "@/components/dashboard/RoadmapCard";
 import { StartInvestingCard } from "@/components/dashboard/StartInvestingCard";
@@ -170,8 +171,18 @@ export function Dashboard() {
 
   const goalLabel = complete.goal.replace(/_/g, " ");
 
-  // If user switched to NRI tab but then turned off NRI, fall back to overview.
-  const effectiveTab = dashboardTab === "nri" && !isNRI ? "overview" : dashboardTab;
+  // Living abroad and retiring in India — the NRI tools apply even if they
+  // never tick the NRI checkbox.
+  const returningToIndia = isExpatMode && destinationCountry?.code === "IN";
+  const showNRI = isNRI || returningToIndia;
+  const effectiveTab = dashboardTab === "nri" && !showNRI ? "overview" : dashboardTab;
+  const rnorCard = returningToIndia ? (
+    <RNORWindowCard
+      age={complete.age}
+      freedomAge={freedom.freedomAge}
+      residentCountryName={country.name}
+    />
+  ) : null;
 
   return (
     <div className="container px-3 py-3 sm:px-8 sm:py-6 animate-fade-in">
@@ -224,7 +235,7 @@ export function Dashboard() {
       <BeginnerBanner
         onOpenHelp={() => window.dispatchEvent(new Event("bcr-fire:open-help"))}
       />
-      <DashboardNav active={effectiveTab} onChange={setDashboardTab} showNRI={isNRI} />
+      <DashboardNav active={effectiveTab} onChange={setDashboardTab} showNRI={showNRI} />
 
       <div className="mt-4 grid gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-3">
         <div className="space-y-4 sm:space-y-6 lg:col-span-2">
@@ -270,6 +281,7 @@ export function Dashboard() {
                 savingsRate={savingsRate}
                 currentCorpus={corpusInRetirementCcy}
               />
+              {rnorCard}
               <Collapsible
                 title={`More context for ${country.name}`}
                 subtitle="market returns + growth sectors"
@@ -365,6 +377,7 @@ export function Dashboard() {
                 savingsRate={savingsRate}
                 currentCorpus={corpusInRetirementCcy}
               />
+              {rnorCard}
               <RoadmapCard steps={roadmap} />
             </>
           )}
@@ -411,7 +424,7 @@ export function Dashboard() {
             </>
           )}
 
-          {effectiveTab === "nri" && isNRI && (
+          {effectiveTab === "nri" && showNRI && (
             <NRIOptionsCard
               residenceCountryCode={complete.country}
               taxCalculator={<NRITaxDrawer />}

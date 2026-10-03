@@ -136,6 +136,12 @@ export function Reveal() {
           at today's FX
         </p>
       )}
+      {isExpatMode && destinationCountry.code === "IN" && (
+        <p className="mx-auto mt-3 max-w-xl rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 text-center text-xs">
+          💡 <strong>Moving back to India?</strong> You'll likely get up to 2 years where your
+          foreign income and gains aren't taxed in India. Your plan shows how to use them.
+        </p>
+      )}
 
       {/* Plain-English explainer for someone with zero finance background */}
       <details className="mx-auto mt-4 max-w-xl rounded-lg border border-border bg-muted/30 p-3 text-sm">
