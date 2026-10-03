@@ -3,8 +3,10 @@ import { Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCountryProfile } from "@/data/countryProfiles";
 import { calculateAllocation } from "@/lib/allocation";
+import { liquidAssetsValue } from "@/lib/assets";
 import { calculateFreedom } from "@/lib/freedom";
 import { projectGoal } from "@/lib/goals";
+import { projectWindfalls, totalWindfallsAtRetirement } from "@/lib/windfalls";
 import { toUserInput, useUserStore } from "@/store/userStore";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -26,6 +28,8 @@ interface Props {
 export function ExportPlanButton({ size = "sm", compact = false }: Props) {
   const inputs = useUserStore((s) => s.inputs);
   const goals = useUserStore((s) => s.goals);
+  const assets = useUserStore((s) => s.assets);
+  const windfallsList = useUserStore((s) => s.windfalls);
 
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -46,16 +50,28 @@ export function ExportPlanButton({ size = "sm", compact = false }: Props) {
       retirementCountry: destinationCountry,
       freedomAge: inputs.freedomAge,
     });
+    // Same corpus + windfall rules as the Dashboard, so the PDF matches the screen.
+    const currentCorpus =
+      assets.length > 0 ? liquidAssetsValue(assets) : inputs.currentCorpus ?? 0;
+    const retirementYear =
+      CURRENT_YEAR + ((inputs.freedomAge ?? destinationCountry.retirementAge) - complete.age);
+    const windfalls = projectWindfalls(
+      windfallsList,
+      CURRENT_YEAR,
+      retirementYear,
+      allocation.expectedReturn,
+    );
     const freedom = calculateFreedom({
       ...complete,
       expectedReturn: allocation.expectedReturn,
       savingsRate: inputs.savingsRate ?? 0.3,
-      currentCorpus: inputs.currentCorpus ?? 0,
+      currentCorpus,
       freedomAge: inputs.freedomAge,
       householdSize: inputs.householdSize ?? "single",
       annualExpensesOverride: inputs.annualExpensesOverride,
       retirementCountry: inputs.retirementCountry,
       retirementCity: inputs.retirementCity,
+      windfallsAtRetirement: totalWindfallsAtRetirement(windfalls),
     });
     const goalProjections = goals.map((g) =>
       projectGoal(g, CURRENT_YEAR, destinationCountry.inflationRate, allocation.expectedReturn),
@@ -68,10 +84,11 @@ export function ExportPlanButton({ size = "sm", compact = false }: Props) {
       freedom,
       goals,
       goalProjections,
+      windfalls,
       savingsRate: inputs.savingsRate ?? 0.3,
-      currentCorpus: inputs.currentCorpus ?? 0,
+      currentCorpus,
     };
-  }, [inputs, goals]);
+  }, [inputs, goals, assets, windfallsList]);
 
   const onExport = async () => {
     if (!context || busy) return;
