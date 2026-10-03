@@ -19,6 +19,7 @@
 import type { CountryCode, ExpenseBasis, FreedomProjection, HouseholdSize, UserInput } from "@/types";
 import { getCountryProfile } from "@/data/countryProfiles";
 import { convertCurrency } from "@/lib/fx";
+import { findCity } from "@/data/cities";
 
 export interface FreedomInput extends UserInput {
   /** Blended expected nominal return, usually from `calculateAllocation`. */
@@ -45,6 +46,8 @@ export interface FreedomInput extends UserInput {
    * Subtracted from the FIRE target before computing the required SIP.
    */
   windfallsAtRetirement?: number;
+  /** City id in the retirement country — scales the expense benchmark. */
+  retirementCity?: string;
 }
 
 const DEFAULT_SAVINGS_RATE = 0.3;
@@ -139,10 +142,11 @@ export function calculateFreedom(input: FreedomInput): FreedomProjection {
   // for a family that actually spends ~₹14 L/yr today. The benchmark anchors the
   // calculation in real cost-of-living data; the user can dial it up via override
   // if they're at a premium lifestyle.
+  const city = findCity(retireProfile.code, input.retirementCity);
   const benchmarkExpenses =
-    householdSize === "family"
+    (householdSize === "family"
       ? retireProfile.averageAnnualExpensesFamily
-      : retireProfile.averageAnnualExpensesSingle;
+      : retireProfile.averageAnnualExpensesSingle) * (city?.multiplier ?? 1);
   let currentAnnualExpenses: number;
   let expenseBasis: ExpenseBasis;
   if (input.annualExpensesOverride != null && input.annualExpensesOverride > 0) {
@@ -305,6 +309,7 @@ export function calculateFreedom(input: FreedomInput): FreedomProjection {
     currentAnnualExpenses,
     expenseBasis,
     householdSize,
+    cityName: city?.name,
     freedomAge,
     inflationRateUsed: inflation,
     monthlyInvestmentRequired,

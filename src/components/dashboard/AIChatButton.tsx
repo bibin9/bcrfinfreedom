@@ -77,6 +77,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
       householdSize: inputs.householdSize ?? "single",
       annualExpensesOverride: inputs.annualExpensesOverride,
       retirementCountry: inputs.retirementCountry,
+      retirementCity: inputs.retirementCity,
     });
     return {
       user: complete,

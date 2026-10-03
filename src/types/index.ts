@@ -240,6 +240,8 @@ export interface FreedomProjection {
   expenseBasis: ExpenseBasis;
   /** Household size the benchmark was resolved against ("single" or "family"). */
   householdSize: HouseholdSize;
+  /** Retirement city the benchmark was scaled for, if one was picked. */
+  cityName?: string;
   /** Age the user has chosen (or defaulted) for financial freedom. */
   freedomAge: number;
   /** Country inflation rate used (decimal). */

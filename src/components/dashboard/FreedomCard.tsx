@@ -194,7 +194,7 @@ export function FreedomCard({
                 /yr ·{" "}
                 {projection.expenseBasis === "override"
                   ? "your entered expenses"
-                  : `${country.name} ${projection.householdSize === "family" ? "family" : "single"} benchmark`}
+                  : `typical ${projection.householdSize === "family" ? "family" : "single person"} in ${projection.cityName ?? country.name}`}
               </p>
             </div>
           </div>

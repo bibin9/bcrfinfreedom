@@ -55,6 +55,7 @@ export function ExportPlanButton({ size = "sm", compact = false }: Props) {
       householdSize: inputs.householdSize ?? "single",
       annualExpensesOverride: inputs.annualExpensesOverride,
       retirementCountry: inputs.retirementCountry,
+      retirementCity: inputs.retirementCity,
     });
     const goalProjections = goals.map((g) =>
       projectGoal(g, CURRENT_YEAR, destinationCountry.inflationRate, allocation.expectedReturn),

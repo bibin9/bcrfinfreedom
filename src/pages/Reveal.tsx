@@ -13,6 +13,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Term } from "@/components/ui/term";
 import { getCountryProfile } from "@/data/countryProfiles";
+import { citiesFor } from "@/data/cities";
+import { CitySelect } from "@/components/dashboard/CitySelect";
 import { calculateAllocation } from "@/lib/allocation";
 import { calculateFreedom } from "@/lib/freedom";
 import { convertCurrency } from "@/lib/fx";
@@ -31,6 +33,7 @@ export function Reveal() {
   const setPhase = useUserStore((s) => s.setPhase);
   const setFreedomAge = useUserStore((s) => s.setFreedomAge);
   const setSavingsRate = useUserStore((s) => s.setSavingsRate);
+  const setRetirementCity = useUserStore((s) => s.setRetirementCity);
 
   const savingsRate = inputs.savingsRate ?? 0.3;
   const currentCorpus = inputs.currentCorpus ?? 0;
@@ -67,6 +70,7 @@ export function Reveal() {
       householdSize,
       annualExpensesOverride,
       retirementCountry: retirementCountryCode,
+      retirementCity: inputs.retirementCity,
     });
     return { allocation: a, freedom: f };
   }, [
@@ -78,6 +82,7 @@ export function Reveal() {
     householdSize,
     annualExpensesOverride,
     retirementCountryCode,
+    inputs.retirementCity,
   ]);
 
   if (!complete || !country || !destinationCountry || !allocation || !freedom) {
@@ -124,6 +129,19 @@ export function Reveal() {
         age {freedom.freedomAge}, inflated at {destinationCountry.name}'s{" "}
         {(destinationCountry.inflationRate * 100).toFixed(1)}% <Term>Inflation</Term>.
       </p>
+      {citiesFor(destinationCountry.code).length > 0 && (
+        <div className="mx-auto mt-3 flex max-w-md flex-col items-center gap-1.5 sm:flex-row sm:justify-center">
+          <span className="text-xs text-muted-foreground">
+            Where will you live after you stop working?
+          </span>
+          <CitySelect
+            country={destinationCountry.code}
+            value={inputs.retirementCity}
+            onChange={setRetirementCity}
+            className="h-8 w-56 text-xs"
+          />
+        </div>
+      )}
       {isExpatMode && (
         <p className="mt-2 text-center text-xs text-muted-foreground">
           {country.flag} Living {country.name} · {destinationCountry.flag} Retiring{" "}

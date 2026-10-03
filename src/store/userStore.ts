@@ -96,6 +96,8 @@ interface UserState {
     annualExpensesOverride?: number;
     /** Country the user plans to retire in. If absent, equals `country`. */
     retirementCountry?: CountryCode;
+    /** City (id from data/cities.ts) they'll live in after they stop working. */
+    retirementCity?: string;
   };
   scenarios: Scenario[];
   checkins: Checkin[];
@@ -121,6 +123,7 @@ interface UserState {
   setAnnualExpensesOverride: (expenses: number | undefined) => void;
   /** Override the country the user plans to retire in (expat dual-country mode). */
   setRetirementCountry: (code: CountryCode | undefined) => void;
+  setRetirementCity: (cityId: string | undefined) => void;
   /** Snapshot current inputs as a named scenario. */
   saveScenario: (name: string) => void;
   /** Apply a previously saved scenario back into inputs. */
@@ -201,7 +204,8 @@ export const useUserStore = create<UserState>()(
 
       setPhase: (phase) => set({ phase }),
       setDashboardTab: (dashboardTab) => set({ dashboardTab }),
-      setCountry: (code) => set((s) => ({ inputs: { ...s.inputs, country: code } })),
+      setCountry: (code) =>
+        set((s) => ({ inputs: { ...s.inputs, country: code, retirementCity: undefined } })),
       setAge: (age) => set((s) => ({ inputs: { ...s.inputs, age } })),
       setMonthlyIncome: (monthlyIncome) => set((s) => ({ inputs: { ...s.inputs, monthlyIncome } })),
       setRisk: (risk) => set((s) => ({ inputs: { ...s.inputs, risk } })),
@@ -216,7 +220,9 @@ export const useUserStore = create<UserState>()(
       setAnnualExpensesOverride: (annualExpensesOverride) =>
         set((s) => ({ inputs: { ...s.inputs, annualExpensesOverride } })),
       setRetirementCountry: (retirementCountry) =>
-        set((s) => ({ inputs: { ...s.inputs, retirementCountry } })),
+        set((s) => ({ inputs: { ...s.inputs, retirementCountry, retirementCity: undefined } })),
+      setRetirementCity: (retirementCity) =>
+        set((s) => ({ inputs: { ...s.inputs, retirementCity } })),
       saveScenario: (name) =>
         set((s) => ({
           scenarios: [

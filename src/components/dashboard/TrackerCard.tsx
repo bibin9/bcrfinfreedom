@@ -407,6 +407,7 @@ function useScenarioProjection(scn: Scenario) {
       householdSize: scn.inputs.householdSize ?? "single",
       annualExpensesOverride: scn.inputs.annualExpensesOverride,
       retirementCountry: scn.inputs.retirementCountry,
+      retirementCity: scn.inputs.retirementCity,
     });
   }, [scn]);
 }

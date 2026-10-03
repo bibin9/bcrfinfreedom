@@ -89,6 +89,7 @@ Primary goal: ${ctx.user.goal.replace(/_/g, " ")}
 Expected blended return: ${(ctx.allocation.expectedReturn * 100).toFixed(1)}%/yr
 Inflation (destination): ${(ctx.freedom.inflationRateUsed * 100).toFixed(1)}%/yr
 Household: ${ctx.freedom.householdSize}
+City after retiring: ${ctx.freedom.cityName ?? "not chosen (country average)"}
 
 == FIRE target ==
 Target FIRE corpus (at retirement): ${money(ctx.freedom.targetCorpus)}

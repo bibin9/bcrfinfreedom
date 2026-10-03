@@ -50,6 +50,7 @@ export function Dashboard() {
   const setHouseholdSize = useUserStore((s) => s.setHouseholdSize);
   const setAnnualExpensesOverride = useUserStore((s) => s.setAnnualExpensesOverride);
   const setRetirementCountry = useUserStore((s) => s.setRetirementCountry);
+  const setRetirementCity = useUserStore((s) => s.setRetirementCity);
   const dashboardTab = useUserStore((s) => s.dashboardTab);
   const setDashboardTab = useUserStore((s) => s.setDashboardTab);
   const complete = toUserInput(inputs);
@@ -127,6 +128,7 @@ export function Dashboard() {
       householdSize,
       annualExpensesOverride,
       retirementCountry: retirementCountryCode,
+      retirementCity: inputs.retirementCity,
       windfallsAtRetirement: windfallsCredit,
     });
   }, [
@@ -138,6 +140,7 @@ export function Dashboard() {
     householdSize,
     annualExpensesOverride,
     retirementCountryCode,
+    inputs.retirementCity,
     windfallsCredit,
   ]);
 
@@ -448,6 +451,8 @@ export function Dashboard() {
             onHouseholdSize={setHouseholdSize}
             onAnnualExpensesOverride={setAnnualExpensesOverride}
             onRetirementCountry={setRetirementCountry}
+            retirementCity={inputs.retirementCity}
+            onRetirementCity={setRetirementCity}
           />
           <Card>
             <CardHeader>

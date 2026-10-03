@@ -11,6 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { countryList } from "@/data/countryProfiles";
+import { citiesFor, findCity } from "@/data/cities";
+import { CitySelect } from "@/components/dashboard/CitySelect";
 import type { CountryCode, CountryProfile, HouseholdSize } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
 
@@ -30,6 +32,8 @@ interface Props {
   onHouseholdSize: (size: HouseholdSize) => void;
   onAnnualExpensesOverride: (expenses: number | undefined) => void;
   onRetirementCountry: (code: CountryCode | undefined) => void;
+  retirementCity: string | undefined;
+  onRetirementCity: (cityId: string | undefined) => void;
 }
 
 export function TunePanel({
@@ -47,15 +51,18 @@ export function TunePanel({
   onHouseholdSize,
   onAnnualExpensesOverride,
   onRetirementCountry,
+  retirementCity,
+  onRetirementCity,
 }: Props) {
   const minFreedom = Math.max(currentAge + 1, 35);
   const maxFreedom = 75;
   // Benchmark + override are always denominated in the RETIREMENT country's
   // currency, so reference that profile.
+  const city = findCity(destinationCountry.code, retirementCity);
   const benchmark =
-    householdSize === "family"
+    (householdSize === "family"
       ? destinationCountry.averageAnnualExpensesFamily
-      : destinationCountry.averageAnnualExpensesSingle;
+      : destinationCountry.averageAnnualExpensesSingle) * (city?.multiplier ?? 1);
   const isExpat = destinationCountry.code !== country.code;
 
   return (
@@ -194,12 +201,23 @@ export function TunePanel({
               Family of 4
             </button>
           </div>
+          {citiesFor(destinationCountry.code).length > 0 && (
+            <div className="space-y-1 pt-1">
+              <Label className="text-xs">Where you'll live after you stop working</Label>
+              <CitySelect
+                country={destinationCountry.code}
+                value={retirementCity}
+                onChange={onRetirementCity}
+                className="bg-background text-xs"
+              />
+            </div>
+          )}
           <p className="text-xs text-muted-foreground">
-            {destinationCountry.name} mid-lifestyle benchmark:{" "}
+            Typical yearly spend in {city?.name ?? destinationCountry.name}:{" "}
             <span className="font-semibold text-foreground">
               {formatCurrency(benchmark, destinationCountry, { compact: true })}/yr
             </span>
-            . Used when no override is set.
+            . Used unless you enter your own expenses below.
           </p>
         </div>
 
