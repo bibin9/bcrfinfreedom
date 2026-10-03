@@ -55,6 +55,8 @@ export function Reveal() {
       risk: complete.risk,
       country,
       goal: complete.goal,
+      retirementCountry: destinationCountry ?? undefined,
+      freedomAge: freedomAgeInput,
     });
     const f = calculateFreedom({
       ...complete,

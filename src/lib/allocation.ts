@@ -1,39 +1,28 @@
 /**
- * Allocation engine.
+ * Allocation engine — recommends a portfolio mix from age, risk appetite,
+ * country, goal and (for expats) the country the user will retire in.
  *
- * Produces a recommended portfolio mix from a small set of inputs:
- *   age, risk appetite, country, financial goal.
+ *   1. Shares (equity) start from "100 − age", clamped to 25–90%.
+ *   2. Risk appetite scales that up or down; unstable economies and short-horizon
+ *      goals pull it down.
+ *   3. Shares split between home country and the world. Home bias follows where
+ *      the user will spend: deep markets with their own currency (India) stay
+ *      mostly local; small markets pegged to the US dollar (UAE, Saudi) go global.
+ *   4. Expats retiring elsewhere hold a destination-country slice that grows from
+ *      30% to 70% of their shares as retirement approaches (glide path), so the
+ *      money ends up in the currency they'll spend.
+ *   5. Safe money: emergency cash first, then at least 60% of what's left goes to
+ *      bonds; gold and property share the rest.
+ *   6. Crypto only for aggressive investors under 60 in stable countries, capped
+ *      at 5%, funded from international shares.
  *
- * Model (transparent and easily auditable):
- *
- *   1. Baseline equity weight uses the classic "100 - age" heuristic,
- *      clamped to [25, 90] so very young / very old users still have a
- *      sensible floor and ceiling.
- *
- *   2. A risk multiplier shifts equity up (aggressive) or down (conservative).
- *
- *   3. A country stabilityScore <0.7 nudges equity down and bonds/gold up:
- *      the reasoning is that in less stable economies, retail equities carry
- *      more idiosyncratic risk and residents typically benefit from a larger
- *      defensive / hard-asset cushion.
- *
- *   4. Goal-based tilts (early retirement bumps equities; home purchase /
- *      child education shift toward bonds + cash because the horizon is
- *      usually shorter and withdrawal-date-sensitive).
- *
- *   5. Equities are split local / international (home bias capped at 60%).
- *
- *   6. Crypto is ONLY added for aggressive risk, max 5%, and only in countries
- *      where the regulator has not outright banned retail crypto access.
- *      We take stabilityScore + age as a secondary signal (no crypto for 60+).
- *
- * The function also returns a human-readable `explanation` list so the UI can
- * "show the math" — this is a requirement of the product spec.
+ * Explanations are written for someone with no finance background.
  */
 
 import type {
   AllocationBreakdown,
   AllocationResult,
+  CountryCode,
   CountryProfile,
   FinancialGoal,
   RiskProfile,
@@ -49,144 +38,158 @@ const RISK_MULTIPLIER: Record<RiskProfile, number> = {
 const GOAL_EQUITY_TILT: Record<FinancialGoal, number> = {
   early_retirement: +0.05,
   wealth_building: +0.03,
-  passive_income: -0.05, // favours yield-producing assets (bonds, REITs)
-  child_education: -0.07, // often shorter / dated horizon
-  home_purchase: -0.12, // typically shortest horizon, capital preservation matters
+  passive_income: -0.05,
+  child_education: -0.07,
+  home_purchase: -0.12,
 };
+
+/** Share of equity kept in the home market, where a simple formula gets it wrong. */
+const HOME_BIAS: Partial<Record<CountryCode, { share: number; reason: string }>> = {
+  IN: {
+    share: 0.8,
+    reason:
+      "Most of your shares stay in Indian companies — your future bills are in rupees and India's market is large enough to spread risk.",
+  },
+  AE: {
+    share: 0.35,
+    reason:
+      "Most of your shares are global — the UAE market is small, and the dirham is tied to the US dollar, so global funds carry little currency risk.",
+  },
+  SA: {
+    share: 0.45,
+    reason:
+      "More than half your shares are global — the Saudi market is concentrated in a few sectors, and the riyal is tied to the US dollar.",
+  },
+  US: {
+    share: 0.7,
+    reason: "Most of your shares stay in the US — it's the world's largest market and your bills are in dollars.",
+  },
+};
+
+const MIN_BOND_SHARE_OF_SAFE_MONEY = 0.6;
 
 export interface AllocationInput {
   age: number;
   risk: RiskProfile;
   country: CountryProfile;
   goal: FinancialGoal;
+  /** Country the user will retire in, if different from `country`. */
+  retirementCountry?: CountryProfile;
+  /** Target freedom age — drives the expat glide path. */
+  freedomAge?: number;
 }
 
-/**
- * Core allocation function. Returns percentages that sum to 100 (±0.1 due to
- * rounding — the UI should render the breakdown array verbatim).
- */
+/** Fraction of equity held in the retirement country: 30% far out → 70% within 5 years. */
+export function destinationEquityShare(yearsToRetirement: number): number {
+  if (yearsToRetirement >= 15) return 0.3;
+  if (yearsToRetirement <= 5) return 0.7;
+  return 0.3 + ((15 - yearsToRetirement) / 10) * 0.4;
+}
+
 export function calculateAllocation(input: AllocationInput): AllocationResult {
   const { age, risk, country, goal } = input;
+  const destination =
+    input.retirementCountry && input.retirementCountry.code !== country.code
+      ? input.retirementCountry
+      : null;
   const explanation: string[] = [];
 
-  // 1. Baseline equity weight.
+  // 1–2. How much in shares.
   const baseEquity = clamp(100 - age, 25, 90) / 100;
   explanation.push(
-    `Baseline equity weight from the "100 − age" rule: ${Math.round(baseEquity * 100)}% (age ${age}).`,
+    `Starting point: at ${age}, keep about ${Math.round(baseEquity * 100)}% in shares — the "100 minus your age" rule of thumb. Younger people have more time to ride out market falls.`,
   );
 
-  // 2. Apply risk multiplier.
   let equity = baseEquity * RISK_MULTIPLIER[risk];
-  explanation.push(
-    `Risk profile "${risk}" multiplies equity by ${RISK_MULTIPLIER[risk].toFixed(2)} → ${Math.round(equity * 100)}%.`,
-  );
+  if (risk !== "moderate") {
+    explanation.push(
+      risk === "aggressive"
+        ? `You chose aggressive, so shares go up to ${Math.round(equity * 100)}% — more growth, bigger swings.`
+        : `You chose conservative, so shares come down to ${Math.round(equity * 100)}% — steadier, slower growth.`,
+    );
+  }
 
-  // 3. Country stability adjustment.
   const stabilityDrag = country.stabilityScore < 0.7 ? (0.7 - country.stabilityScore) * 0.5 : 0;
   if (stabilityDrag > 0) {
     equity -= stabilityDrag;
     explanation.push(
-      `${country.name}'s stability score (${country.stabilityScore.toFixed(2)}) reduces equity by ${Math.round(
-        stabilityDrag * 100,
-      )}% and adds it to defensive assets.`,
+      `${country.name}'s economy swings more than most, so ${Math.round(stabilityDrag * 100)}% moves from shares into safer assets.`,
     );
   }
 
-  // 4. Goal tilt.
   const goalTilt = GOAL_EQUITY_TILT[goal];
-  equity += goalTilt;
-  explanation.push(
-    `Goal "${goal.replace(/_/g, " ")}" tilts equity by ${goalTilt >= 0 ? "+" : ""}${Math.round(
-      goalTilt * 100,
-    )}%.`,
-  );
-
-  equity = clamp(equity, 0.2, 0.9);
-
-  // 5. Split equity home/international.
-  //    Home bias scales with stability — more stable markets get a larger
-  //    local share. Capped at 60% local, floored at 30% local.
-  const localShare = clamp(0.3 + country.stabilityScore * 0.4, 0.3, 0.6);
-  const equityLocal = equity * localShare;
-  const equityIntl = equity * (1 - localShare);
-
-  // 6. Defensive sleeve composition — bonds / gold / real estate / cash.
-  const remaining = 1 - equity;
-
-  // Emergency-fund-driven cash floor: 5% if 6-month norm, 10% if 9m+, 15% if 12m.
-  const cashFloor =
-    country.emergencyFundMonths >= 12 ? 0.15 : country.emergencyFundMonths >= 9 ? 0.1 : 0.05;
-
-  // Gold/commodities weight scales down with stability (gold is insurance).
-  const goldWeight = clamp(0.05 + (1 - country.stabilityScore) * 0.15 + stabilityDrag, 0.03, 0.2);
-
-  // Real estate weight: steady 10% in the defensive sleeve for moderate/aggressive;
-  // 7% for conservative (they prefer pure fixed income).
-  const realEstateWeight = risk === "conservative" ? 0.07 : 0.1;
-
-  // Bonds / sukuk = whatever defensive remains after cash, gold, real estate.
-  let bonds = remaining - cashFloor - goldWeight - realEstateWeight;
-
-  // Crypto only for aggressive, not already-retired users, and non-extreme-volatility economies.
-  let crypto = 0;
-  if (risk === "aggressive" && age < 60 && country.stabilityScore >= 0.5) {
-    crypto = 0.05;
-    // Take it from bonds first, then equity international if bonds would go negative.
-    bonds -= crypto;
-    if (bonds < 0) {
-      const shortfall = -bonds;
-      bonds = 0;
-      // Reduce intl equity to cover.
-      // Safe because equityIntl >= shortfall in practice (we cap crypto at 5%).
-      const newEquityIntl = Math.max(0, equityIntl - shortfall);
-      explanation.push(
-        `Crypto funded partially from international equities to keep bonds ≥ 0%.`,
-      );
-      return assemble({
-        country,
-        equityLocal,
-        equityIntl: newEquityIntl,
-        bonds,
-        realEstate: realEstateWeight,
-        gold: goldWeight,
-        cash: cashFloor,
-        crypto,
-        equity,
-        explanation,
-      });
-    }
-    explanation.push(`Aggressive profile adds a 5% crypto sleeve (capped, funded from bonds).`);
+  equity = clamp(equity + goalTilt, 0.2, 0.9);
+  if (goalTilt < 0) {
+    explanation.push(
+      `Your goal (${goal.replace(/_/g, " ")}) needs money on a fixed date, so ${Math.round(-goalTilt * 100)}% less goes into shares.`,
+    );
+  } else {
+    explanation.push(
+      `Your goal (${goal.replace(/_/g, " ")}) is long-term, so shares get a small ${Math.round(goalTilt * 100)}% boost.`,
+    );
   }
 
-  // Ensure no negative bond weight from stacking (edge cases).
-  if (bonds < 0) {
-    const borrow = -bonds;
-    bonds = 0;
-    // Reduce gold first, then real estate.
-    const newGold = Math.max(0.03, goldWeight - borrow);
-    explanation.push(`Rebalanced: reduced gold slightly to keep bonds non-negative.`);
-    return assemble({
-      country,
-      equityLocal,
-      equityIntl,
-      bonds,
-      realEstate: realEstateWeight,
-      gold: newGold,
-      cash: cashFloor,
-      crypto,
-      equity,
-      explanation,
-    });
+  // 3–4. Where the shares go.
+  const bias = HOME_BIAS[country.code];
+  let homeShare = bias?.share ?? clamp(0.3 + country.stabilityScore * 0.4, 0.3, 0.6);
+
+  let equityDest = 0;
+  if (destination) {
+    const years = Math.max(0, (input.freedomAge ?? destination.retirementAge) - age);
+    const destShare = destinationEquityShare(years);
+    equityDest = equity * destShare;
+    // You're leaving — your current country's market matters less.
+    homeShare *= 0.5;
+    explanation.push(
+      `You'll retire in ${destination.name}, so ${Math.round(destShare * 100)}% of your shares go into ${destination.name}'s market. This rises to 70% in your last 5 years of work, so your money is already in the currency you'll spend.`,
+    );
+  } else if (bias) {
+    explanation.push(bias.reason);
+  }
+
+  const nonDestEquity = equity - equityDest;
+  const equityLocal = nonDestEquity * homeShare;
+  let equityIntl = nonDestEquity - equityLocal;
+
+  // 5. Safe money.
+  const remaining = 1 - equity;
+  const cash =
+    country.emergencyFundMonths >= 12 ? 0.15 : country.emergencyFundMonths >= 9 ? 0.1 : 0.05;
+  const rest = Math.max(0, remaining - cash);
+
+  let gold = clamp(0.05 + (1 - country.stabilityScore) * 0.15 + stabilityDrag, 0.03, 0.2);
+  let realEstate = risk === "conservative" ? 0.04 : 0.06;
+  const spaceForGoldAndProperty = rest * (1 - MIN_BOND_SHARE_OF_SAFE_MONEY);
+  if (gold + realEstate > spaceForGoldAndProperty) {
+    const k = spaceForGoldAndProperty / (gold + realEstate);
+    gold *= k;
+    realEstate *= k;
+  }
+  const bonds = rest - gold - realEstate;
+  explanation.push(
+    `Safe money: ${country.emergencyFundMonths} months of expenses as emergency cash, then most of the rest in bonds — they hold steady when share prices fall.`,
+  );
+
+  // 6. Crypto.
+  let crypto = 0;
+  if (risk === "aggressive" && age < 60 && country.stabilityScore >= 0.5) {
+    crypto = Math.min(0.05, equityIntl);
+    equityIntl -= crypto;
+    explanation.push(
+      `Because you chose aggressive, a small ${Math.round(crypto * 100)}% crypto slice is taken from international shares. It's capped so a crash can't sink your plan.`,
+    );
   }
 
   return assemble({
     country,
+    destination,
     equityLocal,
     equityIntl,
+    equityDest,
     bonds,
-    realEstate: realEstateWeight,
-    gold: goldWeight,
-    cash: cashFloor,
+    realEstate,
+    gold,
+    cash,
     crypto,
     equity,
     explanation,
@@ -195,8 +198,10 @@ export function calculateAllocation(input: AllocationInput): AllocationResult {
 
 interface AssembleArgs {
   country: CountryProfile;
+  destination: CountryProfile | null;
   equityLocal: number;
   equityIntl: number;
+  equityDest: number;
   bonds: number;
   realEstate: number;
   gold: number;
@@ -206,79 +211,95 @@ interface AssembleArgs {
   explanation: string[];
 }
 
-function assemble(args: AssembleArgs): AllocationResult {
-  const { country, equityLocal, equityIntl, bonds, realEstate, gold, cash, crypto, equity, explanation } =
-    args;
+function bondExamples(country: CountryProfile): string {
+  if (country.code === "IN") return "PPF, debt mutual funds, government bonds";
+  if (country.shariaMarket) return "sukuk and government bonds";
+  return "government bonds and bond funds";
+}
 
-  // Normalize to sum to exactly 1 before rendering.
-  const total = equityLocal + equityIntl + bonds + realEstate + gold + cash + crypto;
+function assemble(a: AssembleArgs): AllocationResult {
+  const total =
+    a.equityLocal + a.equityIntl + a.equityDest + a.bonds + a.realEstate + a.gold + a.cash + a.crypto;
   const scale = total > 0 ? 1 / total : 1;
-
-  const bondLabel = country.shariaMarket ? "Bonds / Sukuk" : "Bonds & Fixed Income";
+  const pct = (v: number) => round(v * scale * 100, 1);
+  const index = a.country.indices[0];
 
   const breakdown: AllocationBreakdown[] = [
     {
       asset: "equities_local",
-      label: `Local Equities (${country.indices[0]?.ticker ?? country.name})`,
-      percent: round(equityLocal * scale * 100, 1),
-      rationale: `Core growth engine — home-country index exposure via ${country.indices[0]?.name ?? "local index"}.`,
-    },
-    {
-      asset: "equities_international",
-      label: "International Equities",
-      percent: round(equityIntl * scale * 100, 1),
-      rationale:
-        "Diversification away from single-country risk; typically accessed via global ETFs (MSCI World / S&P 500).",
-    },
-    {
-      asset: "bonds_fixed_income",
-      label: bondLabel,
-      percent: round(bonds * scale * 100, 1),
-      rationale: country.shariaMarket
-        ? "Income stability from sukuk or government fixed income."
-        : "Ballast that reduces portfolio volatility during equity drawdowns.",
-    },
-    {
-      asset: "real_estate",
-      label: "Real Estate / REITs",
-      percent: round(realEstate * scale * 100, 1),
-      rationale: "Inflation-linked income and an additional diversification layer.",
-    },
-    {
-      asset: "gold_commodities",
-      label: "Gold / Commodities",
-      percent: round(gold * scale * 100, 1),
-      rationale: "Hedge against currency devaluation and geopolitical stress.",
-    },
-    {
-      asset: "cash_emergency",
-      label: "Cash / Emergency Fund",
-      percent: round(cash * scale * 100, 1),
-      rationale: `Emergency buffer sized for ${country.emergencyFundMonths} months of expenses.`,
+      label: `${a.country.name} shares (${index?.ticker ?? "local index"})`,
+      percent: pct(a.equityLocal),
+      rationale: `Your country's biggest companies, through ${index?.name ?? "the local index"}. The main engine that grows your money over decades.`,
     },
   ];
 
-  if (crypto > 0) {
+  if (a.destination) {
+    const dIndex = a.destination.indices[0];
     breakdown.push({
-      asset: "crypto",
-      label: "Crypto (capped)",
-      percent: round(crypto * scale * 100, 1),
-      rationale: "High-risk, high-reward sleeve. Capped at 5% and only for aggressive profiles.",
+      asset: "equities_destination",
+      label: `${a.destination.name} shares (${dIndex?.ticker ?? "index"})`,
+      percent: pct(a.equityDest),
+      rationale: `Shares in the country you'll retire in, so your savings grow in the currency you'll spend. This slice grows as retirement gets closer.`,
     });
   }
 
+  breakdown.push(
+    {
+      asset: "equities_international",
+      label: "Global shares",
+      percent: pct(a.equityIntl),
+      rationale:
+        "Companies around the world through low-cost global index funds, so you're not betting everything on one economy.",
+    },
+    {
+      asset: "bonds_fixed_income",
+      label: a.country.shariaMarket ? "Bonds / Sukuk" : "Bonds & fixed income",
+      percent: pct(a.bonds),
+      rationale: `Steady, lower-risk investments (${bondExamples(a.country)}). They cushion you when share prices fall.`,
+    },
+    {
+      asset: "real_estate",
+      label: "Property (REITs)",
+      percent: pct(a.realEstate),
+      rationale: "Earns rent-like income from offices and malls, without buying a flat yourself.",
+    },
+    {
+      asset: "gold_commodities",
+      label: "Gold",
+      percent: pct(a.gold),
+      rationale: "Protects you when your currency weakens or markets panic. Gold ETFs or bonds, not jewellery.",
+    },
+    {
+      asset: "cash_emergency",
+      label: "Emergency cash",
+      percent: pct(a.cash),
+      rationale: `About ${a.country.emergencyFundMonths} months of expenses you can reach instantly if you lose your job or fall ill.`,
+    },
+  );
+
+  if (a.crypto > 0) {
+    breakdown.push({
+      asset: "crypto",
+      label: "Crypto (capped)",
+      percent: pct(a.crypto),
+      rationale: "A small, high-risk bet. Capped at 5% so a crash can't hurt your plan.",
+    });
+  }
+
+  const destEquityReturn = a.destination?.expectedEquityReturn ?? a.country.expectedEquityReturn;
   const expectedReturn =
-    (equityLocal + equityIntl) * scale * country.expectedEquityReturn +
-    bonds * scale * country.expectedBondReturn +
-    realEstate * scale * (country.expectedEquityReturn * 0.7) +
-    gold * scale * 0.05 +
-    cash * scale * 0.03 +
-    crypto * scale * 0.15;
+    (a.equityLocal + a.equityIntl) * scale * a.country.expectedEquityReturn +
+    a.equityDest * scale * destEquityReturn +
+    a.bonds * scale * a.country.expectedBondReturn +
+    a.realEstate * scale * (a.country.expectedEquityReturn * 0.7) +
+    a.gold * scale * 0.05 +
+    a.cash * scale * 0.03 +
+    a.crypto * scale * 0.15;
 
   return {
     breakdown,
     expectedReturn,
-    equityWeight: round(equity * 100, 1),
-    explanation,
+    equityWeight: round(a.equity * 100, 1),
+    explanation: a.explanation,
   };
 }

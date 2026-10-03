@@ -95,8 +95,10 @@ export function Dashboard() {
       risk: complete.risk,
       country,
       goal: complete.goal,
+      retirementCountry: destinationCountry ?? undefined,
+      freedomAge,
     });
-  }, [complete, country]);
+  }, [complete, country, destinationCountry, freedomAge]);
 
   // Translate the user's windfalls into a FV credit at retirement age so the
   // required SIP can be reduced accordingly.
@@ -377,11 +379,7 @@ export function Dashboard() {
           )}
 
           {effectiveTab === "tracker" && (
-            <TrackerCard
-              country={destinationCountry ?? country}
-              projection={freedom}
-              age={complete.age}
-            />
+            <TrackerCard country={destinationCountry ?? country} projection={freedom} />
           )}
 
           {effectiveTab === "paths" && (

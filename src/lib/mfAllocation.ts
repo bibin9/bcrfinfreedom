@@ -81,8 +81,10 @@ export function calculateMFAllocation(
 ): MFAllocation {
   // Read the local vs international equity split from the top-level engine.
   const localEquity = allocation.breakdown.find((b) => b.asset === "equities_local")?.percent ?? 0;
+  // For expats, retirement-country shares are bought as a foreign fund, like international.
   const intlEquity =
-    allocation.breakdown.find((b) => b.asset === "equities_international")?.percent ?? 0;
+    (allocation.breakdown.find((b) => b.asset === "equities_international")?.percent ?? 0) +
+    (allocation.breakdown.find((b) => b.asset === "equities_destination")?.percent ?? 0);
   const bondsPercent =
     allocation.breakdown.find((b) => b.asset === "bonds_fixed_income")?.percent ?? 0;
 

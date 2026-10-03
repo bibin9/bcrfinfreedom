@@ -43,6 +43,8 @@ export function ExportPlanButton({ size = "sm", compact = false }: Props) {
       risk: complete.risk,
       country: residentCountry,
       goal: complete.goal,
+      retirementCountry: destinationCountry,
+      freedomAge: inputs.freedomAge,
     });
     const freedom = calculateFreedom({
       ...complete,

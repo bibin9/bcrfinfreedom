@@ -55,6 +55,7 @@ export function generateRoadmap(
     country.investmentVehicles.find((v) => v.category === "mutual_fund");
   const equityPercent =
     (allocation.breakdown.find((b) => b.asset === "equities_local")?.percent ?? 0) +
+    (allocation.breakdown.find((b) => b.asset === "equities_destination")?.percent ?? 0) +
     (allocation.breakdown.find((b) => b.asset === "equities_international")?.percent ?? 0);
   if (indexVehicle) {
     steps.push({

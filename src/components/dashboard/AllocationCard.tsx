@@ -24,10 +24,11 @@ export function AllocationCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recommended <Term hint k="Allocation">allocation</Term></CardTitle>
+        <CardTitle>Where to put your money</CardTitle>
         <CardDescription>
-          Blended <Term k="Expected return">expected return</Term>:{" "}
-          {formatPercent(allocation.expectedReturn)} · Equity sleeve: {allocation.equityWeight}%
+          {Math.round(allocation.equityWeight)}% in shares for growth, the rest in safer
+          assets. Expected growth about {formatPercent(allocation.expectedReturn)} a year (
+          <Term k="Expected return">long-run average</Term> — some years will be lower).
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -53,7 +54,7 @@ export function AllocationCard({
           <TabsList>
             <TabsTrigger value="breakdown">Breakdown</TabsTrigger>
             <TabsTrigger value="chart">Chart</TabsTrigger>
-            <TabsTrigger value="math">Show the math</TabsTrigger>
+            <TabsTrigger value="math">Why this mix?</TabsTrigger>
           </TabsList>
 
           <TabsContent value="chart" className="grid gap-6 md:grid-cols-[1fr_1fr]">

@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CountryProfile, FreedomProjection } from "@/types";
 import { calculateAllocation } from "@/lib/allocation";
+import { getCountryProfile } from "@/data/countryProfiles";
 import { calculateFreedom } from "@/lib/freedom";
 import { formatCurrency } from "@/lib/formatters";
 import { toUserInput, useUserStore } from "@/store/userStore";
@@ -34,15 +35,14 @@ type StoreInputs = Scenario["inputs"];
 interface Props {
   country: CountryProfile;
   projection: FreedomProjection;
-  age: number;
 }
 
 const SUGGEST_DAYS = 90; // we recommend a new check-in every quarter
 
-export function TrackerCard({ country, projection, age }: Props) {
+export function TrackerCard({ country, projection }: Props) {
   return (
     <div className="space-y-6">
-      <ScenariosSection country={country} projection={projection} age={age} />
+      <ScenariosSection country={country} projection={projection} />
       <CheckinsSection country={country} projection={projection} />
     </div>
   );
@@ -55,11 +55,9 @@ export function TrackerCard({ country, projection, age }: Props) {
 function ScenariosSection({
   country,
   projection,
-  age,
 }: {
   country: CountryProfile;
   projection: FreedomProjection;
-  age: number;
 }) {
   const scenarios = useUserStore((s) => s.scenarios);
   const saveScenario = useUserStore((s) => s.saveScenario);
@@ -152,7 +150,6 @@ function ScenariosSection({
                   key={scn.id}
                   scn={scn}
                   country={country}
-                  age={age}
                   isComparing={compareIds.includes(scn.id)}
                   onCompare={() => toggleCompare(scn.id)}
                   onApply={() => applyScenario(scn.id)}
@@ -164,7 +161,7 @@ function ScenariosSection({
 
         {/* Compare */}
         {comparePair && (
-          <CompareBlock pair={comparePair} country={country} age={age} />
+          <CompareBlock pair={comparePair} country={country} />
         )}
       </CardContent>
     </Card>
@@ -200,7 +197,6 @@ function CurrentSummary({
 function ScenarioRow({
   scn,
   country,
-  age,
   isComparing,
   onCompare,
   onApply,
@@ -208,13 +204,12 @@ function ScenarioRow({
 }: {
   scn: Scenario;
   country: CountryProfile;
-  age: number;
   isComparing: boolean;
   onCompare: () => void;
   onApply: () => void;
   onDelete: () => void;
 }) {
-  const proj = useScenarioProjection(scn, country, age);
+  const proj = useScenarioProjection(scn);
   return (
     <div
       className={[
@@ -280,14 +275,12 @@ function ScenarioRow({
 function CompareBlock({
   pair,
   country,
-  age,
 }: {
   pair: { a: Scenario; b: Scenario };
   country: CountryProfile;
-  age: number;
 }) {
-  const pA = useScenarioProjection(pair.a, country, age);
-  const pB = useScenarioProjection(pair.b, country, age);
+  const pA = useScenarioProjection(pair.a);
+  const pB = useScenarioProjection(pair.b);
   if (!pA || !pB) return null;
 
   const rows: Array<{ k: string; a: string; b: string; better?: "a" | "b" }> = [
@@ -389,17 +382,21 @@ function CompareBlock({
 // ---------------------------------------------------------------------------
 // Re-run the FIRE calc with the inputs from a saved scenario.
 
-function useScenarioProjection(scn: Scenario, country: CountryProfile, age: number) {
+function useScenarioProjection(scn: Scenario) {
   return useMemo(() => {
-    // Merge scenario inputs over current age/risk/goal/income if the scenario
-    // doesn't carry them (it always should, but be defensive).
     const complete = toUserInput({ ...scn.inputs });
     if (!complete) return null;
+    const resident = getCountryProfile(complete.country);
+    const retirement = scn.inputs.retirementCountry
+      ? getCountryProfile(scn.inputs.retirementCountry)
+      : undefined;
     const a = calculateAllocation({
       age: complete.age,
       risk: complete.risk,
-      country,
+      country: resident,
       goal: complete.goal,
+      retirementCountry: retirement,
+      freedomAge: scn.inputs.freedomAge,
     });
     return calculateFreedom({
       ...complete,
@@ -409,8 +406,9 @@ function useScenarioProjection(scn: Scenario, country: CountryProfile, age: numb
       freedomAge: scn.inputs.freedomAge,
       householdSize: scn.inputs.householdSize ?? "single",
       annualExpensesOverride: scn.inputs.annualExpensesOverride,
+      retirementCountry: scn.inputs.retirementCountry,
     });
-  }, [scn, country, age]);
+  }, [scn]);
 }
 
 function defaultName(idx: number, inputs: StoreInputs): string {

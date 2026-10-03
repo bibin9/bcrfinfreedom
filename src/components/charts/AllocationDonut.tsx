@@ -4,6 +4,7 @@ import type { AllocationBreakdown } from "@/types";
 
 const ASSET_COLORS: Record<AllocationBreakdown["asset"], string> = {
   equities_local: "#10b981",
+  equities_destination: "#f97316",
   equities_international: "#059669",
   bonds_fixed_income: "#3b82f6",
   real_estate: "#a855f7",

@@ -33,6 +33,7 @@ export type FinancialGoal =
 
 export type AssetClass =
   | "equities_local"
+  | "equities_destination"
   | "equities_international"
   | "bonds_fixed_income"
   | "real_estate"

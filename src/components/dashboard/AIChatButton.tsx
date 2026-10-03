@@ -65,6 +65,8 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
       risk: complete.risk,
       country: residentCountry,
       goal: complete.goal,
+      retirementCountry: destinationCountry,
+      freedomAge: inputs.freedomAge,
     });
     const freedom = calculateFreedom({
       ...complete,
