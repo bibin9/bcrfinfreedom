@@ -14,6 +14,8 @@ interface Props {
   /** Retirement country — FIRE and goal SIPs are computed in its currency. */
   destinationCountry: CountryProfile;
   monthlyIncome: number;
+  /** Money sent home each month, resident currency. */
+  monthlyRemittance?: number;
   savingsRate: number;
   freedom: FreedomProjection;
   expectedReturn: number;
@@ -24,6 +26,7 @@ export function CashFlowCard({
   country,
   destinationCountry,
   monthlyIncome,
+  monthlyRemittance = 0,
   savingsRate,
   freedom,
   expectedReturn,
@@ -34,6 +37,7 @@ export function CashFlowCard({
     const toResident = (v: number) => convertCurrency(v, destinationCountry, country);
     return buildCashFlow({
       monthlyIncome,
+      monthlyRemittance,
       savingsRate,
       fireSIP: toResident(freedom.requiredMonthlySIP ?? 0),
       goals: goals.map((g) => {
@@ -41,7 +45,16 @@ export function CashFlowCard({
         return { id: g.id, name: g.name, monthlySIP: toResident(p.monthlySIP ?? 0) };
       }),
     });
-  }, [country, destinationCountry, monthlyIncome, savingsRate, freedom.requiredMonthlySIP, goals, expectedReturn]);
+  }, [
+    country,
+    destinationCountry,
+    monthlyIncome,
+    monthlyRemittance,
+    savingsRate,
+    freedom.requiredMonthlySIP,
+    goals,
+    expectedReturn,
+  ]);
 
   const t = data.totals;
   const savingsRatePct = t.income > 0 ? (t.savings / t.income) * 100 : 0;
@@ -65,14 +78,17 @@ export function CashFlowCard({
       <CardContent className="space-y-3">
         <CashFlowSankey data={data} country={country} />
 
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div
+          className={`grid grid-cols-2 gap-2 ${t.remittance > 0 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}
+        >
           <Stat label="Monthly income" value={fmt(t.income)} />
-          <Stat label="Spending" value={fmt(t.spending)} />
+          {t.remittance > 0 && <Stat label="Sent home" value={fmt(t.remittance)} />}
+          <Stat label="Living costs" value={fmt(t.spending)} />
           <Stat label="Saving" value={fmt(t.savings)} />
           <Stat
             label="Savings rate"
             value={`${savingsRatePct.toFixed(0)}%`}
-            highlight={savingsRatePct >= 30 ? "emerald" : savingsRatePct >= 15 ? "amber" : "red"}
+            highlight={savingsRatePct >= 20 ? "emerald" : savingsRatePct >= 10 ? "amber" : "red"}
           />
         </div>
 
@@ -81,15 +97,16 @@ export function CashFlowCard({
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
             <p>
               Your FIRE and goal SIPs need <strong>{fmt(t.shortfall)}/month more</strong> than
-              you currently save. Raise your savings rate in Fine-tune, or push your freedom
-              age later.
+              you currently save. Save a little more after each pay rise (Fine-tune), or pick
+              a later freedom age. Small steps add up.
             </p>
           </div>
         )}
 
         <p className="text-[11px] text-muted-foreground">
-          Spending is split 55 / 30 / 15 across essentials / discretionary / buffer as a rough
-          default. Savings follow your Fine-tune savings rate.
+          {t.remittance > 0 ? "Money sent home is kept separate from your own costs. " : ""}
+          Living costs are split 55 / 30 / 15 across essentials / discretionary / buffer as a
+          rough guide. Savings follow your Fine-tune savings rate.
         </p>
       </CardContent>
     </Card>

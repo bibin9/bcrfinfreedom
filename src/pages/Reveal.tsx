@@ -20,6 +20,7 @@ import { calculateFreedom } from "@/lib/freedom";
 import { convertCurrency } from "@/lib/fx";
 import { formatCurrency } from "@/lib/formatters";
 import { toUserInput, useUserStore } from "@/store/userStore";
+import { useI18n } from "@/i18n";
 
 /**
  * The "one number, one decision" reveal screen.
@@ -34,6 +35,8 @@ export function Reveal() {
   const setFreedomAge = useUserStore((s) => s.setFreedomAge);
   const setSavingsRate = useUserStore((s) => s.setSavingsRate);
   const setRetirementCity = useUserStore((s) => s.setRetirementCity);
+  const { t } = useI18n();
+  const r = (key: string, vars?: Record<string, string | number>) => t(`reveal.${key}`, vars);
 
   const savingsRate = inputs.savingsRate ?? 0.3;
   const currentCorpus = inputs.currentCorpus ?? 0;
@@ -109,31 +112,32 @@ export function Reveal() {
     Math.min(freedom.freedomAge - 5, 50),
   );
   const slowerAge = Math.min(70, freedom.freedomAge + 5);
+  const money = (n: number, c = destinationCountry) => formatCurrency(n, c, { compact: true });
 
   return (
     <div className="container max-w-2xl py-10 animate-fade-in">
       {/* Eyebrow */}
       <p className="mb-2 flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
         <Sparkles className="h-3.5 w-3.5" />
-        Your <Term hint k="FIRE number">FIRE number</Term>
+        <Term hint k="FIRE number">{r("eyebrow")}</Term>
       </p>
 
       {/* THE NUMBER */}
       <h1 className="text-center text-5xl font-extrabold tracking-tight sm:text-6xl">
         <span className="bg-gradient-to-br from-orange-500 to-red-600 bg-clip-text text-transparent">
-          {formatCurrency(freedom.targetCorpus, destinationCountry, { compact: true })}
+          {money(freedom.targetCorpus)}
         </span>
       </h1>
       <p className="mt-3 text-center text-base text-muted-foreground sm:text-lg">
-        That's <strong className="text-foreground">25× your future yearly spend</strong> at
-        age {freedom.freedomAge}, inflated at {destinationCountry.name}'s{" "}
-        {(destinationCountry.inflationRate * 100).toFixed(1)}% <Term>Inflation</Term>.
+        {r("subline", {
+          age: freedom.freedomAge,
+          inflation: (destinationCountry.inflationRate * 100).toFixed(1),
+          country: destinationCountry.name,
+        })}
       </p>
       {citiesFor(destinationCountry.code).length > 0 && (
         <div className="mx-auto mt-3 flex max-w-md flex-col items-center gap-1.5 sm:flex-row sm:justify-center">
-          <span className="text-xs text-muted-foreground">
-            Where will you live after you stop working?
-          </span>
+          <span className="text-xs text-muted-foreground">{r("cityQuestion")}</span>
           <CitySelect
             country={destinationCountry.code}
             value={inputs.retirementCity}
@@ -144,50 +148,34 @@ export function Reveal() {
       )}
       {isExpatMode && (
         <p className="mt-2 text-center text-xs text-muted-foreground">
-          {country.flag} Living {country.name} · {destinationCountry.flag} Retiring{" "}
-          {destinationCountry.name} · ≈{" "}
-          {formatCurrency(
-            convertCurrency(freedom.targetCorpus, destinationCountry, country),
-            country,
-            { compact: true },
-          )}{" "}
-          at today's FX
+          {r("expatLine", {
+            home: country.name,
+            dest: destinationCountry.name,
+            amount: money(convertCurrency(freedom.targetCorpus, destinationCountry, country), country),
+          })}
         </p>
       )}
       {isExpatMode && destinationCountry.code === "IN" && (
         <p className="mx-auto mt-3 max-w-xl rounded-lg border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 text-center text-xs">
-          💡 <strong>Moving back to India?</strong> You'll likely get up to 2 years where your
-          foreign income and gains aren't taxed in India. Your plan shows how to use them.
+          💡 <strong>{r("rnorTitle")}</strong> {r("rnorBody")}
         </p>
       )}
 
       {/* Plain-English explainer for someone with zero finance background */}
       <details className="mx-auto mt-4 max-w-xl rounded-lg border border-border bg-muted/30 p-3 text-sm">
-        <summary className="cursor-pointer font-medium">
-          🤔 What does this number actually mean? (read me first if you're new)
-        </summary>
+        <summary className="cursor-pointer font-medium">{r("whatMeansToggle")}</summary>
         <div className="mt-2 space-y-2 text-xs text-muted-foreground">
+          <p>{r("whatMeans1")}</p>
+          <p>{r("whatMeans2")}</p>
           <p>
-            Imagine you stop working tomorrow. You'd still need money for groceries, rent,
-            kids, holidays — every year, for the rest of your life.
+            {r("whatMeans3", { amount: money(freedom.targetCorpus), age: freedom.freedomAge })}
           </p>
           <p>
-            The <strong className="text-foreground">FIRE rule</strong> says: if your
-            savings are <strong>25 times</strong> what you spend in a year, you can pull
-            out 4% every year — your investments grow on the other 96%, and the money
-            never runs out.
-          </p>
-          <p>
-            So <strong className="text-foreground">
-              {formatCurrency(freedom.targetCorpus, destinationCountry, { compact: true })}
-            </strong>{" "}
-            isn't a "rich person" target — it's just the amount that, invested and earning
-            normal returns, can pay your bills forever starting at age{" "}
-            <strong className="text-foreground">{freedom.freedomAge}</strong>.
-          </p>
-          <p>
-            The number looks big partly because of <strong>inflation</strong> — what
-            costs ₹14 lakh today will cost ₹36 lakh in 18 years. The app builds that in.
+            {r("whatMeans4", {
+              today: money(freedom.currentAnnualExpenses),
+              future: money(freedom.annualExpenses),
+              age: freedom.freedomAge,
+            })}
           </p>
         </div>
       </details>
@@ -197,37 +185,43 @@ export function Reveal() {
         <div className="bg-gradient-to-br from-orange-500/15 to-red-500/5 px-5 py-4">
           <div className="flex items-center gap-2 text-sm font-semibold">
             <Flame className="h-4 w-4 text-orange-500" />
-            At a glance
+            {r("atAGlance")}
           </div>
         </div>
         <CardContent className="space-y-4 pt-4">
           <RevealStat
             icon={<Calendar className="h-5 w-5 text-orange-500" />}
-            label="At your current savings rate you'll hit FIRE around"
+            label={r("paceLabel")}
             value={
               fireAgeAtCurrentRate != null
-                ? `age ${fireAgeAtCurrentRate}`
-                : "longer than 60 years away"
+                ? r("paceValue", { age: fireAgeAtCurrentRate })
+                : r("paceNever")
             }
             sub={
               yearsToFire != null
-                ? `${Math.round(yearsToFire)} years from today (savings rate ${(savingsRate * 100).toFixed(0)}%)`
-                : "Try raising your savings rate"
+                ? r("paceSub", {
+                    years: Math.round(yearsToFire),
+                    pct: (savingsRate * 100).toFixed(0),
+                  })
+                : r("paceRaise")
             }
             accent={onTrack ? "emerald" : "amber"}
           />
           <RevealStat
             icon={<PiggyBank className="h-5 w-5 text-emerald-500" />}
-            label={<>Required monthly <Term>SIP</Term> to hit your target age</>}
+            label={r("sipLabel", { age: freedom.freedomAge })}
             value={
               freedom.requiredMonthlySIP != null
-                ? `${formatCurrency(freedom.requiredMonthlySIP, destinationCountry, { compact: true })}/mo`
+                ? r("perMonth", { amount: money(freedom.requiredMonthlySIP) })
                 : "—"
             }
             sub={
               freedom.monthlyShortfall > 0
-                ? `You currently save ${formatCurrency(freedom.currentMonthlySavings, destinationCountry, { compact: true })}/mo — short by ${formatCurrency(freedom.monthlyShortfall, destinationCountry, { compact: true })}/mo`
-                : `You're already saving enough at ${formatCurrency(freedom.currentMonthlySavings, destinationCountry, { compact: true })}/mo`
+                ? r("sipShort", {
+                    saved: money(freedom.currentMonthlySavings),
+                    gap: money(freedom.monthlyShortfall),
+                  })
+                : r("sipEnough", { saved: money(freedom.currentMonthlySavings) })
             }
             accent={freedom.monthlyShortfall > 0 ? "amber" : "emerald"}
           />
@@ -236,24 +230,18 @@ export function Reveal() {
           <div className="rounded-md border border-border bg-background p-3">
             <div className="mb-1.5 flex items-center justify-between text-xs">
               <span className="text-muted-foreground">
-                <Term hint k="FI Ratio">FI Ratio</Term> (today's spend)
+                <Term hint k="FI Ratio">{r("progressLabel")}</Term>
               </span>
               <span className="font-bold text-orange-600 dark:text-orange-400 tabular-nums">
                 {fiRatio.toFixed(1)}%
               </span>
             </div>
-            <Progress value={fiRatio} aria-label="FI Ratio" />
+            <Progress value={fiRatio} aria-label={r("progressLabel")} />
             <p className="mt-2 text-[11px] text-muted-foreground">
-              You have{" "}
-              <strong>
-                {formatCurrency(
-                  convertCurrency(currentCorpus, country, destinationCountry),
-                  destinationCountry,
-                  { compact: true },
-                )}
-              </strong>{" "}
-              of <strong>{formatCurrency(todayFireNumber, destinationCountry, { compact: true })}</strong>{" "}
-              needed to be FI <em>today</em>.
+              {r("progressBody", {
+                have: money(corpusInRetCcy),
+                need: money(todayFireNumber),
+              })}
             </p>
           </div>
         </CardContent>
@@ -262,13 +250,13 @@ export function Reveal() {
       {/* THE DECISION */}
       <div className="mt-6 space-y-3">
         <p className="text-center text-sm font-semibold text-muted-foreground">
-          Want it sooner or later? Pick one — you can change anything later.
+          {r("decisionHeader")}
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
           <DecisionTile
             icon={<TrendingDown className="h-4 w-4" />}
-            title={`Retire at ${fasterAge}`}
-            sub="Faster — needs higher savings rate"
+            title={r("retireAt", { age: fasterAge })}
+            sub={r("faster")}
             onClick={() => {
               setFreedomAge(fasterAge);
               setSavingsRate(Math.min(0.6, savingsRate + 0.1));
@@ -277,15 +265,15 @@ export function Reveal() {
           />
           <DecisionTile
             icon={<Flame className="h-4 w-4" />}
-            title={`Stick with ${freedom.freedomAge}`}
-            sub="Show me the full plan"
+            title={r("stickWith", { age: freedom.freedomAge })}
+            sub={r("showFullPlan")}
             primary
             onClick={() => setPhase("dashboard")}
           />
           <DecisionTile
             icon={<TrendingUp className="h-4 w-4" />}
-            title={`Retire at ${slowerAge}`}
-            sub="Slower — easier monthly SIP"
+            title={r("retireAt", { age: slowerAge })}
+            sub={r("slower")}
             onClick={() => {
               setFreedomAge(slowerAge);
               setPhase("dashboard");
@@ -301,20 +289,20 @@ export function Reveal() {
           className="bg-orange-600 hover:bg-orange-700"
           onClick={() => setPhase("dashboard")}
         >
-          See my full plan
-          <ArrowRight className="h-4 w-4" />
+          {r("seeFullPlan")}
+          <ArrowRight className="h-4 w-4 rtl:rotate-180" />
         </Button>
         <button
           type="button"
           onClick={() => setPhase("onboarding")}
           className="text-xs text-muted-foreground underline-offset-2 hover:underline"
         >
-          Wait, let me change my inputs
+          {r("waitChange")}
         </button>
       </div>
 
       <p className="mt-8 text-center text-[11px] text-muted-foreground">
-        Educational only · Not financial advice · You can edit everything from the dashboard
+        {r("disclaimer")}
       </p>
     </div>
   );
@@ -369,7 +357,7 @@ function DecisionTile({
       type="button"
       onClick={onClick}
       className={[
-        "group flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition",
+        "group flex flex-col items-start gap-1 rounded-lg border p-3 text-start transition",
         primary
           ? "border-orange-500 bg-orange-500/10 hover:bg-orange-500/15"
           : "border-border bg-card hover:border-orange-500/40 hover:bg-orange-500/5",

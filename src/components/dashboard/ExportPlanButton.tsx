@@ -86,6 +86,7 @@ export function ExportPlanButton({ size = "sm", compact = false }: Props) {
       goalProjections,
       windfalls,
       savingsRate: inputs.savingsRate ?? 0.3,
+      monthlyRemittance: inputs.monthlyRemittance ?? 0,
       currentCorpus,
     };
   }, [inputs, goals, assets, windfallsList]);

@@ -28,8 +28,11 @@ const STORAGE_KEY = "bcr-fire-lang";
 interface I18nContextValue {
   lang: Language;
   setLang: (lang: Language) => void;
-  /** Translator — looks up a dotted key path, falls back to English if missing. */
-  t: (key: string) => string;
+  /**
+   * Translator — looks up a dotted key path, falls back to English if missing.
+   * `{name}` placeholders are filled from `vars`.
+   */
+  t: (key: string, vars?: Record<string, string | number>) => string;
   dir: "ltr" | "rtl";
 }
 
@@ -71,7 +74,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const t = useMemo(() => {
     const dict = TRANSLATIONS[lang] ?? en;
     const fallback = en;
-    return (key: string): string => {
+    const fill = (s: string, vars?: Record<string, string | number>) =>
+      vars ? s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m)) : s;
+    return (key: string, vars?: Record<string, string | number>): string => {
       const parts = key.split(".");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const walk = (obj: any): any => {
@@ -83,9 +88,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         return cur;
       };
       const hit = walk(dict);
-      if (typeof hit === "string") return hit;
+      if (typeof hit === "string") return fill(hit, vars);
       const fb = walk(fallback);
-      if (typeof fb === "string") return fb;
+      if (typeof fb === "string") return fill(fb, vars);
       return key;
     };
   }, [lang]);

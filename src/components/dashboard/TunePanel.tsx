@@ -21,6 +21,11 @@ interface Props {
   /** Country whose currency / inflation / benchmark drive the FIRE number. */
   destinationCountry: CountryProfile;
   savingsRate: number;
+  /** Monthly take-home, resident currency — to show savings as an amount. */
+  monthlyIncome: number;
+  /** Money sent home each month, resident currency. */
+  monthlyRemittance: number;
+  onMonthlyRemittance: (amount: number) => void;
   currentCorpus: number;
   freedomAge: number;
   currentAge: number;
@@ -40,6 +45,9 @@ export function TunePanel({
   country,
   destinationCountry,
   savingsRate,
+  monthlyIncome,
+  monthlyRemittance,
+  onMonthlyRemittance,
   currentCorpus,
   freedomAge,
   currentAge,
@@ -76,22 +84,48 @@ export function TunePanel({
       <CardContent className="space-y-6">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label>Monthly savings rate</Label>
+            <Label>Part of salary you save</Label>
             <span className="text-sm font-semibold text-primary tabular-nums">
               {(savingsRate * 100).toFixed(0)}%
             </span>
           </div>
           <Slider
             value={[Math.round(savingsRate * 100)]}
-            min={5}
+            min={1}
             max={70}
             step={1}
             onValueChange={([v]) => onSavingsRate(v / 100)}
             aria-label="Monthly savings rate"
           />
           <p className="text-xs text-muted-foreground">
-            Most retail savers under-estimate this. Boost it by 1–2% every raise to compound faster.
+            ={" "}
+            <span className="font-semibold text-foreground">
+              {formatCurrency(monthlyIncome * savingsRate, country)} a month
+            </span>
+            . Add 1–2% every time your salary goes up — you won't feel it, but it adds up.
           </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="remittance">Money you send home each month ({country.currency})</Label>
+          <Input
+            id="remittance"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={monthlyRemittance || ""}
+            placeholder="0"
+            onChange={(e) => onMonthlyRemittance(Number(e.target.value) || 0)}
+          />
+          <p className="text-xs text-muted-foreground">
+            For parents, family or loans back home. It's not counted as your savings or your own
+            spending.
+          </p>
+          {monthlyIncome > 0 && monthlyRemittance + monthlyIncome * savingsRate > monthlyIncome && (
+            <p role="alert" className="text-xs font-medium text-red-600 dark:text-red-400">
+              Savings plus money sent home is more than your salary — lower one of them.
+            </p>
+          )}
         </div>
 
         <div className="space-y-3">

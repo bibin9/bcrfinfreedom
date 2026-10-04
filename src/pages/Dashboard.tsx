@@ -47,6 +47,7 @@ export function Dashboard() {
   const inputs = useUserStore((s) => s.inputs);
   const setPhase = useUserStore((s) => s.setPhase);
   const setSavingsRate = useUserStore((s) => s.setSavingsRate);
+  const setMonthlyRemittance = useUserStore((s) => s.setMonthlyRemittance);
   const setCurrentCorpus = useUserStore((s) => s.setCurrentCorpus);
   const setIsNRI = useUserStore((s) => s.setIsNRI);
   const setFreedomAge = useUserStore((s) => s.setFreedomAge);
@@ -269,6 +270,7 @@ export function Dashboard() {
                 country={country}
                 destinationCountry={destinationCountry ?? country}
                 monthlyIncome={complete.monthlyIncome}
+                monthlyRemittance={inputs.monthlyRemittance ?? 0}
                 savingsRate={savingsRate}
                 freedom={freedom}
                 expectedReturn={allocation.expectedReturn}
@@ -451,6 +453,9 @@ export function Dashboard() {
             country={country}
             destinationCountry={destinationCountry ?? country}
             savingsRate={savingsRate}
+            monthlyIncome={complete.monthlyIncome}
+            monthlyRemittance={inputs.monthlyRemittance ?? 0}
+            onMonthlyRemittance={setMonthlyRemittance}
             currentCorpus={currentCorpus}
             freedomAge={freedom.freedomAge}
             currentAge={complete.age}

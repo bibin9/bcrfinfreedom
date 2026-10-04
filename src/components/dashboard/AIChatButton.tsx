@@ -86,6 +86,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
       allocation,
       freedom,
       savingsRate: inputs.savingsRate ?? 0.3,
+      monthlyRemittance: inputs.monthlyRemittance ?? 0,
       currentCorpus: inputs.currentCorpus ?? 0,
       goals,
       windfalls,

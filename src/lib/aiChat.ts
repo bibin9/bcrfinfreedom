@@ -34,6 +34,8 @@ export interface PlanContext {
   freedom: FreedomProjection;
   allocation: AllocationResult;
   savingsRate: number;
+  /** Money sent to family each month, resident currency. */
+  monthlyRemittance?: number;
   currentCorpus: number;
   goals: Goal[];
   windfalls: Windfall[];
@@ -83,6 +85,7 @@ ${expatLine}
 Age: ${ctx.user.age}
 Monthly income: ${ctx.residentCountry.currencySymbol}${ctx.user.monthlyIncome.toLocaleString()} (resident currency)
 Savings rate: ${(ctx.savingsRate * 100).toFixed(0)}%
+Money sent home to family: ${ctx.residentCountry.currencySymbol}${(ctx.monthlyRemittance ?? 0).toLocaleString()}/month (an obligation, not savings)
 Current invested corpus: ${ctx.residentCountry.currencySymbol}${ctx.currentCorpus.toLocaleString()}
 Risk profile: ${ctx.user.risk}
 Primary goal: ${ctx.user.goal.replace(/_/g, " ")}

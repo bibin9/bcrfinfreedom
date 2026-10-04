@@ -19,53 +19,21 @@ import { useDetectedCountry } from "@/hooks/useDetectedCountry";
 import { toUserInput, useUserStore } from "@/store/userStore";
 import type { CountryCode, FinancialGoal, RiskProfile } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
+import { savingsRateFromAmount, suggestedMonthlySavings } from "@/lib/savings";
+import { useI18n } from "@/i18n";
 
-const STEPS = [
-  { id: 1, label: "Where do you want to invest for FIRE?" },
-  { id: 2, label: "About you" },
-  { id: 3, label: "Risk & goal" },
-] as const;
-
-const goalOptions: Array<{ value: FinancialGoal; label: string; blurb: string }> = [
-  { value: "early_retirement", label: "Early retirement", blurb: "Stop needing a paycheque as early as possible." },
-  { value: "wealth_building", label: "Long-term wealth building", blurb: "Maximise net worth over decades." },
-  { value: "passive_income", label: "Passive income", blurb: "Live off yields and dividends." },
-  { value: "child_education", label: "Child's education", blurb: "Fund a university corpus on a timeline." },
-  { value: "home_purchase", label: "Home purchase", blurb: "Grow a down payment safely." },
+const STEP_KEYS = ["step1", "step2", "step3"] as const;
+const GOALS: FinancialGoal[] = [
+  "early_retirement",
+  "wealth_building",
+  "passive_income",
+  "child_education",
+  "home_purchase",
 ];
-
-const riskLabels: Record<RiskProfile, string> = {
-  conservative: "Conservative",
-  moderate: "Moderate",
-  aggressive: "Aggressive",
-};
-
-/** Plain-English explanation of each risk level — shown live under the slider. */
-const riskExplainers: Record<RiskProfile, { line: string; example: string; suits: string }> = {
-  conservative: {
-    line: "Most money in safer instruments (bonds, FDs). Lower ups and downs, lower long-term growth.",
-    example: "e.g. 40% stocks, 50% bonds/FDs, 10% gold. Expect ~7% / year long-run.",
-    suits: "You lose sleep when markets drop, or you'll need the money in <5 years.",
-  },
-  moderate: {
-    line: "Balanced mix — most people should pick this. Rides out normal market dips.",
-    example: "e.g. 65% stocks, 25% bonds, 10% gold. Expect ~9–10% / year long-run.",
-    suits: "You can leave money invested for 7+ years and won't panic-sell in a bad year.",
-  },
-  aggressive: {
-    line: "Mostly stocks. Bigger swings, but historically the fastest way to grow wealth over 15+ years.",
-    example: "e.g. 85% stocks, 10% bonds, 5% gold. Expect ~11–13% / year long-run.",
-    suits: "You're young, income is stable, and you won't touch this money for 15+ years.",
-  },
-};
-
-/** Plain-English "who this suits" for each goal — shown as the blurb below the picker. */
-const goalWho: Record<FinancialGoal, string> = {
-  early_retirement: "You want the option to quit your job well before 60.",
-  wealth_building: "You're not sure of the exact goal — you just want your money to grow.",
-  passive_income: "You want rental / dividend income to cover monthly bills someday.",
-  child_education: "You have a specific target amount and year (e.g. ₹40 L by 2035).",
-  home_purchase: "You need a lump sum for a down payment in the next 3–7 years.",
+const riskKey: Record<RiskProfile, string> = {
+  conservative: "riskConservative",
+  moderate: "riskModerate",
+  aggressive: "riskAggressive",
 };
 
 function riskFromSlider(v: number): RiskProfile {
@@ -84,8 +52,16 @@ export function Onboarding() {
   const setRisk = useUserStore((s) => s.setRisk);
   const setGoal = useUserStore((s) => s.setGoal);
   const setPhase = useUserStore((s) => s.setPhase);
+  const setSavingsRate = useUserStore((s) => s.setSavingsRate);
+  const setMonthlyRemittance = useUserStore((s) => s.setMonthlyRemittance);
+  const { t } = useI18n();
+  const o = (key: string, vars?: Record<string, string | number>) => t(`onboarding.${key}`, vars);
 
   const [step, setStep] = useState(1);
+  // Until the user types their own savings figure, keep it in sync with the
+  // suggestion (which moves with income and money sent home). Someone coming
+  // back to edit answers already has a figure — don't overwrite it.
+  const [savingsTouched, setSavingsTouched] = useState(() => inputs.age != null);
   const { country: detected, loading: detecting } = useDetectedCountry();
 
   // Auto-apply detected country if user hasn't picked one yet.
@@ -102,6 +78,18 @@ export function Onboarding() {
     }
   }, [selected, inputs.monthlyIncome, setMonthlyIncome]);
 
+  const income = inputs.monthlyIncome ?? 0;
+  const remittance = inputs.monthlyRemittance ?? 0;
+  const suggestedSavings = suggestedMonthlySavings(income, remittance);
+  const savingsAmount = Math.round(income * (inputs.savingsRate ?? 0));
+  const overBudget = income > 0 && savingsAmount + remittance > income;
+
+  useEffect(() => {
+    if (!savingsTouched && income > 0) {
+      setSavingsRate(savingsRateFromAmount(income, suggestedSavings));
+    }
+  }, [savingsTouched, income, suggestedSavings, setSavingsRate]);
+
   const riskSlider = useMemo(() => sliderFromRisk(inputs.risk ?? "moderate"), [inputs.risk]);
 
   const canAdvance =
@@ -112,7 +100,9 @@ export function Onboarding() {
           inputs.age >= 18 &&
           inputs.age <= 90 &&
           typeof inputs.monthlyIncome === "number" &&
-          inputs.monthlyIncome > 0
+          inputs.monthlyIncome > 0 &&
+          (inputs.savingsRate ?? 0) > 0 &&
+          !overBudget
         : !!inputs.risk && !!inputs.goal;
 
   const onFinish = () => {
@@ -122,37 +112,33 @@ export function Onboarding() {
 
   return (
     <div className="container max-w-2xl py-10 animate-fade-in">
-      <h1 className="sr-only">Build your FIRE plan</h1>
-      <nav aria-label="Onboarding progress" className="mb-6">
+      <h1 className="sr-only">{o("pageTitle")}</h1>
+      <nav aria-label={o("progressLabel")} className="mb-6">
         <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
           <span>
-            Step {step} of {STEPS.length} — {STEPS[step - 1].label}
+            {o("stepN", { n: step, total: STEP_KEYS.length })} — {o(`${STEP_KEYS[step - 1]}Title`)}
           </span>
-          <span>{Math.round((step / STEPS.length) * 100)}%</span>
+          <span>{Math.round((step / STEP_KEYS.length) * 100)}%</span>
         </div>
-        <Progress value={(step / STEPS.length) * 100} aria-label="Progress through onboarding" />
+        <Progress value={(step / STEP_KEYS.length) * 100} aria-label={o("progressLabel")} />
       </nav>
 
       <Card>
         <CardHeader>
-          <CardTitle>{STEPS[step - 1].label}</CardTitle>
-          <CardDescription>
-            {step === 1 && "Pick the market your FIRE corpus will live in — we'll tailor accounts, tax wrappers, currency, and investable vehicles to it."}
-            {step === 2 && "Two quick numbers — we pre-fill a sensible median for your country."}
-            {step === 3 && "Tell us how much risk you're comfortable with, and what you're saving for."}
-          </CardDescription>
+          <CardTitle>{o(`${STEP_KEYS[step - 1]}Title`)}</CardTitle>
+          <CardDescription>{o(`${STEP_KEYS[step - 1]}Description`)}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {step === 1 && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="country">Where you live & earn now</Label>
+                <Label htmlFor="country">{o("countryLabel")}</Label>
                 <Select
                   value={inputs.country ?? ""}
                   onValueChange={(v) => setCountry(v as CountryCode)}
                 >
                   <SelectTrigger id="country" aria-label="Resident country">
-                    <SelectValue placeholder="Select a country" />
+                    <SelectValue placeholder={o("countryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {countryList.map((c) => (
@@ -164,13 +150,11 @@ export function Onboarding() {
                 </Select>
                 {detecting && (
                   <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Loader2 className="h-3 w-3 animate-spin" /> Detecting from your location…
+                    <Loader2 className="h-3 w-3 animate-spin" /> {o("detecting")}
                   </p>
                 )}
                 {detected && detected === inputs.country && (
-                  <p className="text-xs text-muted-foreground">
-                    Pre-selected based on your location. Change it freely.
-                  </p>
+                  <p className="text-xs text-muted-foreground">{o("detected")}</p>
                 )}
               </div>
 
@@ -197,23 +181,21 @@ export function Onboarding() {
                     }}
                   />
                   <span className="text-sm">
-                    <strong>I'll retire in a different country</strong>{" "}
-                    <span className="text-muted-foreground">
-                      (e.g. UAE expat planning to retire in India)
-                    </span>
+                    <strong>{o("expatCheckbox")}</strong>{" "}
+                    <span className="text-muted-foreground">{o("expatHint")}</span>
                   </span>
                 </label>
                 {inputs.retirementCountry != null && inputs.retirementCountry !== inputs.country && (
                   <div className="mt-3 space-y-1.5">
                     <Label htmlFor="retire-country" className="text-xs">
-                      Where you'll retire & spend
+                      {o("retireCountryLabel")}
                     </Label>
                     <Select
                       value={inputs.retirementCountry ?? ""}
                       onValueChange={(v) => setRetirementCountry(v as CountryCode)}
                     >
                       <SelectTrigger id="retire-country" aria-label="Retirement country">
-                        <SelectValue placeholder="Select retirement country" />
+                        <SelectValue placeholder={o("retireCountryPlaceholder")} />
                       </SelectTrigger>
                       <SelectContent>
                         {countryList.map((c) => (
@@ -224,12 +206,10 @@ export function Onboarding() {
                       </SelectContent>
                     </Select>
                     <p className="text-[11px] text-muted-foreground">
-                      Your FIRE number, expenses, and inflation will use{" "}
-                      <strong>
-                        {getCountryProfile(inputs.retirementCountry).name}
-                      </strong>
-                      's data. Your salary and investments stay anchored in{" "}
-                      <strong>{selected?.name ?? "your home country"}</strong>.
+                      {o("retireCountryNote", {
+                        dest: getCountryProfile(inputs.retirementCountry).name,
+                        home: selected?.name ?? "",
+                      })}
                     </p>
                   </div>
                 )}
@@ -240,42 +220,91 @@ export function Onboarding() {
           {step === 2 && selected && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="age">Your age today</Label>
+                <Label htmlFor="age">{o("ageLabel")}</Label>
                 <Input
                   id="age"
                   type="number"
+                  inputMode="numeric"
                   min={18}
                   max={90}
                   value={inputs.age ?? ""}
-                  placeholder="e.g. 32"
+                  placeholder={o("agePlaceholder")}
                   onChange={(e) => setAge(Number(e.target.value))}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Every extra year you have = more time for compounding. A ₹5,000/mo SIP started
-                  at 22 becomes ~₹3 Cr by 60. Same SIP started at 35 becomes ~₹80 L.
-                </p>
+                <p className="text-xs text-muted-foreground">{o("ageHint")}</p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="income">
-                  Your take-home monthly income ({selected.currency})
-                </Label>
+                <Label htmlFor="income">{o("incomeLabel", { currency: selected.currency })}</Label>
                 <Input
                   id="income"
                   type="number"
+                  inputMode="numeric"
                   min={0}
-                  placeholder={`e.g. ${selected.defaultMonthlyIncome.toLocaleString()}`}
+                  placeholder={selected.defaultMonthlyIncome.toLocaleString()}
                   value={inputs.monthlyIncome ?? ""}
                   onChange={(e) => setMonthlyIncome(Number(e.target.value))}
                 />
-                <p className="text-xs text-muted-foreground">
-                  <strong>After tax / EPF</strong> — what actually lands in your bank each month.
-                  Don't include bonuses; add them later on the dashboard.
-                </p>
-                {typeof inputs.monthlyIncome === "number" && inputs.monthlyIncome > 0 && (
+                <p className="text-xs text-muted-foreground">{o("incomeHint")}</p>
+                {income > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    ≈ {formatCurrency(inputs.monthlyIncome * 12, selected)} / year.
+                    {o("perYear", { amount: formatCurrency(income * 12, selected) })}
                   </p>
                 )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="remittance">{o("remitLabel", { currency: selected.currency })}</Label>
+                <Input
+                  id="remittance"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  placeholder="0"
+                  value={inputs.monthlyRemittance || ""}
+                  onChange={(e) => setMonthlyRemittance(Number(e.target.value) || 0)}
+                />
+                <p className="text-xs text-muted-foreground">{o("remitHint")}</p>
+              </div>
+              <div className="space-y-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
+                <Label htmlFor="savings">{o("savingsLabel", { currency: selected.currency })}</Label>
+                <Input
+                  id="savings"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  className="bg-background"
+                  value={savingsAmount || ""}
+                  placeholder={String(suggestedSavings)}
+                  onChange={(e) => {
+                    setSavingsTouched(true);
+                    setSavingsRate(savingsRateFromAmount(income, Number(e.target.value) || 0));
+                  }}
+                />
+                {income > 0 && savingsAmount > 0 && (
+                  <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                    {o("savingsPercent", { pct: Math.round((savingsAmount / income) * 100) })}
+                  </p>
+                )}
+                {overBudget && (
+                  <p role="alert" className="text-xs font-medium text-red-600 dark:text-red-400">
+                    {o("savingsTooHigh")}
+                  </p>
+                )}
+                {suggestedSavings > 0 && savingsAmount !== suggestedSavings && (
+                  <p className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                    <span>{o("savingsSuggested", { amount: formatCurrency(suggestedSavings, selected) })}</span>
+                    <button
+                      type="button"
+                      className="font-medium text-emerald-700 underline underline-offset-2 dark:text-emerald-400"
+                      onClick={() => {
+                        setSavingsTouched(false);
+                        setSavingsRate(savingsRateFromAmount(income, suggestedSavings));
+                      }}
+                    >
+                      {o("savingsUseSuggestion")}
+                    </button>
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">{o("savingsHint")}</p>
               </div>
             </div>
           )}
@@ -284,9 +313,9 @@ export function Onboarding() {
             <div className="space-y-8">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>How much market swing can you handle?</Label>
+                  <Label>{o("riskLabel")}</Label>
                   <span className="text-sm font-semibold text-primary">
-                    {riskLabels[inputs.risk ?? "moderate"]}
+                    {o(riskKey[inputs.risk ?? "moderate"])}
                   </span>
                 </div>
                 <Slider
@@ -295,62 +324,54 @@ export function Onboarding() {
                   max={100}
                   step={1}
                   onValueChange={([v]) => setRisk(riskFromSlider(v))}
-                  aria-label="Risk appetite"
+                  aria-label={o("riskAria")}
                 />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Conservative</span>
-                  <span>Moderate</span>
-                  <span>Aggressive</span>
+                  <span>{o("riskConservative")}</span>
+                  <span>{o("riskModerate")}</span>
+                  <span>{o("riskAggressive")}</span>
                 </div>
                 {/* Live plain-English explainer for the current selection */}
                 {(() => {
                   const r = inputs.risk ?? "moderate";
-                  const ex = riskExplainers[r];
                   return (
                     <div className="mt-1 rounded-md border border-primary/30 bg-primary/5 p-2.5">
-                      <p className="text-xs font-semibold text-primary">
-                        {riskLabels[r]}
-                      </p>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{ex.line}</p>
+                      <p className="text-xs font-semibold text-primary">{o(riskKey[r])}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{o(`risk.${r}.line`)}</p>
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        <strong>{ex.example}</strong>
+                        <strong>{o(`risk.${r}.example`)}</strong>
                       </p>
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        <em>Suits you if:</em> {ex.suits}
+                        <em>{o("riskSuitsPrefix")}</em> {o(`risk.${r}.suits`)}
                       </p>
                     </div>
                   );
                 })()}
-                <p className="text-[11px] text-muted-foreground">
-                  Not sure? Pick <strong>Moderate</strong> — it's what most people should choose.
-                  You can change it anytime.
-                </p>
+                <p className="text-[11px] text-muted-foreground">{o("riskNotSure")}</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="goal">What are you saving for?</Label>
+                <Label htmlFor="goal">{o("goalLabel")}</Label>
                 <Select
                   value={inputs.goal ?? ""}
                   onValueChange={(v) => setGoal(v as FinancialGoal)}
                 >
                   <SelectTrigger id="goal" aria-label="Financial goal">
-                    <SelectValue placeholder="Choose a goal" />
+                    <SelectValue placeholder={o("goalPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {goalOptions.map((g) => (
-                      <SelectItem key={g.value} value={g.value}>
-                        {g.label}
+                    {GOALS.map((g) => (
+                      <SelectItem key={g} value={g}>
+                        {o(`goals.${g}.label`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {inputs.goal && (
                   <div className="rounded-md border border-border bg-muted/30 p-2.5">
-                    <p className="text-xs font-medium">
-                      {goalOptions.find((g) => g.value === inputs.goal)?.blurb}
-                    </p>
+                    <p className="text-xs font-medium">{o(`goals.${inputs.goal}.blurb`)}</p>
                     <p className="mt-0.5 text-[11px] text-muted-foreground">
-                      <em>Pick this if:</em> {goalWho[inputs.goal]}
+                      <em>{o("goalPickIf")}</em> {o(`goals.${inputs.goal}.who`)}
                     </p>
                   </div>
                 )}
@@ -363,16 +384,16 @@ export function Onboarding() {
               variant="ghost"
               onClick={() => (step > 1 ? setStep(step - 1) : setPhase("landing"))}
             >
-              <ArrowLeft className="h-4 w-4" />
-              {step === 1 ? "Back" : "Previous"}
+              <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+              {step === 1 ? t("common.back") : t("common.previous")}
             </Button>
-            {step < STEPS.length ? (
+            {step < STEP_KEYS.length ? (
               <Button onClick={() => setStep(step + 1)} disabled={!canAdvance}>
-                Continue <ArrowRight className="h-4 w-4" />
+                {t("common.continue")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Button>
             ) : (
               <Button onClick={onFinish} disabled={!canAdvance}>
-                See my plan <ArrowRight className="h-4 w-4" />
+                {o("seePlanButton")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </Button>
             )}
           </div>

@@ -39,6 +39,8 @@ export interface PlanPDFInput {
   /** Lump sums the plan already counts (EOSB, property sale…), if any. */
   windfalls?: WindfallProjection[];
   savingsRate: number;
+  /** Money sent to family each month, RESIDENT currency. */
+  monthlyRemittance?: number;
   /** Money already invested, in RESIDENT currency. */
   currentCorpus: number;
   /** Optional Monte Carlo survival % (0-1), if the user has run Reality Check. */
@@ -809,6 +811,9 @@ export async function buildPlanPDF(input: PlanPDFInput, options: BuildOptions = 
     const rows: Array<[string, string]> = [
       ["Monthly take-home pay", rMoney(input.user.monthlyIncome)],
       ["Part you save", `${Math.round(input.savingsRate * 100)}% (${rMoney(monthlyInvestRes)} a month)`],
+      ...((input.monthlyRemittance ?? 0) > 0
+        ? [["Money sent home", `${rMoney(input.monthlyRemittance ?? 0)} a month`] as [string, string]]
+        : []),
       ["Money already invested", input.currentCorpus > 0 ? rMoney(input.currentCorpus) : "Nothing yet - that's fine"],
       ["Household", fr.householdSize === "family" ? "Family" : "Just me"],
       [

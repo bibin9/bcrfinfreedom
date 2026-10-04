@@ -98,6 +98,8 @@ interface UserState {
     retirementCountry?: CountryCode;
     /** City (id from data/cities.ts) they'll live in after they stop working. */
     retirementCity?: string;
+    /** Money sent to family back home each month, RESIDENT currency. Spending, not savings. */
+    monthlyRemittance?: number;
   };
   scenarios: Scenario[];
   checkins: Checkin[];
@@ -124,6 +126,7 @@ interface UserState {
   /** Override the country the user plans to retire in (expat dual-country mode). */
   setRetirementCountry: (code: CountryCode | undefined) => void;
   setRetirementCity: (cityId: string | undefined) => void;
+  setMonthlyRemittance: (amount: number) => void;
   /** Snapshot current inputs as a named scenario. */
   saveScenario: (name: string) => void;
   /** Apply a previously saved scenario back into inputs. */
@@ -223,6 +226,8 @@ export const useUserStore = create<UserState>()(
         set((s) => ({ inputs: { ...s.inputs, retirementCountry, retirementCity: undefined } })),
       setRetirementCity: (retirementCity) =>
         set((s) => ({ inputs: { ...s.inputs, retirementCity } })),
+      setMonthlyRemittance: (monthlyRemittance) =>
+        set((s) => ({ inputs: { ...s.inputs, monthlyRemittance: Math.max(0, monthlyRemittance) } })),
       saveScenario: (name) =>
         set((s) => ({
           scenarios: [

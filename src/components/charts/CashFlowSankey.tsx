@@ -84,6 +84,12 @@ export function CashFlowSankey({ data, country }: Props) {
 
       {/* Legend */}
       <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+        {data.totals.remittance > 0 && (
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2 w-3 rounded-sm bg-pink-500" />
+            Sent home
+          </span>
+        )}
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-3 rounded-sm bg-red-500" />
           Essentials

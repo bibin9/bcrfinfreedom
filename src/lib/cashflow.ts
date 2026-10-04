@@ -8,7 +8,7 @@
  *
  * Layout (3 columns):
  *   Col 0: income
- *   Col 1: Essentials / Discretionary / Buffer / Savings
+ *   Col 1: Sent home / Essentials / Discretionary / Buffer / Savings
  *   Col 2: savings destinations — FIRE SIP, each goal SIP (top 5), unallocated
  */
 
@@ -26,6 +26,8 @@ export interface CashFlowInput {
   monthlyIncome: number;
   /** Fraction of income saved (0..1) — the Fine-tune slider value. */
   savingsRate: number;
+  /** Money sent to family back home each month, resident currency. */
+  monthlyRemittance?: number;
   /** Required FIRE SIP, already converted to resident currency. */
   fireSIP: number;
   goals: CashFlowGoal[];
@@ -36,6 +38,9 @@ export interface CashFlowDataset {
   links: SankeyLink[];
   totals: {
     income: number;
+    /** Money sent home — capped so it never exceeds income minus savings. */
+    remittance: number;
+    /** Own living costs: income − savings − remittance. */
     spending: number;
     essentials: number;
     discretionary: number;
@@ -54,6 +59,7 @@ const DISCRETIONARY_FRACTION = 0.3;
 
 const CAT_COLORS = {
   income: "24 95% 53%",
+  remittance: "330 81% 60%",
   essentials: "0 72% 51%",
   discretionary: "38 92% 50%",
   buffer: "271 65% 55%",
@@ -68,7 +74,11 @@ export function buildCashFlow(input: CashFlowInput): CashFlowDataset {
   const rate = Math.min(1, Math.max(0, input.savingsRate));
 
   const savings = Math.round(income * rate);
-  const spending = income - savings;
+  const remittance = Math.min(
+    Math.max(0, Math.round(input.monthlyRemittance ?? 0)),
+    income - savings,
+  );
+  const spending = income - savings - remittance;
   const essentials = Math.round(spending * ESSENTIALS_FRACTION);
   const discretionary = Math.round(spending * DISCRETIONARY_FRACTION);
   const buffer = spending - essentials - discretionary;
@@ -104,6 +114,7 @@ export function buildCashFlow(input: CashFlowInput): CashFlowDataset {
     nodes.push({ id, label, column: 1, color, sub });
     links.push({ source: "income", target: id, value });
   };
+  addBucket("remittance", "Sent home", "family back home", CAT_COLORS.remittance, remittance);
   addBucket("essentials", "Essentials", "rent · food · transport", CAT_COLORS.essentials, essentials);
   addBucket("discretionary", "Discretionary", "dining · leisure", CAT_COLORS.discretionary, discretionary);
   addBucket("buffer", "Buffer", "health · kids · misc", CAT_COLORS.buffer, buffer);
@@ -132,6 +143,7 @@ export function buildCashFlow(input: CashFlowInput): CashFlowDataset {
     links,
     totals: {
       income,
+      remittance,
       spending,
       essentials,
       discretionary,

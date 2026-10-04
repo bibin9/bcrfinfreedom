@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { GraduationCap, Lightbulb, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n";
 
 const DISMISS_KEY = "bcr-fire-beginner-banner-dismissed";
 
@@ -12,6 +13,7 @@ const DISMISS_KEY = "bcr-fire-beginner-banner-dismissed";
  * Dismissal is persistent — once they click X, it never comes back.
  */
 export function BeginnerBanner({ onOpenHelp }: { onOpenHelp?: () => void }) {
+  const { t } = useI18n();
   const [visible, setVisible] = useState(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem(DISMISS_KEY) !== "1";
@@ -30,46 +32,26 @@ export function BeginnerBanner({ onOpenHelp }: { onOpenHelp?: () => void }) {
         type="button"
         onClick={dismiss}
         aria-label="Dismiss beginner guide"
-        className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="absolute end-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
       >
         <X className="h-4 w-4" />
       </button>
-      <div className="flex items-start gap-3 pr-6">
+      <div className="flex items-start gap-3 pe-6">
         <div className="rounded-lg bg-orange-500/20 p-2">
           <GraduationCap className="h-5 w-5 text-orange-600 dark:text-orange-400" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold">First time here? Read this 30-sec primer.</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            This app shows you <strong>how much money you need to stop working</strong> and{" "}
-            <strong>how long it takes</strong> at your savings rate. That's it. Everything
-            else is detail.
-          </p>
+          <p className="text-sm font-bold">{t("beginner.title")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("beginner.body")}</p>
           <ol className="mt-2 space-y-1 text-xs text-foreground">
-            <li>
-              <span className="font-semibold text-orange-600 dark:text-orange-400">①</span>{" "}
-              Look at the <strong>big orange number</strong> on{" "}
-              <strong>Overview</strong> / <strong>Freedom</strong> — that's your FIRE
-              number.
-            </li>
-            <li>
-              <span className="font-semibold text-orange-600 dark:text-orange-400">②</span>{" "}
-              Open <strong>Life plan</strong> to see what to focus on in your current decade
-              — money, health, relationships.
-            </li>
-            <li>
-              <span className="font-semibold text-orange-600 dark:text-orange-400">③</span>{" "}
-              Tweak the sliders in <strong>Fine-tune</strong> (right side) and watch
-              everything recompute live.
-            </li>
-            <li>
-              <span className="font-semibold text-orange-600 dark:text-orange-400">④</span>{" "}
-              Stuck on jargon? Hover any{" "}
-              <span className="border-b border-dotted border-current/60">
-                underlined word
-              </span>{" "}
-              to see a plain-English explanation.
-            </li>
+            {(["step1", "step2", "step3", "step4"] as const).map((k, i) => (
+              <li key={k}>
+                <span className="font-semibold text-orange-600 dark:text-orange-400">
+                  {"①②③④"[i]}
+                </span>{" "}
+                {t(`beginner.${k}`)}
+              </li>
+            ))}
           </ol>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button
@@ -78,10 +60,10 @@ export function BeginnerBanner({ onOpenHelp }: { onOpenHelp?: () => void }) {
               className="border-orange-500/50 text-xs"
               onClick={onOpenHelp}
             >
-              <Lightbulb className="h-3.5 w-3.5" /> Open the full manual
+              <Lightbulb className="h-3.5 w-3.5" /> {t("beginner.openManual")}
             </Button>
             <Button size="sm" variant="ghost" className="text-xs" onClick={dismiss}>
-              Got it
+              {t("common.gotIt")}
             </Button>
           </div>
         </div>

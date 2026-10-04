@@ -1,5 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import type { CountryProfile } from "@/types";
+import { useI18n } from "@/i18n";
 
 interface Props {
   country?: CountryProfile;
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function Disclaimer({ country, compact = false }: Props) {
+  const { t } = useI18n();
   return (
     <div
       role="note"
@@ -18,9 +20,7 @@ export function Disclaimer({ country, compact = false }: Props) {
       <AlertTriangle className="mt-0.5 h-4 w-4 flex-none" aria-hidden />
       <div className="space-y-1">
         <p>
-          <strong>Educational purposes only — not financial advice.</strong> BCR Fin Freedom
-          does not recommend individual securities. Always consult a licensed financial advisor
-          before investing. Past performance does not guarantee future returns.
+          <strong>{t("disclaimer.title")}</strong> {t("disclaimer.body")}
         </p>
         {country && <p className="opacity-90">{country.disclaimer}</p>}
       </div>
