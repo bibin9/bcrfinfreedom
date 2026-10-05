@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { AllocationBreakdown } from "@/types";
+import { useI18n } from "@/i18n";
 
 const ASSET_COLORS: Record<AllocationBreakdown["asset"], string> = {
   equities_local: "#10b981",
@@ -18,13 +19,17 @@ interface Props {
 }
 
 export function AllocationDonut({ breakdown }: Props) {
+  const { t, tm } = useI18n();
   const data = useMemo(
-    () => breakdown.filter((b) => b.percent > 0).map((b) => ({ ...b, value: b.percent })),
-    [breakdown],
+    () =>
+      breakdown
+        .filter((b) => b.percent > 0)
+        .map((b) => ({ ...b, label: b.labelMsg ? tm(b.labelMsg) : b.label, value: b.percent })),
+    [breakdown, tm],
   );
 
   return (
-    <div className="h-64 w-full" role="img" aria-label="Recommended portfolio allocation">
+    <div className="h-64 w-full" role="img" aria-label={t("dash.alloc.donutAria")}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie

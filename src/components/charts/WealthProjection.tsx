@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import type { CountryProfile, FreedomProjection } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
+import { useI18n } from "@/i18n";
 
 interface Props {
   projection: FreedomProjection;
@@ -17,10 +18,11 @@ interface Props {
 }
 
 export function WealthProjection({ projection, country }: Props) {
+  const { t } = useI18n();
   const data = projection.projection;
 
   return (
-    <div className="h-72 w-full" role="img" aria-label="Projected wealth over time">
+    <div className="h-72 w-full" role="img" aria-label={t("dash.charts.wealthAria")}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: 8 }}>
           <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
@@ -30,7 +32,7 @@ export function WealthProjection({ projection, country }: Props) {
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            label={{ value: "Age", position: "insideBottom", offset: -4, fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+            label={{ value: t("dash.charts.age"), position: "insideBottom", offset: -4, fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
           />
           <YAxis
             stroke="hsl(var(--muted-foreground))"
@@ -48,15 +50,15 @@ export function WealthProjection({ projection, country }: Props) {
               fontSize: 12,
               color: "hsl(var(--card-foreground))",
             }}
-            formatter={(value: number) => [formatCurrency(value, country), "Wealth"]}
-            labelFormatter={(age: number) => `Age ${age}`}
+            formatter={(value: number) => [formatCurrency(value, country), t("dash.charts.wealth")]}
+            labelFormatter={(age: number) => t("dash.charts.ageN", { age })}
           />
           <ReferenceLine
             y={projection.fireTiers.lean.targetCorpus}
             stroke="hsl(var(--muted-foreground))"
             strokeDasharray="2 4"
             label={{
-              value: "LeanFIRE 15×",
+              value: t("dash.charts.lean"),
               fill: "hsl(var(--muted-foreground))",
               fontSize: 10,
               position: "insideTopRight",
@@ -78,7 +80,7 @@ export function WealthProjection({ projection, country }: Props) {
             stroke="hsl(var(--chart-3, 142 71% 45%))"
             strokeDasharray="2 4"
             label={{
-              value: "FatFIRE 33×",
+              value: t("dash.charts.fat"),
               fill: "hsl(142 71% 45%)",
               fontSize: 10,
               position: "insideTopRight",

@@ -6,6 +6,7 @@ import {
   localGrowthSectors,
 } from "@/data/growthSectors";
 import type { CountryProfile } from "@/types";
+import { useI18n } from "@/i18n";
 
 interface Props {
   country: CountryProfile;
@@ -28,6 +29,8 @@ function SectorRow({ name, growth, rationale }: { name: string; growth: number; 
 
 export function GrowthSectorsCard({ country }: Props) {
   const local = localGrowthSectors[country.code] ?? [];
+  const { t, countryName } = useI18n();
+  const name = countryName(country.code, country.name);
 
   return (
     <Card>
@@ -36,21 +39,19 @@ export function GrowthSectorsCard({ country }: Props) {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
-              Growing markets
+              {t("dash.growth.title")}
             </CardTitle>
-            <CardDescription>
-              Three global themes and three specific to {country.name}.
-            </CardDescription>
+            <CardDescription>{t("dash.growth.desc", { country: name })}</CardDescription>
           </div>
           <span className="rounded-md border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
-            Updated {GROWTH_SECTORS_UPDATED_AT}
+            {t("dash.growth.updated", { date: GROWTH_SECTORS_UPDATED_AT })}
           </span>
         </div>
       </CardHeader>
       <CardContent className="grid gap-6 md:grid-cols-2">
         <section>
           <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Global
+            {t("dash.growth.global")}
           </h3>
           <ul className="space-y-2">
             {globalGrowthSectors.map((s) => (
@@ -60,12 +61,12 @@ export function GrowthSectorsCard({ country }: Props) {
         </section>
         <section>
           <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {country.name}
+            {name}
           </h3>
           <ul className="space-y-2">
             {local.length === 0 ? (
               <li className="rounded-md border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
-                No local theme data yet for this country.
+                {t("dash.growth.noLocal")}
               </li>
             ) : (
               local.map((s) => (

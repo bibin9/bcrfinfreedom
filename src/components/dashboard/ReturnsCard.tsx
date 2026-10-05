@@ -2,22 +2,26 @@ import { BarChart3 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReturnComparison } from "@/components/charts/ReturnComparison";
 import type { CountryProfile } from "@/types";
+import { useI18n } from "@/i18n";
 
 interface Props {
   country: CountryProfile;
 }
 
 export function ReturnsCard({ country }: Props) {
+  const { t, countryName } = useI18n();
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-primary" />
-          Expected returns by asset class
+          {t("dash.returns.title")}
         </CardTitle>
         <CardDescription>
-          Long-run nominal expectations for {country.name}. Inflation in this market averages{" "}
-          {(country.inflationRate * 100).toFixed(1)}% — deduct that to think in real terms.
+          {t("dash.returns.desc", {
+            country: countryName(country.code, country.name),
+            inflation: (country.inflationRate * 100).toFixed(1),
+          })}
         </CardDescription>
       </CardHeader>
       <CardContent>

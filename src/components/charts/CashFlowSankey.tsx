@@ -3,6 +3,7 @@ import type { CashFlowDataset } from "@/lib/cashflow";
 import { layoutSankey, type SankeyLinkLayout, type SankeyNodeLayout } from "@/lib/sankey";
 import type { CountryProfile } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
+import { useI18n } from "@/i18n";
 
 interface Props {
   data: CashFlowDataset;
@@ -12,6 +13,8 @@ interface Props {
 const CHART_HEIGHT = 320;
 
 export function CashFlowSankey({ data, country }: Props) {
+  const { t } = useI18n();
+  const nodeLabel = (id: string) => data.nodes.find((n) => n.id === id)?.label ?? id;
   const [hoverLink, setHoverLink] = useState<string | null>(null);
   const [hoverNode, setHoverNode] = useState<string | null>(null);
   const [width, setWidth] = useState(700); // initial; will be overwritten by ResizeObserver
@@ -42,7 +45,7 @@ export function CashFlowSankey({ data, country }: Props) {
         viewBox={`0 0 ${layout.width} ${layout.height}`}
         className="h-auto w-full"
         role="img"
-        aria-label="Cash-flow Sankey diagram"
+        aria-label={t("dash.cashflow.aria")}
       >
         {/* Links first so they sit behind nodes */}
         {layout.links.map((link) => {
@@ -87,32 +90,32 @@ export function CashFlowSankey({ data, country }: Props) {
         {data.totals.remittance > 0 && (
           <span className="flex items-center gap-1">
             <span className="inline-block h-2 w-3 rounded-sm bg-pink-500" />
-            Sent home
+            {nodeLabel("remittance")}
           </span>
         )}
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-3 rounded-sm bg-red-500" />
-          Essentials
+          {t("dash.cashflow.node.essentials")}
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-3 rounded-sm bg-amber-500" />
-          Discretionary
+          {t("dash.cashflow.node.discretionary")}
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-3 rounded-sm bg-purple-500" />
-          Buffer
+          {t("dash.cashflow.node.buffer")}
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-3 rounded-sm bg-emerald-500" />
-          Savings
+          {t("dash.cashflow.node.savings")}
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-3 rounded-sm bg-blue-500" />
-          Goals
+          {t("dash.cashflow.legendGoals")}
         </span>
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-3 rounded-sm bg-orange-500" />
-          FIRE / Income
+          {t("dash.cashflow.legendFire")}
         </span>
       </div>
     </div>

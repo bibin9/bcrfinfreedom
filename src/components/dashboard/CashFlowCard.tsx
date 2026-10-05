@@ -7,6 +7,7 @@ import { convertCurrency } from "@/lib/fx";
 import { projectGoal } from "@/lib/goals";
 import type { CountryProfile, FreedomProjection, Goal } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
+import { useI18n } from "@/i18n";
 
 interface Props {
   /** Resident country — the chart is drawn in its currency. */
@@ -32,7 +33,9 @@ export function CashFlowCard({
   expectedReturn,
   goals,
 }: Props) {
-  const data = useMemo(() => {
+  const { t: tr } = useI18n();
+  const d = (key: string, vars?: Record<string, string | number>) => tr(`dash.cashflow.${key}`, vars);
+  const raw = useMemo(() => {
     const currentYear = new Date().getFullYear();
     const toResident = (v: number) => convertCurrency(v, destinationCountry, country);
     return buildCashFlow({
@@ -56,6 +59,21 @@ export function CashFlowCard({
     expectedReturn,
   ]);
 
+  // Translate the fixed node labels; goal nodes keep the user's own goal names.
+  const data = useMemo(() => {
+    const pct = raw.totals.income > 0 ? Math.round((raw.totals.savings / raw.totals.income) * 100) : 0;
+    return {
+      ...raw,
+      nodes: raw.nodes.map((n) => {
+        if (n.id.startsWith("goal_")) return { ...n, sub: tr("dash.cashflow.node.goalSub") };
+        if (n.id === "savings")
+          return { ...n, label: d("node.savings"), sub: d("node.savingsSub", { pct }) };
+        return { ...n, label: d(`node.${n.id}`), sub: d(`node.${n.id}Sub`) };
+      }),
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [raw, tr]);
+
   const t = data.totals;
   const savingsRatePct = t.income > 0 ? (t.savings / t.income) * 100 : 0;
   const fmt = (v: number) => formatCurrency(v, country, { compact: true });
@@ -65,15 +83,12 @@ export function CashFlowCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Waves className="h-5 w-5 text-orange-500" />
-          Monthly cash flow
-          <span className="ml-auto rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
-            Where your money goes
+          {d("title")}
+          <span className="ms-auto rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+            {d("badge")}
           </span>
         </CardTitle>
-        <CardDescription>
-          Follow your monthly take-home from paycheque to destination. Each strip's width is
-          the amount flowing through it. Hover any flow for the exact number.
-        </CardDescription>
+        <CardDescription>{d("desc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <CashFlowSankey data={data} country={country} />
@@ -81,12 +96,12 @@ export function CashFlowCard({
         <div
           className={`grid grid-cols-2 gap-2 ${t.remittance > 0 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}
         >
-          <Stat label="Monthly income" value={fmt(t.income)} />
-          {t.remittance > 0 && <Stat label="Sent home" value={fmt(t.remittance)} />}
-          <Stat label="Living costs" value={fmt(t.spending)} />
-          <Stat label="Saving" value={fmt(t.savings)} />
+          <Stat label={d("statIncome")} value={fmt(t.income)} />
+          {t.remittance > 0 && <Stat label={d("statSent")} value={fmt(t.remittance)} />}
+          <Stat label={d("statLiving")} value={fmt(t.spending)} />
+          <Stat label={d("statSaving")} value={fmt(t.savings)} />
           <Stat
-            label="Savings rate"
+            label={d("statRate")}
             value={`${savingsRatePct.toFixed(0)}%`}
             highlight={savingsRatePct >= 20 ? "emerald" : savingsRatePct >= 10 ? "amber" : "red"}
           />
@@ -95,18 +110,13 @@ export function CashFlowCard({
         {t.shortfall > 0 && (
           <div className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-2.5 text-xs">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-            <p>
-              Your FIRE and goal SIPs need <strong>{fmt(t.shortfall)}/month more</strong> than
-              you currently save. Save a little more after each pay rise (Fine-tune), or pick
-              a later freedom age. Small steps add up.
-            </p>
+            <p>{d("shortfall", { amount: fmt(t.shortfall) })}</p>
           </div>
         )}
 
         <p className="text-[11px] text-muted-foreground">
-          {t.remittance > 0 ? "Money sent home is kept separate from your own costs. " : ""}
-          Living costs are split 55 / 30 / 15 across essentials / discretionary / buffer as a
-          rough guide. Savings follow your Fine-tune savings rate.
+          {t.remittance > 0 ? `${d("noteRemit")} ` : ""}
+          {d("noteSplit")}
         </p>
       </CardContent>
     </Card>

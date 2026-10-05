@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import type { FreedomProjection } from "@/types";
+import { useI18n } from "@/i18n";
 
 interface Props {
   curve: FreedomProjection["savingsRateCurve"];
@@ -24,6 +25,7 @@ interface Props {
  * roughly halves your years-to-FI.
  */
 export function SavingsRateCurve({ curve, currentRate }: Props) {
+  const { t } = useI18n();
   const data = curve.map((p) => ({
     savingsRate: Math.round(p.savingsRate * 100),
     yearsToFI: p.yearsToFI != null ? Math.round(p.yearsToFI * 10) / 10 : null,
@@ -33,7 +35,7 @@ export function SavingsRateCurve({ curve, currentRate }: Props) {
   const currentBin = Math.round((currentRate * 100) / 5) * 5;
 
   return (
-    <div className="h-56 w-full sm:h-64" role="img" aria-label="Years to FIRE by savings rate">
+    <div className="h-56 w-full sm:h-64" role="img" aria-label={t("dash.charts.curveAria")}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 12, bottom: 4, left: 0 }}>
           <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
@@ -45,7 +47,7 @@ export function SavingsRateCurve({ curve, currentRate }: Props) {
             axisLine={false}
             tickFormatter={(v: number) => `${v}%`}
             label={{
-              value: "Savings rate",
+              value: t("dash.charts.savingsRate"),
               position: "insideBottom",
               offset: -2,
               fontSize: 11,
@@ -68,15 +70,18 @@ export function SavingsRateCurve({ curve, currentRate }: Props) {
               fontSize: 12,
               color: "hsl(var(--card-foreground))",
             }}
-            formatter={(value: number) => [`${value} years`, "Years to FIRE"]}
-            labelFormatter={(rate: number) => `Save ${rate}% of income`}
+            formatter={(value: number) => [
+              t("dash.charts.yearsN", { n: value }),
+              t("dash.charts.yearsToFire"),
+            ]}
+            labelFormatter={(rate: number) => t("dash.charts.saveN", { n: rate })}
           />
           <ReferenceLine
             x={currentBin}
             stroke="hsl(var(--primary))"
             strokeDasharray="4 4"
             label={{
-              value: "You",
+              value: t("dash.charts.you"),
               fill: "hsl(var(--primary))",
               fontSize: 11,
               position: "top",

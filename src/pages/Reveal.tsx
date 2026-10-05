@@ -35,7 +35,7 @@ export function Reveal() {
   const setFreedomAge = useUserStore((s) => s.setFreedomAge);
   const setSavingsRate = useUserStore((s) => s.setSavingsRate);
   const setRetirementCity = useUserStore((s) => s.setRetirementCity);
-  const { t } = useI18n();
+  const { t, countryName } = useI18n();
   const r = (key: string, vars?: Record<string, string | number>) => t(`reveal.${key}`, vars);
 
   const savingsRate = inputs.savingsRate ?? 0.3;
@@ -132,7 +132,7 @@ export function Reveal() {
         {r("subline", {
           age: freedom.freedomAge,
           inflation: (destinationCountry.inflationRate * 100).toFixed(1),
-          country: destinationCountry.name,
+          country: countryName(destinationCountry.code, destinationCountry.name),
         })}
       </p>
       {citiesFor(destinationCountry.code).length > 0 && (
@@ -149,8 +149,8 @@ export function Reveal() {
       {isExpatMode && (
         <p className="mt-2 text-center text-xs text-muted-foreground">
           {r("expatLine", {
-            home: country.name,
-            dest: destinationCountry.name,
+            home: countryName(country.code, country.name),
+            dest: countryName(destinationCountry.code, destinationCountry.name),
             amount: money(convertCurrency(freedom.targetCorpus, destinationCountry, country), country),
           })}
         </p>

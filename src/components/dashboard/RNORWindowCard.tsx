@@ -3,9 +3,9 @@ import { CalendarClock, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Term } from "@/components/ui/term";
 import { NRITaxDrawer } from "@/components/dashboard/NRITaxDrawer";
 import { projectRNORWindow } from "@/lib/nriTax";
+import { useI18n } from "@/i18n";
 
 interface Props {
   age: number;
@@ -20,6 +20,8 @@ interface Props {
  * main screens instead of behind the NRI checkbox.
  */
 export function RNORWindowCard({ age, freedomAge, residentCountryName }: Props) {
+  const { t } = useI18n();
+  const r = (key: string, vars?: Record<string, string | number>) => t(`dash.rnor.${key}`, vars);
   const thisYear = new Date().getFullYear();
   const [returnYear, setReturnYear] = useState(thisYear + Math.max(1, freedomAge - age));
   const [yearsAbroad, setYearsAbroad] = useState(10);
@@ -42,20 +44,15 @@ export function RNORWindowCard({ age, freedomAge, residentCountryName }: Props) 
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CalendarClock className="h-5 w-5 text-orange-500" />
-          Your return-to-India tax window
+          {r("title")}
         </CardTitle>
-        <CardDescription>
-          When you move back to India after many years in {residentCountryName}, India usually
-          gives you up to <strong>2 years</strong> where your foreign income and gains are{" "}
-          <strong>not taxed in India</strong>. This is called <Term>RNOR</Term>. Planning your
-          move around it can save lakhs.
-        </CardDescription>
+        <CardDescription>{r("desc", { country: residentCountryName })}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-xs">Year you plan to move back</Label>
+              <Label className="text-xs">{r("returnYear")}</Label>
               <span className="text-sm font-semibold tabular-nums text-orange-600 dark:text-orange-400">
                 {returnYear}
               </span>
@@ -66,12 +63,12 @@ export function RNORWindowCard({ age, freedomAge, residentCountryName }: Props) 
               max={thisYear + 40}
               step={1}
               onValueChange={([v]) => setReturnYear(v)}
-              aria-label="Year you plan to move back to India"
+              aria-label={r("returnYearAria")}
             />
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-xs">Years you'll have lived abroad by then</Label>
+              <Label className="text-xs">{r("yearsAbroad")}</Label>
               <span className="text-sm font-semibold tabular-nums">{yearsAbroad}</span>
             </div>
             <Slider
@@ -80,7 +77,7 @@ export function RNORWindowCard({ age, freedomAge, residentCountryName }: Props) 
               max={20}
               step={1}
               onValueChange={([v]) => setYearsAbroad(v)}
-              aria-label="Years lived abroad"
+              aria-label={r("yearsAbroadAria")}
             />
           </div>
         </div>
@@ -98,15 +95,13 @@ export function RNORWindowCard({ age, freedomAge, residentCountryName }: Props) 
                     : "border-border bg-muted/30"
                 }`}
               >
-                <p className="text-[11px] text-muted-foreground">
-                  Apr {y} – Mar {y + 1}
-                </p>
+                <p className="text-[11px] text-muted-foreground">{r("fy", { y, y2: y + 1 })}</p>
                 <p
                   className={`text-xs font-semibold ${
                     taxFree ? "text-emerald-700 dark:text-emerald-300" : "text-muted-foreground"
                   }`}
                 >
-                  {taxFree ? "Foreign income tax-free" : "Fully taxed in India"}
+                  {taxFree ? r("taxFree") : r("taxed")}
                 </p>
               </div>
             );
@@ -116,14 +111,14 @@ export function RNORWindowCard({ age, freedomAge, residentCountryName }: Props) 
         {rnor.rnorFYs.length > 0 ? (
           <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/5 p-3 text-sm">
             <p className="font-semibold">
-              Before March {(lastTaxFreeYear ?? returnYear) + 1}, do these while they're tax-free:
+              {r("doBefore", { year: (lastTaxFreeYear ?? returnYear) + 1 })}
             </p>
             <ul className="mt-2 space-y-1.5 text-xs">
               {[
-                `Sell the investments you hold outside India — gains won't be taxed in India during these years.`,
-                `Bring the money into India and reinvest it here — your bank can keep it in a foreign-currency (RFC) account if you'd rather not convert yet.`,
-                `Collect any final salary, bonus or end-of-service payment from your ${residentCountryName} employer.`,
-                `Close or convert foreign bank deposits — their interest stays tax-free in India only during this window.`,
+                r("do1"),
+                r("do2"),
+                r("do3", { country: residentCountryName }),
+                r("do4"),
               ].map((item) => (
                 <li key={item} className="flex gap-2">
                   <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
@@ -134,16 +129,13 @@ export function RNORWindowCard({ age, freedomAge, residentCountryName }: Props) 
           </div>
         ) : (
           <p className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-xs">
-            With only {yearsAbroad} year{yearsAbroad === 1 ? "" : "s"} abroad you likely won't get
-            this window — you'd be taxed in India on everything from the year you move back. Selling
-            foreign investments <strong>before</strong> you return is usually better.
+            {r("noWindow", { n: yearsAbroad })}
           </p>
         )}
 
         <div className="flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-[11px] text-muted-foreground">
-            Rough guide assuming you visit India about 2 months a year. Exact rules depend on
-            days spent in India — run the full calculator, and confirm with a CA before you move.
+            {r("footnote")}
           </p>
           <div className="shrink-0">
             <NRITaxDrawer />

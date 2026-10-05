@@ -54,7 +54,7 @@ export function Onboarding() {
   const setPhase = useUserStore((s) => s.setPhase);
   const setSavingsRate = useUserStore((s) => s.setSavingsRate);
   const setMonthlyRemittance = useUserStore((s) => s.setMonthlyRemittance);
-  const { t } = useI18n();
+  const { t, countryName } = useI18n();
   const o = (key: string, vars?: Record<string, string | number>) => t(`onboarding.${key}`, vars);
 
   const [step, setStep] = useState(1);
@@ -143,7 +143,7 @@ export function Onboarding() {
                   <SelectContent>
                     {countryList.map((c) => (
                       <SelectItem key={c.code} value={c.code}>
-                        {c.flag} {c.name} ({c.currency})
+                        {c.flag} {countryName(c.code, c.name)} ({c.currency})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -200,15 +200,15 @@ export function Onboarding() {
                       <SelectContent>
                         {countryList.map((c) => (
                           <SelectItem key={c.code} value={c.code}>
-                            {c.flag} {c.name} ({c.currency})
+                            {c.flag} {countryName(c.code, c.name)} ({c.currency})
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     <p className="text-[11px] text-muted-foreground">
                       {o("retireCountryNote", {
-                        dest: getCountryProfile(inputs.retirementCountry).name,
-                        home: selected?.name ?? "",
+                        dest: countryName(inputs.retirementCountry),
+                        home: selected ? countryName(selected.code, selected.name) : "",
                       })}
                     </p>
                   </div>

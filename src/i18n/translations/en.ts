@@ -1,3 +1,4 @@
+import { dashEn } from "./dash/en";
 export const en = {
   common: {
     edit: "Edit",
@@ -252,4 +253,60 @@ export const en = {
     cardTitle: "Was this useful?",
     cardBody: "Tell us what confused you or what's missing. Every message is read.",
   },
+  countries: {
+    AE: "United Arab Emirates",
+    SA: "Saudi Arabia",
+    IN: "India",
+    US: "United States",
+    GB: "United Kingdom",
+    CA: "Canada",
+    AU: "Australia",
+    SG: "Singapore",
+    DE: "Germany",
+    JP: "Japan",
+    MY: "Malaysia",
+    PH: "Philippines",
+    PK: "Pakistan",
+    BD: "Bangladesh",
+    EG: "Egypt",
+  },
+  cities: {
+    IN: {
+      average: "Big-city average",
+      mumbai: "Mumbai",
+      delhi: "Delhi NCR",
+      bengaluru: "Bengaluru",
+      hyderabad: "Hyderabad",
+      chennai: "Chennai",
+      pune: "Pune",
+      kolkata: "Kolkata",
+      kerala: "Kochi / Thiruvananthapuram",
+      tier2: "Smaller city (Coimbatore, Jaipur, Lucknow…)",
+      town: "Hometown / small town",
+    },
+    AE: {
+      average: "Dubai",
+      abudhabi: "Abu Dhabi",
+      sharjah: "Sharjah / Ajman",
+      northern: "Ras Al Khaimah / Fujairah",
+    },
+    SA: {
+      average: "Riyadh",
+      jeddah: "Jeddah",
+      eastern: "Dammam / Al Khobar",
+      other: "Smaller city",
+    },
+    US: {
+      average: "National average",
+      nyc_sf: "New York / San Francisco",
+      major: "Boston / Seattle / Los Angeles",
+      lower: "Lower-cost city or town",
+    },
+    GB: {
+      average: "National average",
+      london: "London",
+      other: "Smaller city or town",
+    },
+  },
+  dash: dashEn,
 };

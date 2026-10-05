@@ -1,3 +1,5 @@
+import type { I18nMsg } from "@/i18n/msg";
+
 /**
  * Shared domain types for BCR Fin Freedom.
  *
@@ -217,6 +219,9 @@ export interface AllocationBreakdown {
   label: string;
   percent: number;
   rationale: string;
+  /** Translatable versions of label / rationale for the UI. */
+  labelMsg?: I18nMsg;
+  rationaleMsg?: I18nMsg;
 }
 
 export interface AllocationResult {
@@ -227,6 +232,8 @@ export interface AllocationResult {
   equityWeight: number;
   /** Explanation of how the allocation was derived — shown to the user. */
   explanation: string[];
+  /** Same explanation as translatable messages (same order). */
+  explanationMsgs?: I18nMsg[];
 }
 
 export interface FreedomProjection {

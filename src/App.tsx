@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { I18nProvider } from "@/i18n";
+import { I18nProvider, useI18n } from "@/i18n";
 import { Header } from "@/components/layout/Header";
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import { InstallPrompt } from "@/components/layout/InstallPrompt";
@@ -19,6 +19,15 @@ const Dashboard = lazy(() =>
 );
 
 export default function App() {
+  return (
+    <I18nProvider>
+      <AppShell />
+    </I18nProvider>
+  );
+}
+
+function AppShell() {
+  const { t } = useI18n();
   const phase = useUserStore((s) => s.phase);
   const theme = useUserStore((s) => s.theme);
   const reset = useUserStore((s) => s.reset);
@@ -31,14 +40,13 @@ export default function App() {
   }, [theme]);
 
   return (
-    <I18nProvider>
       <TooltipProvider>
       <div className="min-h-screen bg-background text-foreground">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
         >
-          Skip to main content
+          {t("dash.app.skip")}
         </a>
         <Header />
         <main id="main">
@@ -51,7 +59,7 @@ export default function App() {
                 fallback={
                   <div className="container flex items-center justify-center py-24 text-muted-foreground">
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Loading your plan…
+                    {t("dash.app.loading")}
                   </div>
                 }
               >
@@ -62,12 +70,9 @@ export default function App() {
         </main>
         <footer className="container mt-16 border-t border-border py-6 text-center text-xs text-muted-foreground">
           <p>
-            🔥 <strong className="text-foreground">BCR FIRE</strong> — built by a UAE-based
-            banking-payments IT developer who built the FIRE tool he needed himself.
+            🔥 <strong className="text-foreground">BCR FIRE</strong> — {t("footer.builtBy")}
           </p>
-          <p className="mt-1">
-            Educational use only · Not financial advice · © BibinCutRiver
-          </p>
+          <p className="mt-1">{t("footer.disclaimer")}</p>
           <p className="mt-2">
             <FeedbackDialog />
           </p>
@@ -76,6 +81,5 @@ export default function App() {
         <AIChatButton />
       </div>
       </TooltipProvider>
-    </I18nProvider>
   );
 }

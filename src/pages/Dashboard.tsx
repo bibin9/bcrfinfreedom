@@ -43,7 +43,8 @@ import { projectWindfalls, totalWindfallsAtRetirement } from "@/lib/windfalls";
 import { toUserInput, useUserStore } from "@/store/userStore";
 
 export function Dashboard() {
-  const { t } = useI18n();
+  const { t, countryName } = useI18n();
+  const d = (key: string, vars?: Record<string, string | number>) => t(`dash.${key}`, vars);
   const inputs = useUserStore((s) => s.inputs);
   const setPhase = useUserStore((s) => s.setPhase);
   const setSavingsRate = useUserStore((s) => s.setSavingsRate);
@@ -163,20 +164,28 @@ export function Dashboard() {
       <div className="container max-w-xl py-16 text-center">
         <Card>
           <CardHeader>
-            <CardTitle>Finish onboarding first</CardTitle>
-            <CardDescription>
-              We need a few inputs to generate your personalised plan.
-            </CardDescription>
+            <CardTitle>{d("shell.finishTitle")}</CardTitle>
+            <CardDescription>{d("shell.finishBody")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => setPhase("onboarding")}>Start onboarding</Button>
+            <Button onClick={() => setPhase("onboarding")}>{d("shell.finishButton")}</Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  const goalLabel = complete.goal.replace(/_/g, " ");
+  const goalLabel = t(`onboarding.goals.${complete.goal}.label`);
+  const riskLabel = t(
+    `onboarding.${
+      complete.risk === "conservative"
+        ? "riskConservative"
+        : complete.risk === "aggressive"
+          ? "riskAggressive"
+          : "riskModerate"
+    }`,
+  );
+  const homeName = countryName(country.code, country.name);
 
   // Living abroad and retiring in India — the NRI tools apply even if they
   // never tick the NRI checkbox.
@@ -187,7 +196,7 @@ export function Dashboard() {
     <RNORWindowCard
       age={complete.age}
       freedomAge={freedom.freedomAge}
-      residentCountryName={country.name}
+      residentCountryName={countryName(country.code, country.name)}
     />
   ) : null;
 
@@ -196,26 +205,27 @@ export function Dashboard() {
       <header className="mb-3 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0">
           <h1 className="truncate text-lg font-semibold tracking-tight sm:text-2xl">
-            Your BCR FIRE plan
+            {d("shell.title")}
           </h1>
           <p className="mt-0.5 text-[11px] text-muted-foreground sm:mt-1 sm:text-sm">
-            {complete.age}y · {complete.risk} ·{" "}
+            {d("shell.age", { age: complete.age })} · {riskLabel} ·{" "}
             {isExpatMode && destinationCountry ? (
               <span>
                 <span className="font-medium text-foreground">
-                  {country.flag} Living {country.name}
+                  {d("shell.living", { country: homeName })}
                 </span>{" "}
-                →{" "}
+                <span className="rtl:hidden">→</span>
+                <span className="ltr:hidden">←</span>{" "}
                 <span className="font-medium text-orange-600 dark:text-orange-400">
-                  {destinationCountry.flag} Retiring {destinationCountry.name}
+                  {d("shell.retiring", {
+                    country: countryName(destinationCountry.code, destinationCountry.name),
+                  })}
                 </span>
               </span>
             ) : (
-              <span>
-                {country.flag} {country.name}
-              </span>
+              <span>{homeName}</span>
             )}{" "}
-            · <span className="capitalize">{goalLabel}</span>
+            · <span>{goalLabel}</span>
             {isNRI && <span className="ml-1 text-emerald-500">· NRI</span>}
           </p>
         </div>
@@ -223,8 +233,8 @@ export function Dashboard() {
           <ExportPlanButton compact />
           <Button variant="outline" size="sm" onClick={() => setPhase("onboarding")}>
             <Pencil className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Edit inputs</span>
-            <span className="sm:hidden">Edit</span>
+            <span className="hidden sm:inline">{t("header.editInputs")}</span>
+            <span className="sm:hidden">{t("header.edit")}</span>
           </Button>
           {/* NRI toggle demoted to a quiet checkbox — rare, once-set action */}
           <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -245,16 +255,15 @@ export function Dashboard() {
       <DashboardNav active={effectiveTab} onChange={setDashboardTab} showNRI={showNRI} />
 
       <div className="mt-4 grid gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-3">
-        <div className="space-y-4 sm:space-y-6 lg:col-span-2">
+        <div className="min-w-0 space-y-4 sm:space-y-6 lg:col-span-2">
           {effectiveTab === "overview" && (
             <>
               {isGulfResident && !hasEosbWindfall && (
                 <div className="flex flex-col gap-2 rounded-lg border border-orange-500/40 bg-orange-500/5 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
                   <p>
-                    <strong>Your end-of-service benefit isn't in this plan yet.</strong>{" "}
+                    <strong>{d("shell.eosbTitle")}</strong>{" "}
                     <span className="text-muted-foreground">
-                      For most {country.code === "AE" ? "UAE" : "Saudi"} expats it's a large
-                      lump sum that lowers the SIP you need.
+                      {d("shell.eosbBody", { country: homeName })}
                     </span>
                   </p>
                   <Button
@@ -262,7 +271,7 @@ export function Dashboard() {
                     className="shrink-0 bg-orange-600 hover:bg-orange-700"
                     onClick={() => setDashboardTab("assets")}
                   >
-                    Estimate it
+                    {d("shell.eosbButton")}
                   </Button>
                 </div>
               )}
@@ -291,8 +300,8 @@ export function Dashboard() {
               />
               {rnorCard}
               <Collapsible
-                title={`More context for ${country.name}`}
-                subtitle="market returns + growth sectors"
+                title={d("shell.moreContext", { country: homeName })}
+                subtitle={d("shell.moreContextSub")}
               >
                 <div className="space-y-4">
                   <ReturnsCard country={country} />
@@ -448,7 +457,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        <aside className="space-y-4 sm:space-y-6">
+        <aside className="min-w-0 space-y-4 sm:space-y-6">
           <TunePanel
             country={country}
             destinationCountry={destinationCountry ?? country}
@@ -472,19 +481,25 @@ export function Dashboard() {
           />
           <Card>
             <CardHeader>
-              <CardTitle>Local context</CardTitle>
-              <CardDescription>Quick reference for {country.name}.</CardDescription>
+              <CardTitle>{d("shell.localTitle")}</CardTitle>
+              <CardDescription>{d("shell.localDesc", { country: homeName })}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
-              <Row label="Regulator" value={country.regulatoryBody} />
-              <Row label="Retirement age" value={`${country.retirementAge}`} />
-              <Row label="Inflation" value={`${(country.inflationRate * 100).toFixed(1)}%`} />
+              <Row label={d("shell.regulator")} value={country.regulatoryBody} />
+              <Row label={d("shell.retirementAge")} value={`${country.retirementAge}`} />
               <Row
-                label="Emergency fund"
-                value={`${country.emergencyFundMonths} months`}
+                label={d("shell.inflation")}
+                value={`${(country.inflationRate * 100).toFixed(1)}%`}
               />
-              <Row label="Sharia market" value={country.shariaMarket ? "Yes" : "No"} />
-              <Row label="Data last reviewed" value={COUNTRY_DATA_LAST_REVIEWED} />
+              <Row
+                label={d("shell.emergencyFund")}
+                value={d("shell.months", { n: country.emergencyFundMonths })}
+              />
+              <Row
+                label={d("shell.sharia")}
+                value={country.shariaMarket ? d("common.yes") : d("common.no")}
+              />
+              <Row label={d("shell.dataReviewed")} value={COUNTRY_DATA_LAST_REVIEWED} />
             </CardContent>
           </Card>
           <Disclaimer country={country} />
@@ -496,7 +511,7 @@ export function Dashboard() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between border-b border-border py-1.5 last:border-0">
+    <div className="flex items-center justify-between gap-3 border-b border-border py-1.5 last:border-0">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-medium">{value}</span>
     </div>

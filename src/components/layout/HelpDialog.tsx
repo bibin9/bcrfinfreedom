@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FeedbackDialog } from "@/components/layout/FeedbackDialog";
+import { useI18n } from "@/i18n";
 
 /**
  * The in-app user manual. Designed for "first-time, never-heard-of-FIRE"
@@ -32,6 +33,7 @@ import { FeedbackDialog } from "@/components/layout/FeedbackDialog";
  * plain-English translation right after.
  */
 export function HelpDialog() {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const onOpen = () => setOpen(true);
@@ -44,12 +46,12 @@ export function HelpDialog() {
         <Button
           variant="outline"
           size="sm"
-          aria-label="Help and user manual"
+          aria-label={t("common.help")}
           className="gap-1.5 border-orange-500/40 text-orange-700 hover:bg-orange-500/10 hover:text-orange-800 dark:text-orange-300 dark:hover:text-orange-200"
         >
           <HelpCircle className="h-4 w-4" />
-          <span className="hidden sm:inline">New here?</span>
-          <span className="sm:hidden">Help</span>
+          <span className="hidden sm:inline">{t("common.newHere")}</span>
+          <span className="sm:hidden">{t("common.help")}</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

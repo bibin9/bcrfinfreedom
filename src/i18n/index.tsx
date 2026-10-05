@@ -3,6 +3,10 @@ import { en } from "./translations/en";
 import { hi } from "./translations/hi";
 import { ml } from "./translations/ml";
 import { ar } from "./translations/ar";
+import type { I18nMsg } from "./msg";
+
+export type { I18nMsg } from "./msg";
+export { msg } from "./msg";
 
 export type Language = "en" | "hi" | "ml" | "ar";
 
@@ -33,6 +37,14 @@ interface I18nContextValue {
    * `{name}` placeholders are filled from `vars`.
    */
   t: (key: string, vars?: Record<string, string | number>) => string;
+  /** Like t(), but returns `fallback` when no language has the key. */
+  tOr: (key: string, fallback: string, vars?: Record<string, string | number>) => string;
+  /** Translate a message built by non-React code (see i18n/msg.ts). */
+  tm: (m: I18nMsg) => string;
+  /** Country name in the current language. */
+  countryName: (code: string, fallback?: string) => string;
+  /** City name in the current language (falls back to the English data name). */
+  cityName: (countryCode: string, cityId: string, fallback: string) => string;
   dir: "ltr" | "rtl";
 }
 
@@ -71,12 +83,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     }
   }, [dir, lang]);
 
-  const t = useMemo(() => {
+  const api = useMemo(() => {
     const dict = TRANSLATIONS[lang] ?? en;
-    const fallback = en;
     const fill = (s: string, vars?: Record<string, string | number>) =>
       vars ? s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m)) : s;
-    return (key: string, vars?: Record<string, string | number>): string => {
+    const lookup = (key: string): string | undefined => {
       const parts = key.split(".");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const walk = (obj: any): any => {
@@ -88,16 +99,37 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         return cur;
       };
       const hit = walk(dict);
-      if (typeof hit === "string") return fill(hit, vars);
-      const fb = walk(fallback);
-      if (typeof fb === "string") return fill(fb, vars);
-      return key;
+      if (typeof hit === "string") return hit;
+      const fb = walk(en);
+      return typeof fb === "string" ? fb : undefined;
     };
+    const t = (key: string, vars?: Record<string, string | number>) => {
+      const s = lookup(key);
+      return s == null ? key : fill(s, vars);
+    };
+    const tOr = (key: string, fallback: string, vars?: Record<string, string | number>) => {
+      const s = lookup(key);
+      return fill(s ?? fallback, vars);
+    };
+    const tm = (m: I18nMsg) => {
+      if (!m.vars) return t(m.key);
+      const vars: Record<string, string | number> = {};
+      for (const [k, v] of Object.entries(m.vars)) {
+        if (k.endsWith("Key") && typeof v === "string") vars[k.slice(0, -3)] = t(v);
+        else vars[k] = v;
+      }
+      return t(m.key, vars);
+    };
+    const countryName = (code: string, fallback?: string) =>
+      tOr(`countries.${code}`, fallback ?? code);
+    const cityName = (countryCode: string, cityId: string, fallback: string) =>
+      tOr(`cities.${countryCode}.${cityId}`, fallback);
+    return { t, tOr, tm, countryName, cityName };
   }, [lang]);
 
   const value = useMemo<I18nContextValue>(
-    () => ({ lang, setLang, t, dir }),
-    [lang, t, dir],
+    () => ({ lang, setLang, dir, ...api }),
+    [lang, api, dir],
   );
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import type { CountryProfile } from "@/types";
+import { useI18n } from "@/i18n";
 
 interface Props {
   country: CountryProfile;
@@ -19,21 +20,23 @@ interface Props {
  * available in the user's country.
  */
 export function ReturnComparison({ country }: Props) {
+  const { t } = useI18n();
+  const c = (key: string) => t(`dash.charts.${key}`);
   const data = [
-    { name: "Local Equities", return: country.expectedEquityReturn * 100, color: "#10b981" },
-    { name: "Intl Equities", return: 7.5, color: "#059669" },
+    { name: c("localEq"), return: country.expectedEquityReturn * 100, color: "#10b981" },
+    { name: c("intlEq"), return: 7.5, color: "#059669" },
     {
-      name: country.shariaMarket ? "Sukuk" : "Bonds",
+      name: country.shariaMarket ? c("sukuk") : c("bonds"),
       return: country.expectedBondReturn * 100,
       color: "#3b82f6",
     },
-    { name: "REITs", return: country.expectedEquityReturn * 0.7 * 100, color: "#a855f7" },
-    { name: "Gold", return: 5, color: "#f59e0b" },
-    { name: "Cash", return: 3, color: "#64748b" },
+    { name: c("reits"), return: country.expectedEquityReturn * 0.7 * 100, color: "#a855f7" },
+    { name: c("gold"), return: 5, color: "#f59e0b" },
+    { name: c("cash"), return: 3, color: "#64748b" },
   ];
 
   return (
-    <div className="h-64 w-full" role="img" aria-label="Expected returns by asset class">
+    <div className="h-64 w-full" role="img" aria-label={c("returnsAria")}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 10, right: 16, bottom: 0, left: 0 }}>
           <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
@@ -60,7 +63,7 @@ export function ReturnComparison({ country }: Props) {
               fontSize: 12,
               color: "hsl(var(--card-foreground))",
             }}
-            formatter={(value: number) => [`${value.toFixed(1)}%`, "Expected (nominal)"]}
+            formatter={(value: number) => [`${value.toFixed(1)}%`, c("expected")]}
           />
           <Bar dataKey="return" radius={[6, 6, 0, 0]}>
             {data.map((d) => (

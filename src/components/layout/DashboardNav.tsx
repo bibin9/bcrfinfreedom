@@ -105,7 +105,7 @@ export function DashboardNav({ active, onChange, showNRI }: Props) {
 
   return (
     <nav
-      aria-label="Sections"
+      aria-label={t("dash.shell.sectionsAria")}
       className="sticky top-14 z-30 -mx-3 border-b border-border bg-background/90 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:mx-0 sm:rounded-lg sm:border sm:bg-card sm:px-2"
     >
       {/* LEVEL 1 — 3 super-section buttons */}

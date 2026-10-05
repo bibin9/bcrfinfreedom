@@ -2,7 +2,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
-import { Term } from "@/components/ui/term";
 import {
   Select,
   SelectContent,
@@ -15,6 +14,7 @@ import { citiesFor, findCity } from "@/data/cities";
 import { CitySelect } from "@/components/dashboard/CitySelect";
 import type { CountryCode, CountryProfile, HouseholdSize } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
+import { useI18n } from "@/i18n";
 
 interface Props {
   country: CountryProfile;
@@ -72,19 +72,31 @@ export function TunePanel({
       ? destinationCountry.averageAnnualExpensesFamily
       : destinationCountry.averageAnnualExpensesSingle) * (city?.multiplier ?? 1);
   const isExpat = destinationCountry.code !== country.code;
+  const { t, countryName, cityName } = useI18n();
+  const d = (key: string, vars?: Record<string, string | number>) => t(`dash.tune.${key}`, vars);
+  const destName = countryName(destinationCountry.code, destinationCountry.name);
+  const homeName = countryName(country.code, country.name);
+  const place = city ? cityName(destinationCountry.code, city.id, city.name) : destName;
+
+  const toggleClass = (on: boolean, tone: "orange" | "primary") =>
+    `rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
+      on
+        ? tone === "orange"
+          ? "border-orange-500 bg-orange-500/10 text-orange-700 dark:text-orange-300"
+          : "border-primary bg-primary/10 text-primary"
+        : "border-border text-muted-foreground hover:bg-muted/40"
+    }`;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Fine-tune</CardTitle>
-        <CardDescription>
-          Change these and the charts recompute instantly.
-        </CardDescription>
+        <CardTitle>{d("title")}</CardTitle>
+        <CardDescription>{d("desc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label>Part of salary you save</Label>
+            <Label>{d("savePart")}</Label>
             <span className="text-sm font-semibold text-primary tabular-nums">
               {(savingsRate * 100).toFixed(0)}%
             </span>
@@ -95,19 +107,18 @@ export function TunePanel({
             max={70}
             step={1}
             onValueChange={([v]) => onSavingsRate(v / 100)}
-            aria-label="Monthly savings rate"
+            aria-label={d("savePart")}
           />
           <p className="text-xs text-muted-foreground">
-            ={" "}
             <span className="font-semibold text-foreground">
-              {formatCurrency(monthlyIncome * savingsRate, country)} a month
-            </span>
-            . Add 1–2% every time your salary goes up — you won't feel it, but it adds up.
+              {d("saveAmount", { amount: formatCurrency(monthlyIncome * savingsRate, country) })}
+            </span>{" "}
+            {d("saveHint")}
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="remittance">Money you send home each month ({country.currency})</Label>
+          <Label htmlFor="remittance">{d("remitLabel", { currency: country.currency })}</Label>
           <Input
             id="remittance"
             type="number"
@@ -117,20 +128,17 @@ export function TunePanel({
             placeholder="0"
             onChange={(e) => onMonthlyRemittance(Number(e.target.value) || 0)}
           />
-          <p className="text-xs text-muted-foreground">
-            For parents, family or loans back home. It's not counted as your savings or your own
-            spending.
-          </p>
+          <p className="text-xs text-muted-foreground">{d("remitHint")}</p>
           {monthlyIncome > 0 && monthlyRemittance + monthlyIncome * savingsRate > monthlyIncome && (
             <p role="alert" className="text-xs font-medium text-red-600 dark:text-red-400">
-              Savings plus money sent home is more than your salary — lower one of them.
+              {d("remitTooHigh")}
             </p>
           )}
         </div>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label>Target freedom age</Label>
+            <Label>{d("freedomAge")}</Label>
             <span className="text-sm font-semibold text-primary tabular-nums">
               {freedomAge}
             </span>
@@ -141,29 +149,26 @@ export function TunePanel({
             max={maxFreedom}
             step={1}
             onValueChange={([v]) => onFreedomAge(v)}
-            aria-label="Target freedom age"
+            aria-label={d("freedomAge")}
           />
           <p className="text-xs text-muted-foreground">
-            Pick when you want the option to stop working. Target <Term>Corpus</Term> and required{" "}
-            <Term>SIP</Term> both recompute against this age, adjusted for {destinationCountry.name}'s{" "}
-            <Term>Inflation</Term> of {(destinationCountry.inflationRate * 100).toFixed(1)}%.
+            {d("freedomAgeHint", {
+              country: destName,
+              inflation: (destinationCountry.inflationRate * 100).toFixed(1),
+            })}
           </p>
         </div>
 
         {/* Retirement destination — visible for everyone, opt-in for expats */}
         <div className="space-y-2 rounded-md border border-orange-500/20 bg-orange-500/[0.03] p-2.5">
-          <Label className="text-xs">Retirement destination</Label>
+          <Label className="text-xs">{d("destination")}</Label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => onRetirementCountry(undefined)}
-              className={`rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
-                !isExpat
-                  ? "border-orange-500 bg-orange-500/10 text-orange-700 dark:text-orange-300"
-                  : "border-border text-muted-foreground hover:bg-muted/40"
-              }`}
+              className={toggleClass(!isExpat, "orange")}
             >
-              Same as home
+              {d("sameAsHome")}
             </button>
             <button
               type="button"
@@ -171,13 +176,9 @@ export function TunePanel({
                 // Default to India if not already expat-mode.
                 if (!isExpat) onRetirementCountry("IN");
               }}
-              className={`rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
-                isExpat
-                  ? "border-orange-500 bg-orange-500/10 text-orange-700 dark:text-orange-300"
-                  : "border-border text-muted-foreground hover:bg-muted/40"
-              }`}
+              className={toggleClass(isExpat, "orange")}
             >
-              Different country
+              {d("differentCountry")}
             </button>
           </div>
           {isExpat && (
@@ -186,58 +187,45 @@ export function TunePanel({
                 value={destinationCountry.code}
                 onValueChange={(v) => onRetirementCountry(v as CountryCode)}
               >
-                <SelectTrigger
-                  aria-label="Retirement country"
-                  className="bg-background text-xs"
-                >
+                <SelectTrigger aria-label={d("destination")} className="bg-background text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {countryList.map((c) => (
                     <SelectItem key={c.code} value={c.code}>
-                      {c.flag} {c.name} ({c.currency})
+                      {c.flag} {countryName(c.code, c.name)} ({c.currency})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <p className="text-[11px] text-muted-foreground">
-                FIRE number, expenses, and inflation use{" "}
-                <strong>{destinationCountry.name}</strong> data. Your salary and
-                investments stay anchored in <strong>{country.name}</strong>.
+                {d("destNote", { dest: destName, home: homeName })}
               </p>
             </>
           )}
         </div>
 
         <div className="space-y-2">
-          <Label>Household</Label>
+          <Label>{d("household")}</Label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => onHouseholdSize("single")}
-              className={`rounded-md border px-3 py-2 text-xs font-medium transition ${
-                householdSize === "single"
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:bg-muted/40"
-              }`}
+              className={toggleClass(householdSize === "single", "primary")}
             >
-              Single
+              {d("single")}
             </button>
             <button
               type="button"
               onClick={() => onHouseholdSize("family")}
-              className={`rounded-md border px-3 py-2 text-xs font-medium transition ${
-                householdSize === "family"
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border text-muted-foreground hover:bg-muted/40"
-              }`}
+              className={toggleClass(householdSize === "family", "primary")}
             >
-              Family of 4
+              {d("family")}
             </button>
           </div>
           {citiesFor(destinationCountry.code).length > 0 && (
             <div className="space-y-1 pt-1">
-              <Label className="text-xs">Where you'll live after you stop working</Label>
+              <Label className="text-xs">{d("cityLabel")}</Label>
               <CitySelect
                 country={destinationCountry.code}
                 value={retirementCity}
@@ -247,42 +235,42 @@ export function TunePanel({
             </div>
           )}
           <p className="text-xs text-muted-foreground">
-            Typical yearly spend in {city?.name ?? destinationCountry.name}:{" "}
-            <span className="font-semibold text-foreground">
-              {formatCurrency(benchmark, destinationCountry, { compact: true })}/yr
-            </span>
-            . Used unless you enter your own expenses below.
+            {d("typicalSpend", {
+              place,
+              amount: formatCurrency(benchmark, destinationCountry, { compact: true }),
+            })}
           </p>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="expenses">
-            Your annual expenses — optional ({destinationCountry.currency})
+            {d("expensesLabel", { currency: destinationCountry.currency })}
           </Label>
           <Input
             id="expenses"
             type="number"
+            inputMode="numeric"
             min={0}
             value={annualExpensesOverride || ""}
-            placeholder={`Benchmark ${Math.round(benchmark).toLocaleString()}`}
+            placeholder={d("expensesPlaceholder", {
+              amount: Math.round(benchmark).toLocaleString(),
+            })}
             onChange={(e) => {
               const v = Number(e.target.value);
               onAnnualExpensesOverride(v > 0 ? v : undefined);
             }}
           />
           <p className="text-xs text-muted-foreground">
-            Override if you know your actual household spend. Blank = use the{" "}
-            {householdSize === "family" ? "family-of-4" : "single"} benchmark.
+            {d(householdSize === "family" ? "expensesHintFamily" : "expensesHintSingle")}
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="corpus">
-            Current invested <Term>Corpus</Term> ({country.currency})
-          </Label>
+          <Label htmlFor="corpus">{d("corpusLabel", { currency: country.currency })}</Label>
           <Input
             id="corpus"
             type="number"
+            inputMode="numeric"
             min={0}
             value={currentCorpus || ""}
             placeholder="0"
@@ -290,7 +278,7 @@ export function TunePanel({
           />
           {currentCorpus > 0 && (
             <p className="text-xs text-muted-foreground">
-              Displayed as {formatCurrency(currentCorpus, country)}.
+              {d("corpusShown", { amount: formatCurrency(currentCorpus, country) })}
             </p>
           )}
         </div>

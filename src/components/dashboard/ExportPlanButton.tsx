@@ -8,6 +8,7 @@ import { calculateFreedom } from "@/lib/freedom";
 import { projectGoal } from "@/lib/goals";
 import { projectWindfalls, totalWindfallsAtRetirement } from "@/lib/windfalls";
 import { toUserInput, useUserStore } from "@/store/userStore";
+import { useI18n } from "@/i18n";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -26,6 +27,7 @@ interface Props {
  * prop-drilling the full context.
  */
 export function ExportPlanButton({ size = "sm", compact = false }: Props) {
+  const { t } = useI18n();
   const inputs = useUserStore((s) => s.inputs);
   const goals = useUserStore((s) => s.goals);
   const assets = useUserStore((s) => s.assets);
@@ -99,7 +101,7 @@ export function ExportPlanButton({ size = "sm", compact = false }: Props) {
       const { generatePlanPDF } = await import("@/lib/planPdf");
       await generatePlanPDF(context);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Could not generate PDF");
+      setErr(e instanceof Error ? e.message : t("dash.export.error"));
     } finally {
       setBusy(false);
     }
@@ -118,12 +120,12 @@ export function ExportPlanButton({ size = "sm", compact = false }: Props) {
         {busy ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            {!compact && <span>Building PDF…</span>}
+            {!compact && <span>{t("header.buildingPdf")}</span>}
           </>
         ) : (
           <>
             <Download className="h-4 w-4" />
-            {!compact && <span>Export my plan</span>}
+            {!compact && <span>{t("header.exportPlan")}</span>}
           </>
         )}
       </Button>

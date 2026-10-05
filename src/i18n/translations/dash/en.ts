@@ -1,0 +1,367 @@
+/**
+ * Dashboard strings (English). Other languages are typed `typeof dashEn`,
+ * so every key here must exist in hi / ml / ar.
+ */
+export const dashEn = {
+  common: {
+    yes: "Yes",
+    no: "No",
+    perMonth: "/mo",
+    perYear: "/yr",
+    years: "{n} yrs",
+    year1: "1 yr",
+    lessThanYear: "< 1 yr",
+  },
+  shell: {
+    finishTitle: "Finish onboarding first",
+    finishBody: "We need a few answers to build your plan.",
+    finishButton: "Start onboarding",
+    title: "Your BCR FIRE plan",
+    age: "{age} yrs",
+    living: "Living in {country}",
+    retiring: "Retiring in {country}",
+    sectionsAria: "Sections",
+    eosbTitle: "Your end-of-service benefit isn't in this plan yet.",
+    eosbBody:
+      "For most expats in {country} it's a large lump sum that lowers what you need to invest each month.",
+    eosbButton: "Estimate it",
+    moreContext: "More about {country}",
+    moreContextSub: "market returns and growing sectors",
+    localTitle: "Local facts",
+    localDesc: "Quick reference for {country}.",
+    regulator: "Regulator",
+    retirementAge: "Retirement age",
+    inflation: "Prices rising (inflation)",
+    emergencyFund: "Emergency fund",
+    months: "{n} months",
+    sharia: "Sharia-compliant market",
+    dataReviewed: "Data last checked",
+  },
+  tune: {
+    title: "Fine-tune",
+    desc: "Change these and everything updates instantly.",
+    savePart: "Part of salary you save",
+    saveAmount: "= {amount} a month.",
+    saveHint: "Add 1–2% every time your salary goes up — you won't feel it, but it adds up.",
+    remitLabel: "Money you send home each month ({currency})",
+    remitHint:
+      "For parents, family or loans back home. It's not counted as your savings or your own spending.",
+    remitTooHigh: "Savings plus money sent home is more than your salary — lower one of them.",
+    freedomAge: "Age you want to be free",
+    freedomAgeHint:
+      "Pick when you want the choice to stop working. Your FIRE number and monthly investment update for this age, with prices in {country} rising {inflation}% a year.",
+    destination: "Where you'll retire",
+    sameAsHome: "Same as now",
+    differentCountry: "Different country",
+    destNote:
+      "FIRE number, expenses and price rises use {dest}. Your salary and investments stay in {home}.",
+    household: "Household",
+    single: "Just me",
+    family: "Family of 4",
+    cityLabel: "Where you'll live after you stop working",
+    typicalSpend: "Typical yearly spend in {place}: {amount}/yr. Used unless you enter your own below.",
+    expensesLabel: "Your yearly expenses — optional ({currency})",
+    expensesPlaceholder: "Typical: {amount}",
+    expensesHintSingle:
+      "Enter this if you know what you really spend. Leave blank to use the typical figure for one person.",
+    expensesHintFamily:
+      "Enter this if you know what your household really spends. Leave blank to use the typical figure for a family of 4.",
+    corpusLabel: "Money already invested ({currency})",
+    corpusShown: "Shown as {amount}.",
+  },
+  city: {
+    aria: "City you'll live in after you stop working",
+    costlier: "costlier",
+    cheaper: "cheaper",
+  },
+  cashflow: {
+    title: "Monthly cash flow",
+    badge: "Where your money goes",
+    desc:
+      "Follow your salary from payday to where it ends up. The wider the strip, the more money flows through it. Tap or hover a strip for the exact amount.",
+    statIncome: "Monthly income",
+    statSent: "Sent home",
+    statLiving: "Living costs",
+    statSaving: "Saving",
+    statRate: "Savings rate",
+    shortfall:
+      "Your FIRE and goal investments need {amount}/month more than you save now. Save a little more after each pay rise (Fine-tune), or pick a later freedom age. Small steps add up.",
+    noteRemit: "Money sent home is kept separate from your own costs.",
+    noteSplit:
+      "Living costs are split 55 / 30 / 15 across essentials / extras / buffer as a rough guide. Savings follow your Fine-tune savings rate.",
+    aria: "Cash-flow diagram",
+    legendGoals: "Goals",
+    legendFire: "FIRE / Income",
+    node: {
+      income: "Income",
+      incomeSub: "/month",
+      remittance: "Sent home",
+      remittanceSub: "family back home",
+      essentials: "Essentials",
+      essentialsSub: "rent · food · transport",
+      discretionary: "Extras",
+      discretionarySub: "eating out · fun",
+      buffer: "Buffer",
+      bufferSub: "health · kids · other",
+      savings: "Savings",
+      savingsSub: "{pct}% of income",
+      fire: "FIRE investment",
+      fireSub: "for your freedom",
+      goalSub: "goal fund",
+      unalloc: "Not yet assigned",
+      unallocSub: "extra cushion",
+    },
+  },
+  alloc: {
+    title: "Where to put your money",
+    desc:
+      "{equity}% in shares for growth, the rest in safer places. Expected growth about {ret} a year (long-run average — some years will be lower).",
+    monthlyInvestment: "Monthly investment",
+    perMonth: "/ month",
+    currentCorpus: "Money already invested",
+    tabBreakdown: "Breakdown",
+    tabChart: "Chart",
+    tabWhy: "Why this mix?",
+    monthly: "Monthly",
+    ofCorpus: "Of money invested",
+    colAsset: "Investment",
+    colWhy: "Why",
+    howWeArrived: "How we worked out your mix:",
+    donutAria: "Recommended investment mix",
+    label: {
+      local: "{country} shares ({ticker})",
+      destination: "{country} shares ({ticker})",
+      global: "Global shares",
+      bonds: "Bonds & fixed income",
+      bondsSharia: "Bonds / Sukuk",
+      property: "Property (REITs)",
+      gold: "Gold",
+      cash: "Emergency cash",
+      crypto: "Crypto (capped)",
+    },
+    why: {
+      local:
+        "Your country's biggest companies, through {index}. The main engine that grows your money over decades.",
+      destination:
+        "Shares in the country you'll retire in, so your savings grow in the currency you'll spend. This slice grows as retirement gets closer.",
+      global:
+        "Companies around the world through low-cost global index funds, so you're not betting everything on one economy.",
+      bondsIN:
+        "Steady, lower-risk investments (PPF, debt mutual funds, government bonds). They cushion you when share prices fall.",
+      bondsSharia:
+        "Steady, lower-risk investments (sukuk and government bonds). They cushion you when share prices fall.",
+      bondsOther:
+        "Steady, lower-risk investments (government bonds and bond funds). They cushion you when share prices fall.",
+      property: "Earns rent-like income from offices and malls, without buying a flat yourself.",
+      gold: "Protects you when your currency weakens or markets panic. Gold ETFs or bonds, not jewellery.",
+      cash: "About {months} months of expenses you can reach instantly if you lose your job or fall ill.",
+      crypto: "A small, high-risk bet. Capped at 5% so a crash can't hurt your plan.",
+    },
+    explain: {
+      start:
+        "Starting point: at {age}, keep about {pct}% in shares — the \"100 minus your age\" rule of thumb. Younger people have more time to ride out market falls.",
+      aggressive: "You chose aggressive, so shares go up to {pct}% — more growth, bigger swings.",
+      conservative: "You chose conservative, so shares come down to {pct}% — steadier, slower growth.",
+      stability:
+        "{country}'s economy swings more than most, so {pct}% moves from shares into safer investments.",
+      goalShort:
+        "Your goal ({goal}) needs money on a fixed date, so {pct}% less goes into shares.",
+      goalLong: "Your goal ({goal}) is long-term, so shares get a small {pct}% boost.",
+      expat:
+        "You'll retire in {country}, so {pct}% of your shares go into {country}'s market. This rises to 70% in your last 5 years of work, so your money is already in the currency you'll spend.",
+      biasIN:
+        "Most of your shares stay in Indian companies — your future bills are in rupees and India's market is large enough to spread risk.",
+      biasAE:
+        "Most of your shares are global — the UAE market is small, and the dirham is tied to the US dollar, so global funds carry little currency risk.",
+      biasSA:
+        "More than half your shares are global — the Saudi market is concentrated in a few sectors, and the riyal is tied to the US dollar.",
+      biasUS:
+        "Most of your shares stay in the US — it's the world's largest market and your bills are in dollars.",
+      safe:
+        "Safe money: {months} months of expenses as emergency cash, then most of the rest in bonds — they hold steady when share prices fall.",
+      crypto:
+        "Because you chose aggressive, a small {pct}% crypto slice is taken from global shares. It's capped so a crash can't sink your plan.",
+    },
+  },
+  freedom: {
+    title: "Your FIRE number",
+    badge: "Financial Independence · Retire Early",
+    desc:
+      "The FIRE idea: save steadily, invest in low-cost index funds, and stop working when your savings reach 25 times your yearly spending (the 4% rule). Numbers below are grown to age {age} with prices in {country} rising {inflation}% a year.",
+    verdict: {
+      onTrackHead: "✅ Your savings are on pace to reach FIRE by age {age}.",
+      onTrackAdvice:
+        "If you keep saving at this rate, it grows into your FIRE number in time. Set up an automatic monthly investment and do a quick check-in every 3 months on the Tracker tab.",
+      wontHead: "⚠️ At your current savings pace, you likely won't reach FIRE within a normal lifetime.",
+      wontAdvice:
+        "Two things matter most: save a bigger part of your salary (biggest impact), or push your freedom age 5–10 years later. Try both on the sliders and watch this box change.",
+      lateHead: "⏳ At this pace you'll reach FIRE around age {paceAge}, not {age}.",
+      lateAdvice:
+        "That's {years} years later than your target. Save 5% more of your salary or pick a later freedom age — the app updates instantly.",
+      closeHead: "🎯 Close — your savings pace falls just short of FIRE by age {age}.",
+      closeAdvice:
+        "Adjust your savings on the right to close the gap. Every extra 1% you save brings your freedom date closer.",
+      progressLabel: "Progress so far:",
+      progressBody: "you've built {pct}% of today's FIRE number.",
+      earlyNote:
+        "\"On pace\" is a forecast from your monthly savings — the money saved so far is still small.",
+    },
+    fiLabel: "How close you are",
+    todayNumber: "Today's FIRE number",
+    todayBasis: "25× {amount}/yr · {basis}",
+    basisOverride: "your own expenses",
+    basisFamily: "typical family in {place}",
+    basisSingle: "typical single person in {place}",
+    fiHint: "Reach 100% and you could stop working at today's lifestyle.",
+    phase1: "Early days — how much you save matters more than returns.",
+    phase2: "Foundation phase — growth on your growth is starting to kick in.",
+    phase3: "Speeding up — the last 50% comes much faster than the first.",
+    phase4: "Congratulations — at today's spending you've reached FIRE.",
+    mNumber: "FIRE number at {age}",
+    mNumberHint: "25× future spend {amount}/yr",
+    mSpend: "Future monthly spend",
+    mSpendHint: "Today: {amount}/mo",
+    mSip: "Monthly investment to reach {age}",
+    mShort: "Short by {amount}/mo",
+    mCovered: "You're covered at your current savings",
+    mYears: "Years to FIRE",
+    mYearsOk: "At current savings and growth",
+    mYearsSlow: "Too slow — save more",
+    chartTitle: "Your money vs FIRE levels",
+    chartHint: "Where your line crosses each dashed level is the year you reach it.",
+    tiersTitle: "FIRE levels (Lean / Fat / Coast)",
+    tiersSub: "pick your style",
+    curveTitle: "Years to FIRE vs how much you save",
+    curveSub: "the biggest lever",
+    curveHint:
+      "Doubling what you save roughly halves the time to freedom. Growth after inflation: {real}% a year.",
+    byAgeTitle: "Monthly investment to reach FIRE by 50 / 55 / 60",
+    by: "By {age}",
+    inflAdj: "Adjusted for price rises",
+    pastAge: "Already past this age",
+    tipsTitle: "Tips based on your plan",
+    tipsSub: "for your country",
+    exportTitle: "Take your plan with you",
+    exportBody:
+      "A personal PDF with your number, monthly plan, investment mix, goals and first steps. Share it with your family or an adviser.",
+    tiers: {
+      leanSub: "15× spend · frugal",
+      fireSub: "25× spend · classic 4%",
+      fatSub: "33× spend · comfortable",
+      coastSub: "Save this today, then stop saving",
+      coastNote: "If you reach this, you're done saving.",
+      already: "Already there",
+      atCurrent: "{years} at current savings",
+      unreachable: "Can't reach at current savings",
+      legend:
+        "LeanFIRE = stop work on a tight budget · FIRE = the standard 4% rule · FatFIRE = a comfortable life on 3% withdrawals · CoastFIRE = the amount you need today; even if you add nothing more, it grows into your full FIRE number by age {age}.",
+    },
+    income: {
+      title: "Your current income isn't enough — here's the fix",
+      body:
+        "To be free at {age}, your monthly investment needs to reach {sip}/mo — you save {saved}/mo now. At your current savings rate, your monthly income needs to grow {pct}% a year for the next {years} years, reaching {income}/mo by age {age}.",
+      unrealistic: "That growth rate ({pct}% a year) is unrealistic for a salary.",
+      options:
+        "Realistic options: (a) push your freedom age 3–5 years later, (b) save a bigger part of your salary, (c) add a side income, (d) choose a higher-growth mix if you can handle bigger ups and downs.",
+      colYear: "Year",
+      colAge: "Age",
+      colIncome: "Suggested income/mo",
+      colSip: "Suggested investment/mo",
+      now: "Now",
+    },
+    tips: {
+      header: "What the numbers say you should do next",
+      inflTitle: "Rising prices quietly eat your money in {country}",
+      inflBody:
+        "At {pct}% a year, prices roughly double every {double} years. That's why we size your target for what you'll actually spend in {years} years, not what you spend today.",
+      raiseTitle: "Aim for a {pct}% raise every year",
+      raiseBody:
+        "Skills in demand usually earn 8–12% raises. Check what your job pays elsewhere once a year. If your employer won't match the market, changing jobs every 3–4 years usually earns more over a lifetime.",
+      gapTitle: "The gap is too big for pay rises alone",
+      gapBody:
+        "A {pct}% raise every year is more than most careers give. Consider: (a) pushing your freedom age to {from}–{to}, (b) saving 40–50% of your salary, (c) a side income (freelance, rent, dividends), or (d) a slightly bolder mix if you have many years left.",
+      budgetTitle: "The 50/30/20 starting point",
+      budgetBody:
+        "A common budget: 50% needs, 30% wants, 20% savings. People aiming to stop work early often save 30–50%. How much you save is the biggest thing you control.",
+      autoTitle: "Invest automatically on payday",
+      autoBody:
+        "Set up an automatic monthly investment within 2 days of salary day. Research shows people stick to savings about 3 times better when the money leaves before they see it.",
+      reviewTitle: "Review once a year, not every month",
+      reviewBody:
+        "Check the plan on your birthday or on 1 January. Don't sell on every market dip — that's where most people lose money. Steady saving wins.",
+      inTitle: "India: use tax-saving schemes first",
+      inBody:
+        "Before regular mutual funds, fill your ELSS (80C), NPS Tier-1 (80CCD) and PPF limits. They cut your tax by 20–30% of what you put in — an instant, risk-free boost.",
+      gulfTitle: "Gulf: plan for end-of-service and moving home",
+      gulfBody:
+        "No income tax means your full salary can grow. But benefits stop when you leave: keep at least 12 months of expenses in a home-country account, and invest through a broker that works in the country you'll retire in (Interactive Brokers is a common choice).",
+      usTitle: "US: get the full 401(k) match first, then an IRA",
+      usBody:
+        "An employer 401(k) match is an instant 50–100% return — take it before anything else. Then fill a Roth IRA (tax-free growth). Anything more can go into a regular brokerage account.",
+    },
+  },
+  charts: {
+    age: "Age",
+    ageN: "Age {age}",
+    wealth: "Your money",
+    wealthAria: "Projected money over time",
+    lean: "LeanFIRE 15×",
+    fat: "FatFIRE 33×",
+    savingsRate: "Savings rate",
+    yearsN: "{n} years",
+    yearsToFire: "Years to FIRE",
+    saveN: "Save {n}% of income",
+    you: "You",
+    curveAria: "Years to FIRE by savings rate",
+    localEq: "Local shares",
+    intlEq: "Global shares",
+    bonds: "Bonds",
+    sukuk: "Sukuk",
+    reits: "Property",
+    gold: "Gold",
+    cash: "Cash",
+    expected: "Expected (before inflation)",
+    returnsAria: "Expected returns by investment type",
+  },
+  returns: {
+    title: "Expected returns by investment type",
+    desc:
+      "Long-run expectations in {country}, before inflation. Prices there rise about {inflation}% a year — subtract that to see real growth.",
+  },
+  growth: {
+    title: "Growing markets",
+    desc: "Three global themes and three specific to {country}.",
+    updated: "Updated {date}",
+    global: "Global",
+    noLocal: "No local data yet for this country.",
+  },
+  rnor: {
+    title: "Your return-to-India tax window",
+    desc:
+      "When you move back to India after many years in {country}, India usually gives you up to 2 years when your foreign income and gains are not taxed in India. This is called RNOR. Planning your move around it can save lakhs.",
+    returnYear: "Year you plan to move back",
+    returnYearAria: "Year you plan to move back to India",
+    yearsAbroad: "Years you'll have lived abroad by then",
+    yearsAbroadAria: "Years lived abroad",
+    fy: "Apr {y} – Mar {y2}",
+    taxFree: "Foreign income tax-free",
+    taxed: "Fully taxed in India",
+    doBefore: "Before March {year}, do these while they're tax-free:",
+    do1: "Sell the investments you hold outside India — gains won't be taxed in India during these years.",
+    do2:
+      "Bring the money into India and reinvest it here — your bank can keep it in a foreign-currency (RFC) account if you'd rather not convert yet.",
+    do3: "Collect any final salary, bonus or end-of-service payment from your employer in {country}.",
+    do4: "Close or convert foreign bank deposits — their interest stays tax-free in India only during this window.",
+    noWindow:
+      "With only {n} years abroad you likely won't get this window — you'd be taxed in India on everything from the year you move back. Selling foreign investments before you return is usually better.",
+    footnote:
+      "Rough guide assuming you visit India about 2 months a year. Exact rules depend on days spent in India — use the full calculator, and confirm with a chartered accountant before you move.",
+  },
+  export: {
+    error: "Could not create the PDF",
+  },
+  app: {
+    skip: "Skip to main content",
+    loading: "Loading your plan…",
+  },
+};

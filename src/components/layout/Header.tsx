@@ -1,4 +1,4 @@
-import { Flame } from "lucide-react";
+import { Flame, RotateCcw } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { HelpDialog } from "@/components/layout/HelpDialog";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
@@ -28,12 +28,19 @@ export function Header() {
             <span className="text-sm sm:text-base">BCR FIRE</span>
           </span>
         </button>
-        <div className="flex items-center gap-1">
+        <div className="flex min-w-0 items-center gap-1">
           <LanguageSwitcher />
           <HelpDialog />
           {phase === "dashboard" && (
-            <Button variant="ghost" size="sm" onClick={reset}>
-              {t("common.startOver")}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={reset}
+              aria-label={t("common.startOver")}
+              title={t("common.startOver")}
+            >
+              <RotateCcw className="h-4 w-4" />
+              <span className="hidden sm:inline">{t("common.startOver")}</span>
             </Button>
           )}
           <ThemeToggle />
