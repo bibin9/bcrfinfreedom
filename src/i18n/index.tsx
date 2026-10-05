@@ -39,6 +39,8 @@ interface I18nContextValue {
   t: (key: string, vars?: Record<string, string | number>) => string;
   /** Like t(), but returns `fallback` when no language has the key. */
   tOr: (key: string, fallback: string, vars?: Record<string, string | number>) => string;
+  /** A translated list of strings (falls back to English, then to []). */
+  tList: (key: string) => string[];
   /** Translate a message built by non-React code (see i18n/msg.ts). */
   tm: (m: I18nMsg) => string;
   /** Country name in the current language. */
@@ -87,21 +89,28 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     const dict = TRANSLATIONS[lang] ?? en;
     const fill = (s: string, vars?: Record<string, string | number>) =>
       vars ? s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m)) : s;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const walk = (obj: any, key: string): any => {
+      let cur = obj;
+      for (const p of key.split(".")) {
+        if (cur == null) return undefined;
+        cur = cur[p];
+      }
+      return cur;
+    };
     const lookup = (key: string): string | undefined => {
-      const parts = key.split(".");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const walk = (obj: any): any => {
-        let cur = obj;
-        for (const p of parts) {
-          if (cur == null) return undefined;
-          cur = cur[p];
-        }
-        return cur;
-      };
-      const hit = walk(dict);
+      const hit = walk(dict, key);
       if (typeof hit === "string") return hit;
-      const fb = walk(en);
+      const fb = walk(en, key);
       return typeof fb === "string" ? fb : undefined;
+    };
+    const isList = (v: unknown): v is string[] =>
+      Array.isArray(v) && v.every((x) => typeof x === "string");
+    const tList = (key: string): string[] => {
+      const hit = walk(dict, key);
+      if (isList(hit)) return hit;
+      const fb = walk(en, key);
+      return isList(fb) ? fb : [];
     };
     const t = (key: string, vars?: Record<string, string | number>) => {
       const s = lookup(key);
@@ -124,7 +133,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       tOr(`countries.${code}`, fallback ?? code);
     const cityName = (countryCode: string, cityId: string, fallback: string) =>
       tOr(`cities.${countryCode}.${cityId}`, fallback);
-    return { t, tOr, tm, countryName, cityName };
+    return { t, tOr, tList, tm, countryName, cityName };
   }, [lang]);
 
   const value = useMemo<I18nContextValue>(

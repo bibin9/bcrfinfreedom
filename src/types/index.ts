@@ -306,6 +306,10 @@ export interface RoadmapStep {
   detail: string;
   /** Optional reference to a country-specific account or vehicle. */
   reference?: string;
+  /** Translatable versions for the UI (detail may stay English for country data). */
+  titleMsg?: I18nMsg;
+  detailMsg?: I18nMsg;
+  referenceMsg?: I18nMsg;
 }
 
 export type EquitySubCategory =

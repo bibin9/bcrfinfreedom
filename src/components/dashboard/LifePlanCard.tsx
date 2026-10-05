@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import type { CountryProfile, FreedomProjection } from "@/types";
+import { useI18n } from "@/i18n";
 
 interface Props {
   age: number;
@@ -29,188 +30,47 @@ interface Props {
 
 interface Phase {
   id: string;
-  name: string;
-  tagline: string;
   startAge: number;
   endAge: number;
   color: string;        // tailwind hue used in chip backgrounds
   hsl: string;          // raw HSL used in inline SVG fills
   icon: React.ComponentType<{ className?: string }>;
+}
+
+/** Display text for a phase, in the user's language (dash.life.phases.<id>). */
+interface PhaseText {
+  name: string;
+  tagline: string;
   money: string[];
   health: string[];
   life: string[];
 }
 
 const PHASES: Phase[] = [
-  {
-    id: "foundation",
-    name: "Foundation",
-    tagline: "Education, first job, healthy habits",
-    startAge: 18,
-    endAge: 25,
-    color: "blue",
-    hsl: "217 91% 60%",
-    icon: GraduationCap,
-    money: [
-      "Pick a career with rising demand — engineering, healthcare, AI, finance, trades",
-      "Open your first bank + brokerage account; learn how SIPs and index funds work",
-      "Save 10–20% of first paycheck. Even ₹2,000/mo at 22 = ₹1+ Cr at 60",
-      "Build a 3-month emergency fund before any investing",
-    ],
-    health: [
-      "Build a daily movement habit (walk 8k steps, gym 3×/week, sport you love)",
-      "Sleep 7–8 hrs — sets the brain wiring for the next 40 years",
-      "Cook your own food 5+ days/week. Avoid the 'office canteen' weight",
-      "No smoking, alcohol in moderation — habits at 20 compound the same as money",
-    ],
-    life: [
-      "Invest in 2–3 deep friendships, not 50 shallow ones",
-      "Read 20+ books/yr; pick mentors you'd want to be in 20 years",
-      "Travel light, often — explore before responsibilities multiply",
-    ],
-  },
-  {
-    id: "build",
-    name: "Build",
-    tagline: "Career growth · save 30%+ · build the base",
-    startAge: 25,
-    endAge: 35,
-    color: "emerald",
-    hsl: "160 84% 39%",
-    icon: Briefcase,
-    money: [
-      "Push savings rate to 30–40%. Each 5% lops 3–5 yrs off your FIRE timeline",
-      "Max tax-advantaged accounts: ELSS / PPF / NPS / EPF in India, 401k/IRA in US, ISA in UK",
-      "Automate SIPs the day after payday — make it impossible to skip",
-      "Take 1 big career bet (switch, side project, certification) every 2–3 years",
-    ],
-    health: [
-      "Annual checkup + bloodwork. Lipid panel, vitamin D, fasting glucose",
-      "Strength train 2× / week — muscle mass peaks in 30s, defend it",
-      "Limit ultra-processed food; build a 4–5 recipe rotation you actually like",
-      "Mental health: therapy, journaling, or meditation — pick one and stick",
-    ],
-    life: [
-      "Pick a life partner deliberately, not by default",
-      "Decide deliberately about kids — timing affects every other plan",
-      "Start a 'no-screens' weekend ritual: nature, board games, friends",
-    ],
-  },
-  {
-    id: "accelerate",
-    name: "Accelerate",
-    tagline: "Peak earning · family · max SIPs",
-    startAge: 35,
-    endAge: 50,
-    color: "orange",
-    hsl: "24 95% 53%",
-    icon: TrendingUp,
-    money: [
-      "Peak earning years — most of your lifetime corpus is built here",
-      "Salary should grow 8–12% / yr. Negotiate hard or switch every 3–4 yrs",
-      "Buy your primary home with ≤40% of income going to EMI (or rent + invest)",
-      "Open separate goals: kids' education, home, FIRE corpus — different time horizons",
-      "Term life insurance (10–15× income) + health insurance for the whole family",
-    ],
-    health: [
-      "Cardio + strength + mobility — pick one of each every week",
-      "Watch the waistline. Visceral fat in the 40s drives every major disease later",
-      "Sleep on a schedule. Phone out of bedroom",
-      "Yearly: full bloodwork, dental, eye, skin check. Colonoscopy from 45",
-    ],
-    life: [
-      "Quality time with kids > expensive gifts — be present, not just provider",
-      "Strengthen marriage with weekly date nights and shared goals",
-      "Mentor someone 10 years behind you — it sharpens your own thinking",
-      "Don't sacrifice friendships for work — loneliness kills earlier than smoking",
-    ],
-  },
-  {
-    id: "coast",
-    name: "Coast",
-    tagline: "Transition · mentor · hobbies",
-    startAge: 50,
-    endAge: 60,
-    color: "amber",
-    hsl: "38 92% 50%",
-    icon: Leaf,
-    money: [
-      "Once you hit CoastFIRE, you can downshift to work you love",
-      "De-risk slightly: lift bond allocation 5–10%; keep equity for inflation cover",
-      "Plan tax-efficient withdrawal order (taxable → tax-deferred → tax-free)",
-      "Help kids without funding their lives — pay for education, not lifestyle",
-    ],
-    health: [
-      "Add resistance training if you haven't — slows muscle loss after 50",
-      "Bone density scan, prostate / breast screening, full cardiac workup",
-      "Pickleball / tennis / swimming — joint-friendly cardio you'll do for 20+ yrs",
-      "Hearing test by 55 — untreated hearing loss accelerates dementia risk",
-    ],
-    life: [
-      "Pick 2–3 hobbies you'd happily do for 30 years",
-      "Reconnect with old friends; widen your social circle deliberately",
-      "Start a passion project — write, teach, coach, build something",
-      "Spend 1 month / yr somewhere new with your partner",
-    ],
-  },
-  {
-    id: "fire",
-    name: "FIRE / Retire",
-    tagline: "Live off withdrawals · purpose · presence",
-    startAge: 60,
-    endAge: 75,
-    color: "red",
-    hsl: "0 84% 60%",
-    icon: Flame,
-    money: [
-      "Withdraw 3.5–4% of corpus per year, rebalance annually",
-      "Healthcare buffer: dedicate 12–18 months of expenses in liquid funds",
-      "Long-term care insurance evaluation by 65",
-      "Estate plan: will, nominees on every account, power of attorney",
-    ],
-    health: [
-      "Strength training is non-negotiable — prevents falls (the #1 elderly killer)",
-      "Walk 8–10k steps daily; balance work (single-leg stands, tai chi)",
-      "Stay socially active — loneliness in 60s+ = 50% higher dementia risk",
-      "Annual cognitive checkup; manage BP, sugar, cholesterol aggressively",
-    ],
-    life: [
-      "Time with grandkids, friends, partner — relationships > possessions",
-      "Volunteer or part-time meaningful work — purpose extends lifespan",
-      "Travel while you still can — mobility narrows fast after 75",
-      "Document family stories, recipes, lessons — your legacy is memory",
-    ],
-  },
-  {
-    id: "legacy",
-    name: "Legacy",
-    tagline: "Wisdom · generosity · presence",
-    startAge: 75,
-    endAge: 95,
-    color: "violet",
-    hsl: "271 91% 65%",
-    icon: HandHeart,
-    money: [
-      "Gradual gifting to family / causes (within tax-efficient limits)",
-      "Stay in low-volatility instruments for spending, equities for legacy bucket",
-      "Review and update will every 2–3 years",
-    ],
-    health: [
-      "Physical therapist + chair-based strength program if mobility drops",
-      "Vision, hearing, dental — most underrated quality-of-life levers",
-      "Diet: protein-forward (1.2 g/kg) prevents sarcopenia",
-    ],
-    life: [
-      "Daily contact with someone — phone, visit, walking group",
-      "Teach what you know — to grandkids, online, in your community",
-      "Keep a routine: rising time, walk, meal times. Routine = clarity",
-    ],
-  },
+  { id: "foundation", startAge: 18, endAge: 25, color: "blue", hsl: "217 91% 60%", icon: GraduationCap },
+  { id: "build", startAge: 25, endAge: 35, color: "emerald", hsl: "160 84% 39%", icon: Briefcase },
+  { id: "accelerate", startAge: 35, endAge: 50, color: "orange", hsl: "24 95% 53%", icon: TrendingUp },
+  { id: "coast", startAge: 50, endAge: 60, color: "amber", hsl: "38 92% 50%", icon: Leaf },
+  { id: "fire", startAge: 60, endAge: 75, color: "red", hsl: "0 84% 60%", icon: Flame },
+  { id: "legacy", startAge: 75, endAge: 95, color: "violet", hsl: "271 91% 65%", icon: HandHeart },
 ];
+
+function usePhaseText() {
+  const { t, tList } = useI18n();
+  return (id: string): PhaseText => ({
+    name: t(`dash.life.phases.${id}.name`),
+    tagline: t(`dash.life.phases.${id}.tagline`),
+    money: tList(`dash.life.phases.${id}.money`),
+    health: tList(`dash.life.phases.${id}.health`),
+    life: tList(`dash.life.phases.${id}.life`),
+  });
+}
 
 // ---------------------------------------------------------------------------
 
 export function LifePlanCard({ age, freedomAge, country, projection }: Props) {
+  const { t } = useI18n();
+  const l = (key: string, vars?: Record<string, string | number>) => t(`dash.life.${key}`, vars);
   const currentPhase =
     PHASES.find((p) => age >= p.startAge && age < p.endAge) ?? PHASES[PHASES.length - 1];
   const nextPhase = PHASES[PHASES.indexOf(currentPhase) + 1];
@@ -223,15 +83,12 @@ export function LifePlanCard({ age, freedomAge, country, projection }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <HeartPulse className="h-5 w-5 text-red-500" />
-          Your life plan
-          <span className="ml-auto rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
-            Money · health · relationships
+          {l("title")}
+          <span className="ms-auto rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
+            {l("badge")}
           </span>
         </CardTitle>
-        <CardDescription>
-          Financial freedom isn't just a number — it's a sequence of decades, each with its own
-          priorities. Here's the path from 18 to 90+, with the current decade highlighted for you.
-        </CardDescription>
+        <CardDescription>{l("desc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Life timeline visualization */}
@@ -240,16 +97,14 @@ export function LifePlanCard({ age, freedomAge, country, projection }: Props) {
         {/* Life progress bar */}
         <div className="rounded-lg border border-border bg-muted/30 p-3">
           <div className="mb-1.5 flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">
-              Age {age} of ~85 (avg life expectancy)
+            <span className="text-muted-foreground">{l("lifeAge", { age })}</span>
+            <span className="font-semibold tabular-nums">
+              {l("lived", { pct: lifePct.toFixed(0) })}
             </span>
-            <span className="font-semibold tabular-nums">{lifePct.toFixed(0)}% lived</span>
           </div>
-          <Progress value={lifePct} aria-label="Life lived" />
+          <Progress value={lifePct} aria-label={l("livedAria")} />
           <p className="mt-2 text-[11px] text-muted-foreground">
-            You have about <strong>{Math.max(0, 85 - age)} years</strong> of life ahead and{" "}
-            <strong>{Math.max(0, freedomAge - age)} years</strong> until FIRE — that's the working
-            window the rest of the app is built around.
+            {l("ahead", { life: Math.max(0, 85 - age), work: Math.max(0, freedomAge - age) })}
           </p>
         </div>
 
@@ -260,7 +115,7 @@ export function LifePlanCard({ age, freedomAge, country, projection }: Props) {
         <div>
           <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold">
             <Sparkles className="h-4 w-4 text-orange-500" />
-            All life phases — what to focus on, decade by decade
+            {l("allPhases")}
           </h3>
           <div className="space-y-2">
             {PHASES.map((p) => (
@@ -277,13 +132,9 @@ export function LifePlanCard({ age, freedomAge, country, projection }: Props) {
         <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
           <p className="flex items-center gap-2 text-sm font-semibold">
             <Brain className="h-4 w-4 text-primary" />
-            The one rule that ties it all together
+            {l("ruleTitle")}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Money buys time. Health spends it. Relationships fill it. Underweight any of the three
-            and the other two stop mattering. Optimise <em>all three together</em> — every decade,
-            every month, every Sunday plan.
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{l("ruleBody")}</p>
         </div>
       </CardContent>
     </Card>
@@ -311,12 +162,14 @@ function LifeTimeline({
   const trackY = 64;
   const trackH = 36;
 
+  const { t } = useI18n();
+  const text = usePhaseText();
   const xFor = (a: number) => padX + ((a - minAge) / (maxAge - minAge)) * (W - 2 * padX);
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border bg-card p-2">
       <svg viewBox={`0 0 ${W} ${H}`} className="block min-w-[640px] w-full" role="img"
-        aria-label="Life plan timeline from age 18 to 95">
+        aria-label={t("dash.life.timelineAria")}>
         {/* Phase bands */}
         {phases.map((p) => {
           const x1 = xFor(p.startAge);
@@ -341,7 +194,7 @@ function LifeTimeline({
                 fontWeight="700"
                 fill="white"
               >
-                {p.name}
+                {text(p.id).name}
               </text>
               <text
                 x={(x1 + x2) / 2}
@@ -401,7 +254,7 @@ function LifeTimeline({
             fontWeight="600"
             fill="hsl(var(--foreground))"
           >
-            YOU
+            {t("dash.life.you")}
           </text>
         </g>
 
@@ -427,7 +280,7 @@ function LifeTimeline({
               fontWeight="700"
               fill="hsl(24 95% 53%)"
             >
-              FIRE @ {freedomAge}
+              {t("dash.life.fireAt", { age: freedomAge })}
             </text>
           </g>
         )}
@@ -451,6 +304,11 @@ function CurrentFocus({
   country: CountryProfile;
   projection: FreedomProjection;
 }) {
+  const { t, countryName } = useI18n();
+  const l = (key: string, vars?: Record<string, string | number>) => t(`dash.life.${key}`, vars);
+  const text = usePhaseText();
+  const cur = text(phase.id);
+  const next = nextPhase ? text(nextPhase.id) : null;
   const Icon = phase.icon;
   const yearsLeftInPhase = Math.max(0, phase.endAge - age);
   return (
@@ -464,16 +322,16 @@ function CurrentFocus({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            You are in the · {phase.name} · phase
+            {l("inPhase", { phase: cur.name })}
           </p>
           <p className="mt-0.5 text-lg font-bold" style={{ color: `hsl(${phase.hsl})` }}>
-            <Icon className="mb-0.5 mr-1 inline h-5 w-5" />
-            {phase.tagline}
+            <Icon className="mb-0.5 me-1 inline h-5 w-5" />
+            {cur.tagline}
           </p>
         </div>
-        <div className="text-right">
+        <div className="text-end">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            Years in this phase
+            {l("yearsInPhase")}
           </p>
           <p className="text-lg font-bold tabular-nums" style={{ color: `hsl(${phase.hsl})` }}>
             {yearsLeftInPhase}
@@ -482,35 +340,34 @@ function CurrentFocus({
       </div>
 
       <div className="mt-3 grid gap-3 md:grid-cols-3">
-        <FocusColumn icon={<Coins className="h-4 w-4" />} title="Money this decade" items={phase.money} hsl={phase.hsl} />
-        <FocusColumn icon={<Activity className="h-4 w-4" />} title="Health this decade" items={phase.health} hsl={phase.hsl} />
-        <FocusColumn icon={<Users className="h-4 w-4" />} title="Life this decade" items={phase.life} hsl={phase.hsl} />
+        <FocusColumn icon={<Coins className="h-4 w-4" />} title={l("moneyDecade")} items={cur.money} hsl={phase.hsl} />
+        <FocusColumn icon={<Activity className="h-4 w-4" />} title={l("healthDecade")} items={cur.health} hsl={phase.hsl} />
+        <FocusColumn icon={<Users className="h-4 w-4" />} title={l("lifeDecade")} items={cur.life} hsl={phase.hsl} />
       </div>
 
-      {nextPhase && (
+      {nextPhase && next && (
         <div className="mt-3 rounded-md border border-border bg-background/60 p-2.5">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            Up next at age {nextPhase.startAge}
+            {l("upNext", { age: nextPhase.startAge })}
           </p>
           <p className="text-xs font-medium">
-            <strong style={{ color: `hsl(${nextPhase.hsl})` }}>{nextPhase.name}</strong> —{" "}
-            {nextPhase.tagline}
+            <strong style={{ color: `hsl(${nextPhase.hsl})` }}>{next.name}</strong> — {next.tagline}
           </p>
         </div>
       )}
 
       <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground sm:grid-cols-4">
-        <Stat label="Country" value={country.name} />
-        <Stat label="FIRE target" value={`age ${projection.freedomAge}`} />
+        <Stat label={l("statCountry")} value={countryName(country.code, country.name)} />
+        <Stat label={l("statTarget")} value={l("statTargetValue", { age: projection.freedomAge })} />
         <Stat
-          label="At current savings"
+          label={l("statPace")}
           value={
             projection.yearsToFreedomAtCurrentRate != null
-              ? `~${Math.round(projection.yearsToFreedomAtCurrentRate)} yrs`
-              : "unreachable"
+              ? l("statPaceValue", { n: Math.round(projection.yearsToFreedomAtCurrentRate) })
+              : l("statPaceNever")
           }
         />
-        <Stat label="Phase color" value={phase.name} />
+        <Stat label={l("statPhase")} value={cur.name} />
       </div>
     </div>
   );
@@ -559,6 +416,8 @@ function FocusColumn({
 // ---------------------------------------------------------------------------
 
 function PhaseAccordion({ phase, isCurrent }: { phase: Phase; isCurrent: boolean }) {
+  const { t } = useI18n();
+  const text = usePhaseText()(phase.id);
   const Icon = phase.icon;
   return (
     <details
@@ -575,26 +434,26 @@ function PhaseAccordion({ phase, isCurrent }: { phase: Phase; isCurrent: boolean
         </span>
         <div className="min-w-0 flex-1">
           <p className="flex items-baseline gap-2 text-sm font-semibold">
-            {phase.name}
+            {text.name}
             <span className="text-xs font-normal text-muted-foreground">
-              · age {phase.startAge}–{phase.endAge}
+              · {t("dash.life.ages", { from: phase.startAge, to: phase.endAge })}
             </span>
             {isCurrent && (
               <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-[10px] font-semibold text-orange-600 dark:text-orange-400">
-                You are here
+                {t("dash.life.youAreHere")}
               </span>
             )}
           </p>
-          <p className="text-xs text-muted-foreground">{phase.tagline}</p>
+          <p className="text-xs text-muted-foreground">{text.tagline}</p>
         </div>
         <span className="text-xs text-muted-foreground group-open:rotate-180 transition">
           ▾
         </span>
       </summary>
       <div className="grid gap-2 border-t border-border p-3 md:grid-cols-3">
-        <FocusColumn icon={<Coins className="h-4 w-4" />} title="Money" items={phase.money} hsl={phase.hsl} />
-        <FocusColumn icon={<Activity className="h-4 w-4" />} title="Health" items={phase.health} hsl={phase.hsl} />
-        <FocusColumn icon={<Users className="h-4 w-4" />} title="Life" items={phase.life} hsl={phase.hsl} />
+        <FocusColumn icon={<Coins className="h-4 w-4" />} title={t("dash.life.money")} items={text.money} hsl={phase.hsl} />
+        <FocusColumn icon={<Activity className="h-4 w-4" />} title={t("dash.life.health")} items={text.health} hsl={phase.hsl} />
+        <FocusColumn icon={<Users className="h-4 w-4" />} title={t("dash.life.lifeCol")} items={text.life} hsl={phase.hsl} />
       </div>
     </details>
   );

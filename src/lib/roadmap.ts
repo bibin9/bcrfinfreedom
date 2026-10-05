@@ -15,6 +15,9 @@ import type {
   UserInput,
 } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
+import { msg } from "@/i18n/msg";
+
+const R = (key: string, vars?: Record<string, string | number>) => msg(`dash.roadmap.${key}`, vars);
 
 export function generateRoadmap(
   input: UserInput,
@@ -32,6 +35,9 @@ export function generateRoadmap(
     title: `Build an emergency fund of ${formatCurrency(emergencyTarget, country)}`,
     detail: `Park ${country.emergencyFundMonths} months of essential expenses in a liquid, low-risk vehicle (high-yield savings / liquid fund / money-market) before adding more risk to your portfolio.`,
     reference: "Emergency fund",
+    titleMsg: R("emergencyTitle", { amount: formatCurrency(emergencyTarget, country) }),
+    detailMsg: R("emergencyBody", { months: country.emergencyFundMonths }),
+    referenceMsg: R("emergencyRef"),
   });
 
   // 2. Claim the primary tax-advantaged account for this jurisdiction.
@@ -46,6 +52,7 @@ export function generateRoadmap(
           : ""
       }`,
       reference: primaryAccount.name,
+      titleMsg: R("accountTitle", { account: primaryAccount.name }),
     });
   }
 
@@ -63,6 +70,8 @@ export function generateRoadmap(
       title: `Allocate ~${Math.round(equityPercent)}% to diversified equities`,
       detail: `Use a low-cost index fund or ETF such as ${indexVehicle.name} for local exposure, and a global equity ETF (e.g. MSCI World) for international diversification.`,
       reference: indexVehicle.name,
+      titleMsg: R("equityTitle", { pct: Math.round(equityPercent) }),
+      detailMsg: R("equityBody", { vehicle: indexVehicle.name }),
     });
   }
 
@@ -77,6 +86,8 @@ export function generateRoadmap(
       title: `Build a ${Math.round(bondPercent)}% ${country.shariaMarket ? "sukuk" : "bond"} sleeve`,
       detail: `Add income stability and reduce drawdown risk. Consider ${bondVehicle.name}.`,
       reference: bondVehicle.name,
+      titleMsg: R(country.shariaMarket ? "bondTitleSukuk" : "bondTitle", { pct: Math.round(bondPercent) }),
+      detailMsg: R("bondBody", { vehicle: bondVehicle.name }),
     });
   }
 
@@ -88,6 +99,7 @@ export function generateRoadmap(
       title: `Layer in a ${secondary.name}`,
       detail: secondary.description,
       reference: secondary.name,
+      titleMsg: R("secondTitle", { account: secondary.name }),
     });
   }
 
@@ -108,6 +120,8 @@ export function generateRoadmap(
     priority: steps.length + 1,
     title: "Align contributions with your primary goal",
     detail: goalReminder[input.goal],
+    titleMsg: R("goalTitle"),
+    detailMsg: R(`goal.${input.goal}`),
   });
 
   // 7. Compliance / advisor reminder.
@@ -115,6 +129,8 @@ export function generateRoadmap(
     priority: steps.length + 1,
     title: "Review with a licensed advisor",
     detail: `Consult an advisor registered with ${country.regulatoryBody} before executing any of the above. Tax treatment and product availability change over time.`,
+    titleMsg: R("adviserTitle"),
+    detailMsg: R("adviserBody", { regulator: country.regulatoryBody }),
   });
 
   return steps;

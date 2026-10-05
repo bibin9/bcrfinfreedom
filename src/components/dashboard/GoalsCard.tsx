@@ -22,6 +22,38 @@ import {
   windfallCategoryMeta,
 } from "@/lib/windfalls";
 import { useUserStore } from "@/store/userStore";
+import { useI18n } from "@/i18n";
+
+type Vars = Record<string, string | number>;
+
+/** Translation keys for GOAL_PRESETS_USD / WINDFALL_PRESETS_USD, in the same order. */
+const GOAL_PRESET_KEYS = [
+  "ugLocal",
+  "ugForeign",
+  "pg",
+  "wedding",
+  "parents",
+  "homeDown",
+  "land",
+  "car",
+  "travel",
+  "medical",
+] as const;
+const WINDFALL_PRESET_KEYS = [
+  "eosb",
+  "property",
+  "inheritance",
+  "bonus",
+  "severance",
+  "pension",
+  "lic",
+] as const;
+
+function useGoalsText() {
+  const { t, countryName } = useI18n();
+  const g = (key: string, vars?: Vars) => t(`dash.goals.${key}`, vars);
+  return { t, g, countryName };
+}
 
 interface Props {
   /** Destination country — currency, inflation, and where target amounts live. */
@@ -37,6 +69,10 @@ interface Props {
 const CURRENT_YEAR = new Date().getFullYear();
 
 export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirementYear }: Props) {
+  const { t, g, countryName } = useGoalsText();
+  const { tList } = useI18n();
+  const money = (n: number) => formatCurrency(n, destinationCountry, { compact: true });
+  const catLabel = (c: GoalCategory) => g(`cat.${c}`);
   const goals = useUserStore((s) => s.goals);
   const addGoal = useUserStore((s) => s.addGoal);
   const deleteGoal = useUserStore((s) => s.deleteGoal);
@@ -62,7 +98,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
     const yr = Number(year);
     if (!Number.isFinite(amt) || amt <= 0) return;
     if (!Number.isFinite(yr) || yr <= CURRENT_YEAR) return;
-    const finalName = name.trim() || `${categoryMeta(category).label} goal`;
+    const finalName = name.trim() || g("defaultName", { category: catLabel(category) });
     addGoal({
       name: finalName,
       category,
@@ -76,11 +112,15 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
     setTimeout(() => setJustAdded(null), 2500);
   };
 
-  const applyPreset = (p: (typeof GOAL_PRESETS_USD)[number]) => {
+  const presetName = (i: number) => {
+    const key = GOAL_PRESET_KEYS[i];
+    return key ? g(`preset.${key}`) : GOAL_PRESETS_USD[i]?.name ?? "";
+  };
+  const applyPreset = (p: (typeof GOAL_PRESETS_USD)[number], i: number) => {
     // Convert the USD preset into destination currency and pick a sensible name.
     const localAmt = Math.round(p.amountUSD * destinationCountry.fxRateToUSD);
     setCategory(p.category);
-    setName(p.name);
+    setName(presetName(i));
     setAmount(String(localAmt));
     setYear(String(CURRENT_YEAR + p.yearsFromNow));
   };
@@ -90,44 +130,34 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <GoalIcon className="h-5 w-5 text-purple-500" />
-          Life goals
-          <span className="ml-auto rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
-            Beyond just FIRE
+          {g("title")}
+          <span className="ms-auto rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+            {g("badge")}
           </span>
         </CardTitle>
-        <CardDescription>
-          The FIRE number covers your steady-state living. Add the lumpy spikes here —
-          child's education, parents' healthcare, home, wedding, medical reserve. Each
-          becomes a separate monthly SIP.
-        </CardDescription>
+        <CardDescription>{g("desc")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         {/* Combined SIP hero */}
         <div className="grid gap-2 sm:grid-cols-3">
           <MetricTile
-            label="FIRE SIP"
-            value={
-              fireSIP != null
-                ? `${formatCurrency(fireSIP, destinationCountry, { compact: true })}/mo`
-                : "—"
-            }
-            hint="For your retirement corpus"
+            label={g("tileFire")}
+            value={fireSIP != null ? `${money(fireSIP)}${t("dash.common.perMonth")}` : "—"}
+            hint={g("tileFireHint")}
             accent="orange"
           />
           <MetricTile
-            label="Goals SIP"
+            label={g("tileGoals")}
             value={
-              totalGoalsSIP > 0
-                ? `${formatCurrency(totalGoalsSIP, destinationCountry, { compact: true })}/mo`
-                : "—"
+              totalGoalsSIP > 0 ? `${money(totalGoalsSIP)}${t("dash.common.perMonth")}` : "—"
             }
-            hint={`Across ${goals.length} goal${goals.length === 1 ? "" : "s"}`}
+            hint={g("tileGoalsHint", { n: goals.length })}
             accent="purple"
           />
           <MetricTile
-            label="Total needed"
-            value={`${formatCurrency(totalMonthly, destinationCountry, { compact: true })}/mo`}
-            hint="Automate both — same day"
+            label={g("tileTotal")}
+            value={`${money(totalMonthly)}${t("dash.common.perMonth")}`}
+            hint={g("tileTotalHint")}
             accent="emerald"
             emphasise
           />
@@ -135,15 +165,15 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
 
         {/* Add-goal form */}
         <div className="rounded-lg border border-purple-500/30 bg-purple-500/5 p-3">
-          <p className="text-xs font-semibold">Add a life goal</p>
+          <p className="text-xs font-semibold">{g("addTitle")}</p>
           <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[2fr_1fr_1fr_1fr_auto]">
             <div>
               <Label htmlFor="g-name" className="text-[11px]">
-                Name
+                {g("name")}
               </Label>
               <Input
                 id="g-name"
-                placeholder="e.g. Elder daughter's UG"
+                placeholder={g("namePh")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="bg-background"
@@ -151,7 +181,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
             </div>
             <div>
               <Label htmlFor="g-category" className="text-[11px]">
-                Category
+                {g("category")}
               </Label>
               <Select value={category} onValueChange={(v) => setCategory(v as GoalCategory)}>
                 <SelectTrigger id="g-category" className="bg-background">
@@ -173,7 +203,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
                     const m = categoryMeta(c);
                     return (
                       <SelectItem key={c} value={c}>
-                        {m.emoji} {m.label}
+                        {m.emoji} {catLabel(c)}
                       </SelectItem>
                     );
                   })}
@@ -182,21 +212,22 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
             </div>
             <div>
               <Label htmlFor="g-amount" className="text-[11px]">
-                Amount today ({destinationCountry.currency})
+                {g("amountToday", { currency: destinationCountry.currency })}
               </Label>
               <Input
                 id="g-amount"
                 type="number"
                 min={0}
                 value={amount}
-                placeholder="e.g. 4000000"
+                inputMode="numeric"
+                placeholder={g("amountPh")}
                 onChange={(e) => setAmount(e.target.value)}
                 className="bg-background"
               />
             </div>
             <div>
               <Label htmlFor="g-year" className="text-[11px]">
-                Target year
+                {g("targetYear")}
               </Label>
               <Input
                 id="g-year"
@@ -214,38 +245,40 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
                 className="w-full bg-purple-600 hover:bg-purple-700"
                 disabled={!amount || Number(amount) <= 0}
               >
-                <Plus className="h-4 w-4" /> Add
+                <Plus className="h-4 w-4" /> {g("add")}
               </Button>
             </div>
           </div>
           {justAdded && (
             <p className="mt-2 flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Added "{justAdded}"
+              <CheckCircle2 className="h-3.5 w-3.5" /> {g("added", { name: justAdded })}
             </p>
           )}
           <p className="mt-2 text-[11px] text-muted-foreground">
-            Enter the amount in <strong>today's money</strong> — the app inflates it to your
-            target year at {destinationCountry.name}'s{" "}
-            {(destinationCountry.inflationRate * 100).toFixed(1)}% inflation.
+            {g("todayMoney", {
+              country: countryName(destinationCountry.code, destinationCountry.name),
+              inflation: (destinationCountry.inflationRate * 100).toFixed(1),
+            })}
           </p>
         </div>
 
         {/* Preset chips */}
         <div>
           <p className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-purple-500" /> Quick presets — tap to fill
-            the form
+            <Sparkles className="h-3.5 w-3.5 text-purple-500" /> {g("presets")}
           </p>
           <div className="flex flex-wrap gap-1.5">
-            {GOAL_PRESETS_USD.map((p) => (
+            {GOAL_PRESETS_USD.map((p, i) => (
               <button
                 key={p.name}
                 type="button"
-                onClick={() => applyPreset(p)}
+                onClick={() => applyPreset(p, i)}
                 className="rounded-full border border-border bg-background px-2.5 py-1 text-xs hover:border-purple-500/40 hover:bg-purple-500/5"
               >
-                {p.emoji} {p.name}{" "}
-                <span className="text-muted-foreground">· +{p.yearsFromNow}y</span>
+                {p.emoji} {presetName(i)}{" "}
+                <span className="text-muted-foreground">
+                  · {g("plusYears", { n: p.yearsFromNow })}
+                </span>
               </button>
             ))}
           </div>
@@ -253,24 +286,21 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
 
         {/* Goals list */}
         {goals.length === 0 ? (
-          <EmptyHint>
-            No goals yet. Try tapping <strong>"Parents' healthcare reserve"</strong> or{" "}
-            <strong>"Child's undergrad"</strong> above to see how it looks.
-          </EmptyHint>
+          <EmptyHint>{g("empty")}</EmptyHint>
         ) : (
           <div className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Your goals ({goals.length})
+              {g("yourGoals", { n: goals.length })}
             </p>
             <div className="overflow-x-auto rounded-md border border-border">
               <table className="w-full text-xs">
                 <thead className="bg-muted/40 uppercase tracking-wide text-muted-foreground">
                   <tr>
-                    <th className="px-2 py-1.5 text-left font-medium">Goal</th>
-                    <th className="px-2 py-1.5 text-right font-medium">Amount today</th>
-                    <th className="px-2 py-1.5 text-right font-medium">By year</th>
-                    <th className="px-2 py-1.5 text-right font-medium">At target</th>
-                    <th className="px-2 py-1.5 text-right font-medium">SIP/mo</th>
+                    <th className="px-2 py-1.5 text-start font-medium">{g("colGoal")}</th>
+                    <th className="px-2 py-1.5 text-end font-medium">{g("colToday")}</th>
+                    <th className="px-2 py-1.5 text-end font-medium">{g("colYear")}</th>
+                    <th className="px-2 py-1.5 text-end font-medium">{g("colTarget")}</th>
+                    <th className="px-2 py-1.5 text-end font-medium">{g("colSip")}</th>
                     <th className="px-2 py-1.5"></th>
                   </tr>
                 </thead>
@@ -280,33 +310,33 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
                     return (
                       <tr key={p.goal.id} className="border-t border-border">
                         <td className="px-2 py-1.5">
-                          <span className="mr-1">{cm.emoji}</span>
+                          <span className="me-1">{cm.emoji}</span>
                           <span className="font-medium">{p.goal.name}</span>
                         </td>
-                        <td className="px-2 py-1.5 text-right tabular-nums">
+                        <td className="px-2 py-1.5 text-end tabular-nums">
                           {formatCurrency(p.goal.targetAmountToday, destinationCountry, {
                             compact: true,
                           })}
                         </td>
-                        <td className="px-2 py-1.5 text-right tabular-nums">
+                        <td className="px-2 py-1.5 text-end tabular-nums">
                           {p.goal.targetYear}
-                          <span className="ml-1 text-[10px] text-muted-foreground">
-                            (+{p.yearsToTarget}y)
+                          <span className="ms-1 text-[10px] text-muted-foreground">
+                            ({g("plusYears", { n: p.yearsToTarget })})
                           </span>
                         </td>
-                        <td className="px-2 py-1.5 text-right tabular-nums text-muted-foreground">
+                        <td className="px-2 py-1.5 text-end tabular-nums text-muted-foreground">
                           {formatCurrency(p.futureAmount, destinationCountry, { compact: true })}
                         </td>
-                        <td className="px-2 py-1.5 text-right font-semibold tabular-nums text-purple-600 dark:text-purple-400">
+                        <td className="px-2 py-1.5 text-end font-semibold tabular-nums text-purple-600 dark:text-purple-400">
                           {p.monthlySIP != null
                             ? formatCurrency(p.monthlySIP, destinationCountry, { compact: true })
                             : "—"}
                         </td>
-                        <td className="px-2 py-1.5 text-right">
+                        <td className="px-2 py-1.5 text-end">
                           <Button
                             size="sm"
                             variant="ghost"
-                            aria-label="Delete goal"
+                            aria-label={g("deleteGoal")}
                             onClick={() => deleteGoal(p.goal.id)}
                           >
                             <Trash2 className="h-3.5 w-3.5 text-red-500" />
@@ -317,9 +347,9 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
                   })}
                   <tr className="border-t-2 border-border bg-muted/30 font-semibold">
                     <td className="px-2 py-1.5" colSpan={4}>
-                      Total goals SIP
+                      {g("totalGoals")}
                     </td>
-                    <td className="px-2 py-1.5 text-right tabular-nums text-purple-600 dark:text-purple-400">
+                    <td className="px-2 py-1.5 text-end tabular-nums text-purple-600 dark:text-purple-400">
                       {formatCurrency(totalGoalsSIP, destinationCountry, { compact: true })}
                     </td>
                     <td></td>
@@ -339,22 +369,11 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
 
         {/* Advice */}
         <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs">
-          <p className="font-semibold">How to think about goals vs FIRE</p>
-          <ul className="mt-1 list-disc space-y-0.5 pl-4 text-muted-foreground">
-            <li>
-              <strong>FIRE SIP</strong> = never-touch retirement corpus. Withdraw 4% forever.
-            </li>
-            <li>
-              <strong>Goal SIP</strong> = separate sinking fund. Spent down completely on the
-              target year.
-            </li>
-            <li>
-              Keep them in <strong>different accounts</strong> — makes it psychologically
-              impossible to raid the retirement pot for a wedding.
-            </li>
-            <li>
-              A common Indian metro family runs 3–5 concurrent goals. That's normal.
-            </li>
+          <p className="font-semibold">{g("adviceTitle")}</p>
+          <ul className="mt-1 list-disc space-y-0.5 ps-4 text-muted-foreground">
+            {tList("dash.goals.advice").map((line) => (
+              <li key={line}>{line}</li>
+            ))}
           </ul>
         </div>
       </CardContent>
@@ -417,6 +436,8 @@ function WindfallsSection({
   expectedReturn: number;
   retirementYear: number;
 }) {
+  const { g } = useGoalsText();
+  const w = (key: string, vars?: Vars) => g(`wf.${key}`, vars);
   const windfalls = useUserStore((s) => s.windfalls);
   const addWindfall = useUserStore((s) => s.addWindfall);
   const deleteWindfall = useUserStore((s) => s.deleteWindfall);
@@ -433,10 +454,14 @@ function WindfallsSection({
   );
   const totalAtRetirement = totalWindfallsAtRetirement(projections);
 
-  const applyPreset = (p: (typeof WINDFALL_PRESETS_USD)[number]) => {
+  const presetName = (i: number) => {
+    const key = WINDFALL_PRESET_KEYS[i];
+    return key ? w(`preset.${key}`) : WINDFALL_PRESETS_USD[i]?.name ?? "";
+  };
+  const applyPreset = (p: (typeof WINDFALL_PRESETS_USD)[number], i: number) => {
     const localAmt = Math.round(p.amountUSD * destinationCountry.fxRateToUSD);
     setCategory(p.category);
-    setName(p.name);
+    setName(presetName(i));
     setAmount(String(localAmt));
     setYear(String(currentYear + p.yearsFromNow));
   };
@@ -445,7 +470,7 @@ function WindfallsSection({
     const amt = Number(amount);
     const yr = Number(year);
     if (!Number.isFinite(amt) || amt <= 0 || !Number.isFinite(yr) || yr <= currentYear) return;
-    const n = name.trim() || windfallCategoryMeta(category).label;
+    const n = name.trim() || w(`cat.${category}`);
     addWindfall({ name: n, category, amount: amt, targetYear: yr });
     setName("");
     setAmount("");
@@ -456,30 +481,25 @@ function WindfallsSection({
     <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
       <div className="mb-2 flex items-center gap-2">
         <Gift className="h-4 w-4 text-emerald-500" />
-        <p className="text-sm font-semibold">
-          Future windfalls — lump-sums coming <em>to</em> you
-        </p>
+        <p className="text-sm font-semibold">{w("title")}</p>
       </div>
-      <p className="mb-3 text-xs text-muted-foreground">
-        EOSB, inheritance, property sale, big bonus, severance. Each one{" "}
-        <strong className="text-foreground">reduces your required SIP</strong> — the app
-        compounds the amount from receipt date to your retirement and subtracts it from the
-        FIRE target.
-      </p>
+      <p className="mb-3 text-xs text-muted-foreground">{w("desc")}</p>
 
       {/* Preset chips */}
       <div className="mb-3 flex flex-wrap gap-1.5">
-        {WINDFALL_PRESETS_USD.map((p) => {
+        {WINDFALL_PRESETS_USD.map((p, i) => {
           const m = windfallCategoryMeta(p.category);
           return (
             <button
               key={p.name}
               type="button"
-              onClick={() => applyPreset(p)}
+              onClick={() => applyPreset(p, i)}
               className="rounded-full border border-border bg-background px-2.5 py-1 text-[11px] hover:border-emerald-500/40 hover:bg-emerald-500/5"
             >
-              {m.emoji} {p.name}
-              <span className="ml-1 text-muted-foreground">· +{p.yearsFromNow}y</span>
+              {m.emoji} {presetName(i)}
+              <span className="ms-1 text-muted-foreground">
+                · {g("plusYears", { n: p.yearsFromNow })}
+              </span>
             </button>
           );
         })}
@@ -489,11 +509,11 @@ function WindfallsSection({
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-[2fr_1fr_1fr_1fr_auto]">
         <div>
           <Label htmlFor="w-name" className="text-[11px]">
-            Name
+            {g("name")}
           </Label>
           <Input
             id="w-name"
-            placeholder="e.g. Dubai EOSB 2035"
+            placeholder={w("namePh")}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="bg-background"
@@ -501,7 +521,7 @@ function WindfallsSection({
         </div>
         <div>
           <Label htmlFor="w-cat" className="text-[11px]">
-            Type
+            {w("type")}
           </Label>
           <Select value={category} onValueChange={(v) => setCategory(v as WindfallCategory)}>
             <SelectTrigger id="w-cat" className="bg-background">
@@ -512,7 +532,7 @@ function WindfallsSection({
                 const m = windfallCategoryMeta(c);
                 return (
                   <SelectItem key={c} value={c}>
-                    {m.emoji} {m.label}
+                    {m.emoji} {w(`cat.${c}`)}
                   </SelectItem>
                 );
               })}
@@ -521,21 +541,22 @@ function WindfallsSection({
         </div>
         <div>
           <Label htmlFor="w-amt" className="text-[11px]">
-            Amount ({destinationCountry.currency})
+            {w("amount", { currency: destinationCountry.currency })}
           </Label>
           <Input
             id="w-amt"
             type="number"
             min={0}
             value={amount}
-            placeholder="e.g. 3500000"
+            inputMode="numeric"
+            placeholder="3500000"
             onChange={(e) => setAmount(e.target.value)}
             className="bg-background"
           />
         </div>
         <div>
           <Label htmlFor="w-yr" className="text-[11px]">
-            Year
+            {w("year")}
           </Label>
           <Input
             id="w-yr"
@@ -552,7 +573,7 @@ function WindfallsSection({
             disabled={!amount || Number(amount) <= 0}
             className="w-full bg-emerald-600 hover:bg-emerald-700"
           >
-            <Plus className="h-4 w-4" /> Add
+            <Plus className="h-4 w-4" /> {g("add")}
           </Button>
         </div>
       </div>
@@ -563,10 +584,10 @@ function WindfallsSection({
           <table className="w-full text-xs">
             <thead className="bg-muted/40 uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-2 py-1.5 text-left font-medium">Windfall</th>
-                <th className="px-2 py-1.5 text-right font-medium">Year</th>
-                <th className="px-2 py-1.5 text-right font-medium">Amount</th>
-                <th className="px-2 py-1.5 text-right font-medium">At retirement</th>
+                <th className="px-2 py-1.5 text-start font-medium">{w("colName")}</th>
+                <th className="px-2 py-1.5 text-end font-medium">{w("colYear")}</th>
+                <th className="px-2 py-1.5 text-end font-medium">{w("colAmount")}</th>
+                <th className="px-2 py-1.5 text-end font-medium">{w("colAtRet")}</th>
                 <th className="px-2 py-1.5"></th>
               </tr>
             </thead>
@@ -576,26 +597,26 @@ function WindfallsSection({
                 return (
                   <tr key={p.windfall.id} className="border-t border-border">
                     <td className="px-2 py-1.5">
-                      <span className="mr-1">{m.emoji}</span>
+                      <span className="me-1">{m.emoji}</span>
                       <span className="font-medium">{p.windfall.name}</span>
                     </td>
-                    <td className="px-2 py-1.5 text-right tabular-nums">
+                    <td className="px-2 py-1.5 text-end tabular-nums">
                       {p.windfall.targetYear}
-                      <span className="ml-1 text-[10px] text-muted-foreground">
-                        (+{p.yearsUntilReceipt}y)
+                      <span className="ms-1 text-[10px] text-muted-foreground">
+                        ({g("plusYears", { n: p.yearsUntilReceipt })})
                       </span>
                     </td>
-                    <td className="px-2 py-1.5 text-right tabular-nums">
+                    <td className="px-2 py-1.5 text-end tabular-nums">
                       {formatCurrency(p.windfall.amount, destinationCountry, { compact: true })}
                     </td>
-                    <td className="px-2 py-1.5 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+                    <td className="px-2 py-1.5 text-end font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
                       {formatCurrency(p.valueAtRetirement, destinationCountry, { compact: true })}
                     </td>
-                    <td className="px-2 py-1.5 text-right">
+                    <td className="px-2 py-1.5 text-end">
                       <Button
                         size="sm"
                         variant="ghost"
-                        aria-label="Delete windfall"
+                        aria-label={w("deleteWf")}
                         onClick={() => deleteWindfall(p.windfall.id)}
                       >
                         <Trash2 className="h-3.5 w-3.5 text-red-500" />
@@ -606,9 +627,9 @@ function WindfallsSection({
               })}
               <tr className="border-t-2 border-border bg-muted/30 font-semibold">
                 <td className="px-2 py-1.5" colSpan={3}>
-                  Credit against FIRE target
+                  {w("credit")}
                 </td>
-                <td className="px-2 py-1.5 text-right tabular-nums text-emerald-600 dark:text-emerald-400">
+                <td className="px-2 py-1.5 text-end tabular-nums text-emerald-600 dark:text-emerald-400">
                   −{formatCurrency(totalAtRetirement, destinationCountry, { compact: true })}
                 </td>
                 <td></td>

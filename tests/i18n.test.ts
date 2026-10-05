@@ -4,27 +4,28 @@ import { hi } from "@/i18n/translations/hi";
 import { ml } from "@/i18n/translations/ml";
 import { ar } from "@/i18n/translations/ar";
 
-type Dict = { [k: string]: string | Dict };
+type Dict = { [k: string]: string | string[] | Dict };
 
 function flatten(d: Dict, prefix = ""): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(d)) {
     const key = prefix ? `${prefix}.${k}` : k;
     if (typeof v === "string") out[key] = v;
+    else if (Array.isArray(v)) v.forEach((item, i) => (out[`${key}.${i}`] = item));
     else Object.assign(out, flatten(v, key));
   }
   return out;
 }
 
 const placeholders = (s: string) => (s.match(/\{\w+\}/g) ?? []).sort().join(",");
-const EN = flatten(en as Dict);
+const EN = flatten(en as unknown as Dict);
 
 describe.each([
   ["hi", hi],
   ["ml", ml],
   ["ar", ar],
 ])("%s translations", (_lang, dict) => {
-  const flat = flatten(dict as Dict);
+  const flat = flatten(dict as unknown as Dict);
 
   it("has every English key, non-empty", () => {
     const missing = Object.keys(EN).filter((k) => !flat[k]?.trim());
