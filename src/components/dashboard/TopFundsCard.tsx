@@ -17,6 +17,7 @@ import {
   generalResources,
 } from "@/data/learningResources";
 import { LearnResources } from "./LearnResources";
+import { useLiveFunds } from "@/hooks/useLiveFunds";
 
 interface Props {
   country: CountryCode;
@@ -52,7 +53,8 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
   const [sort, setSort] = useState<SortKey>("growth");
   const [shariaOnly, setShariaOnly] = useState(false);
 
-  const funds = useMemo(() => getTopFunds(country), [country]);
+  const curated = useMemo(() => getTopFunds(country), [country]);
+  const { funds, loading, liveCount, asOf } = useLiveFunds(curated);
 
   const availableCategories = useMemo(() => {
     return Array.from(new Set<FundCategory>(funds.map((f) => f.category)));
@@ -87,7 +89,12 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
         <CardTitle>Search best funds in your country</CardTitle>
         <CardDescription>
           Hand-picked well-known funds across every category. Type to search, filter by type,
-          sort by what matters to you. Numbers approximate as of {FUND_CATALOGUE_UPDATED_AT}.
+          sort by what matters to you.{" "}
+          {liveCount > 0 && asOf
+            ? `Growth for ${liveCount} funds is live from official daily prices (latest ${asOf}); other numbers are approximate as of ${FUND_CATALOGUE_UPDATED_AT}.`
+            : loading
+              ? "Checking today's prices…"
+              : `Numbers approximate as of ${FUND_CATALOGUE_UPDATED_AT}.`}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -220,6 +227,14 @@ function FundRow({ fund }: { fund: MutualFund }) {
           >
             {riskLabel}
           </span>
+          {fund.live && (
+            <span
+              title="Calculated today from the fund's official daily prices (NAV)"
+              className="rounded bg-sky-500/15 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-sky-500"
+            >
+              Live
+            </span>
+          )}
           {fund.shariaCompliant && (
             <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-emerald-500">
               Sharia

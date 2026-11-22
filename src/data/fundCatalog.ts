@@ -21,17 +21,19 @@ import type { CountryCode, MutualFund } from "@/types";
 
 export const FUND_CATALOGUE_UPDATED_AT = "2025-Q1";
 
+/** India funds with a schemeCode get live returns (see src/lib/liveFunds.ts); the rest stay on the curated numbers above. */
+
 export const fundCatalog: Record<CountryCode, MutualFund[]> = {
   IN: [
-    { name: "Parag Parikh Flexi Cap Fund", category: "flexi_cap", threeYearCagr: 0.22, fiveYearCagr: 0.26, expenseRatio: 0.007, risk: "high", note: "Global + India flexi-cap with concentrated conviction bets; long-term compounder." },
-    { name: "HDFC Index S&P BSE Sensex Fund", category: "index", threeYearCagr: 0.155, fiveYearCagr: 0.17, expenseRatio: 0.002, risk: "medium", note: "Low-cost Sensex tracker — the passive core many portfolios start with." },
-    { name: "Nippon India Small Cap Fund", category: "small_cap", threeYearCagr: 0.28, fiveYearCagr: 0.3, expenseRatio: 0.016, risk: "high", note: "Consistently strong small-cap performer; expect deep drawdowns between wins." },
-    { name: "Mirae Asset Large Cap Fund", category: "large_cap", threeYearCagr: 0.155, fiveYearCagr: 0.18, expenseRatio: 0.0155, risk: "medium", note: "Large-cap stalwart — steady compounding, moderate volatility." },
-    { name: "Axis Midcap Fund", category: "mid_cap", threeYearCagr: 0.2, fiveYearCagr: 0.22, expenseRatio: 0.0175, risk: "high", note: "Quality-growth bias in the mid-cap space; better downside protection than peers." },
-    { name: "ICICI Prudential Bluechip Fund", category: "large_cap", threeYearCagr: 0.18, fiveYearCagr: 0.19, expenseRatio: 0.016, risk: "medium", note: "Conservative large-cap with a long track record; good for first-time equity investors." },
-    { name: "Quant Active Fund", category: "flexi_cap", threeYearCagr: 0.22, fiveYearCagr: 0.25, expenseRatio: 0.0175, risk: "high", note: "Momentum + VLRT model, higher churn; can look very different YoY." },
-    { name: "Axis Long Term Equity Fund (ELSS)", category: "elss", threeYearCagr: 0.15, fiveYearCagr: 0.16, expenseRatio: 0.0155, risk: "medium", note: "Tax-saving (80C) with 3-year lock-in; quality-growth tilt." },
-    { name: "Motilal Oswal Nasdaq 100 ETF", category: "international", threeYearCagr: 0.13, fiveYearCagr: 0.17, expenseRatio: 0.0058, risk: "high", note: "US tech exposure via a rupee-denominated ETF; adds global diversification." },
+    { name: "Parag Parikh Flexi Cap Fund", schemeCode: 122639, category: "flexi_cap", threeYearCagr: 0.22, fiveYearCagr: 0.26, expenseRatio: 0.007, risk: "high", note: "Global + India flexi-cap with concentrated conviction bets; long-term compounder." },
+    { name: "HDFC BSE Sensex Index Fund", schemeCode: 119065, category: "index", threeYearCagr: 0.155, fiveYearCagr: 0.17, expenseRatio: 0.002, risk: "medium", note: "Low-cost Sensex tracker — the passive core many portfolios start with." },
+    { name: "Nippon India Small Cap Fund", schemeCode: 118778, category: "small_cap", threeYearCagr: 0.28, fiveYearCagr: 0.3, expenseRatio: 0.016, risk: "high", note: "Consistently strong small-cap performer; expect deep drawdowns between wins." },
+    { name: "Mirae Asset Large Cap Fund", schemeCode: 118825, category: "large_cap", threeYearCagr: 0.155, fiveYearCagr: 0.18, expenseRatio: 0.0155, risk: "medium", note: "Large-cap stalwart — steady compounding, moderate volatility." },
+    { name: "Axis Midcap Fund", schemeCode: 120505, category: "mid_cap", threeYearCagr: 0.2, fiveYearCagr: 0.22, expenseRatio: 0.0175, risk: "high", note: "Quality-growth bias in the mid-cap space; better downside protection than peers." },
+    { name: "ICICI Prudential Bluechip Fund", schemeCode: 120586, category: "large_cap", threeYearCagr: 0.18, fiveYearCagr: 0.19, expenseRatio: 0.016, risk: "medium", note: "Conservative large-cap with a long track record; good for first-time equity investors." },
+    { name: "Quant Flexi Cap Fund (formerly Quant Active)", schemeCode: 120843, category: "flexi_cap", threeYearCagr: 0.22, fiveYearCagr: 0.25, expenseRatio: 0.0175, risk: "high", note: "Momentum + VLRT model, higher churn; can look very different YoY." },
+    { name: "Axis Long Term Equity Fund (ELSS)", schemeCode: 120503, category: "elss", threeYearCagr: 0.15, fiveYearCagr: 0.16, expenseRatio: 0.0155, risk: "medium", note: "Tax-saving (80C) with 3-year lock-in; quality-growth tilt." },
+    { name: "Motilal Oswal Nasdaq 100 ETF", schemeCode: 114984, category: "international", threeYearCagr: 0.13, fiveYearCagr: 0.17, expenseRatio: 0.0058, risk: "high", note: "US tech exposure via a rupee-denominated ETF; adds global diversification." },
     { name: "HDFC Short Term Debt Fund", category: "debt", threeYearCagr: 0.065, fiveYearCagr: 0.07, expenseRatio: 0.0075, risk: "low", note: "Short-duration debt for the stability sleeve; better tax efficiency than an FD over 3+ years." },
   ],
 

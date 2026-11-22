@@ -372,6 +372,10 @@ export interface MutualFund {
   note: string;
   /** Optional Sharia-compliance flag. */
   shariaCompliant?: boolean;
+  /** AMFI scheme code (India). When set, returns are refreshed live from mfapi.in. */
+  schemeCode?: number;
+  /** True when the growth numbers were computed from live NAV history. */
+  live?: boolean;
 }
 
 export interface CompoundingPoint {
