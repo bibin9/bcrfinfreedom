@@ -161,6 +161,8 @@ interface UserState {
   reset: () => void;
 }
 
+export type UserStateInputs = UserState["inputs"];
+
 /** Returns a complete UserInput if all required fields are present. */
 export function toUserInput(
   partial: UserState["inputs"],

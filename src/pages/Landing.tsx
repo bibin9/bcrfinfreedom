@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   ArrowRight,
   Calculator,
@@ -20,6 +21,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Disclaimer } from "@/components/layout/Disclaimer";
 import { useI18n } from "@/i18n";
 import { useUserStore } from "@/store/userStore";
+import { SAMPLE_INPUTS, computeSamplePlan } from "@/lib/samplePlan";
+import { formatCurrency } from "@/lib/formatters";
 
 const featureIcons = [Globe2, GraduationCap, ShieldCheck] as const;
 const featureKeys = ["Country", "Beginner", "Private"] as const;
@@ -27,22 +30,11 @@ const featureKeys = ["Country", "Beginner", "Private"] as const;
 export function Landing() {
   const { t } = useI18n();
   const setPhase = useUserStore((s) => s.setPhase);
-  const setCountry = useUserStore((s) => s.setCountry);
-  const setAge = useUserStore((s) => s.setAge);
-  const setMonthlyIncome = useUserStore((s) => s.setMonthlyIncome);
-  const setRisk = useUserStore((s) => s.setRisk);
-  const setGoal = useUserStore((s) => s.setGoal);
-  const setHouseholdSize = useUserStore((s) => s.setHouseholdSize);
-
   /** One-click: fill a realistic sample persona and jump straight to the Reveal. */
   const trySample = () => {
-    setCountry("IN");
-    setAge(32);
-    setMonthlyIncome(120_000);
-    setRisk("moderate");
-    setGoal("wealth_building");
-    setHouseholdSize("family");
-    setPhase("reveal");
+    // Replace every input (not just five) so leftovers from an earlier session
+    // can't change the numbers: the plan that opens must match the preview card.
+    useUserStore.setState({ inputs: { ...SAMPLE_INPUTS }, phase: "reveal" });
   };
 
   return (
@@ -322,6 +314,10 @@ export function Landing() {
  * Clickable → fills sample data → jumps to Reveal.
  */
 function LivePlanPreview({ onClick }: { onClick: () => void }) {
+  // Same engine and same inputs as the plan that opens on click.
+  const plan = useMemo(() => computeSamplePlan(), []);
+  const { freedom, country, onTrack, ageAtCurrentRate, yearsAtCurrentRate } = plan;
+  const money = (n: number) => formatCurrency(n, country, { compact: true });
   return (
     <button
       type="button"
@@ -341,27 +337,45 @@ function LivePlanPreview({ onClick }: { onClick: () => void }) {
               <p className="text-sm font-semibold leading-tight">🇮🇳 Arjun & Meera, 32 · Bangalore</p>
             </div>
           </div>
-          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-            ✓ On track
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+              onTrack
+                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+            }`}
+          >
+            {onTrack ? "✓ On track" : "Gap to close"}
           </span>
         </div>
 
         {/* FIRE number hero */}
         <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 px-4 py-5 text-center">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-            Their FIRE number
+            Their FIRE number — needed by age {freedom.freedomAge}
           </p>
           <p className="mt-1 bg-gradient-to-br from-orange-500 to-red-600 bg-clip-text text-4xl font-extrabold tabular-nums text-transparent sm:text-5xl">
-            ₹5.7 Cr
+            {money(freedom.targetCorpus)}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">at age 58 · 26 years from now</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {ageAtCurrentRate != null
+              ? `Saving ${(SAMPLE_INPUTS.savingsRate! * 100).toFixed(0)}% of income, they get there at ${ageAtCurrentRate}`
+              : `Saving ${(SAMPLE_INPUTS.savingsRate! * 100).toFixed(0)}% of income, they don't get there`}
+          </p>
         </div>
 
         {/* Metric row */}
         <div className="grid grid-cols-3 gap-2 border-t border-border px-3 py-3">
-          <MiniStat label="SIP" value="₹28k" sub="/month" />
-          <MiniStat label="FI Ratio" value="18%" sub="today" />
-          <MiniStat label="Years to FIRE" value="26" sub="years" />
+          <MiniStat
+            label={`SIP for age ${freedom.freedomAge}`}
+            value={freedom.requiredMonthlySIP != null ? money(freedom.requiredMonthlySIP) : "—"}
+            sub="/month needed"
+          />
+          <MiniStat label="Saving now" value={money(freedom.currentMonthlySavings)} sub="/month" />
+          <MiniStat
+            label="Years to FIRE"
+            value={yearsAtCurrentRate != null ? String(Math.round(yearsAtCurrentRate)) : "—"}
+            sub="at today's rate"
+          />
         </div>
 
         {/* Mini chart — growth curve */}
