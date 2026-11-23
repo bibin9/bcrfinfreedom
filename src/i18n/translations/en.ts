@@ -37,11 +37,11 @@ export const en = {
   },
   landing: {
     chip: "FIRE — Financial Independence, Retire Early",
-    heroStart: "When can you",
-    heroHighlight: "stop working",
-    heroEnd: "?",
+    heroStart: "Work because you",
+    heroHighlight: "choose to",
+    heroEnd: ", not because you have to",
     heroSub:
-      "Explore an estimated retirement target, the savings it may take, and what changes when you adjust your plan. The result depends on your spending and assumptions.",
+      "Find out how much to save each month so you can choose your own work, spend more time with family, or move back home — and roughly when you could get there. It is an estimate based on your plan, not a promise.",
     ctaPrimary: "Show me my FIRE number",
     ctaSecondary: "I'm completely new — explain it first",
     bullets:
@@ -52,7 +52,7 @@ export const en = {
     builtBySub:
       "Every country, every goal, every edge case here comes from someone solving their own problem — not a product manager guessing. Yours free, forever.",
     tryExample:
-      "Not ready to enter your own numbers? See a sample plan (Arjun & Meera, 32, Bangalore)",
+      "Not ready to enter your own numbers? Open the sample plan shown here.",
     featureCountryTitle: "Built for your country",
     featureCountryBody:
       "Real ELSS/NPS in India, DEWS in UAE, 401(k)/IRA in US, ISA/SIPP in UK — not generic US-only advice.",
@@ -62,6 +62,16 @@ export const en = {
     featurePrivateTitle: "Private by design",
     featurePrivateBody:
       "Your plan is saved in this browser. Optional AI questions share plan details with Pollinations. Country detection and fund updates also contact external services.",
+    sampleFamily:
+      "Family · Bangalore",
+    sampleDubai:
+      "Dubai → Kerala",
+    sampleDubaiWho:
+      "Anu, 26 · earns in Dubai, plans to settle in Kerala",
+    sampleDubaiNote:
+      "Saves {saved} a month from a {income} salary. Shown in rupees because Kerala is where the money will be spent.",
+    sampleAria:
+      "Open this sample plan",
   },
   onboarding: {
     pageTitle: "Build your FIRE plan",
@@ -202,6 +212,42 @@ export const en = {
     waitChange: "Wait, let me change my answers",
     disclaimer:
       "Educational only · Not financial advice · You can change everything from the dashboard",
+    saveNowLabel:
+      "What you save each month",
+    saveNowSub:
+      "{pct}% of your {income} monthly pay",
+    whatIfTitle:
+      "What if you saved a little more each month?",
+    whatIfPick:
+      "Try saving this much more:",
+    whatIfCustom:
+      "Or type your own amount ({currency}):",
+    whatIfNow:
+      "Today",
+    whatIfWith:
+      "With {amount} more",
+    whatIfSaveRow:
+      "You save each month",
+    whatIfAgeRow:
+      "You can stop working around",
+    whatIfAge:
+      "age {age}",
+    whatIfNever:
+      "not in this lifetime",
+    whatIfSooner:
+      "That is {years} years sooner.",
+    whatIfNoChange:
+      "That does not change your age by a full year, but every bit adds up.",
+    whatIfFirstTime:
+      "That gets you there when saving less would not.",
+    whatIfSame:
+      "Everything else stays the same: your spending, the age {age} target, {ret}% yearly growth and {infl}% yearly price rise.",
+    whatIfBudget:
+      "Only add what still leaves enough for rent, food and family. Saving more is your choice, never a must.",
+    whatIfCapped:
+      "That is more than most budgets allow, so we used {amount}.",
+    whatIfBad:
+      "Type a number above zero.",
   },
   disclaimer: {
     title: "Educational purposes only — not financial advice.",

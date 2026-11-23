@@ -28,27 +28,58 @@ export const SAMPLE_INPUTS: UserStateInputs = {
   annualExpensesOverride: 840_000,
 };
 
-export function computeSamplePlan() {
-  const complete = toUserInput(SAMPLE_INPUTS)!;
-  const country = getCountryProfile(complete.country);
+/**
+ * Second sample: a young person earning in Dubai (AED) who plans to move back
+ * to Kerala. Shows the two-country feature: income in one currency, retirement
+ * spending in another. Spending override is in the retirement currency (₹):
+ * ₹40,000/month at today's prices for a single person in Kochi.
+ */
+export const SAMPLE_DUBAI_KERALA: UserStateInputs = {
+  country: "AE",
+  retirementCountry: "IN",
+  retirementCity: "kerala",
+  age: 26,
+  monthlyIncome: 9_000,
+  risk: "moderate",
+  goal: "early_retirement",
+  householdSize: "single",
+  savingsRate: 0.3,
+  currentCorpus: 0,
+  annualExpensesOverride: 480_000,
+};
+
+export type SampleKey = "family" | "dubai";
+export const SAMPLES: Record<SampleKey, UserStateInputs> = {
+  family: SAMPLE_INPUTS,
+  dubai: SAMPLE_DUBAI_KERALA,
+};
+
+export function computeSamplePlan(inputs: UserStateInputs = SAMPLE_INPUTS) {
+  const complete = toUserInput(inputs)!;
+  const home = getCountryProfile(complete.country);
+  // Money on the preview is shown in the retirement country's currency, exactly as the Reveal page does.
+  const country = inputs.retirementCountry ? getCountryProfile(inputs.retirementCountry) : home;
   const allocation = calculateAllocation({
     age: complete.age,
     risk: complete.risk,
-    country,
+    country: home,
     goal: complete.goal,
+    retirementCountry: country,
   });
   const freedom = calculateFreedom({
     ...complete,
     expectedReturn: allocation.expectedReturn,
-    savingsRate: SAMPLE_INPUTS.savingsRate,
-    currentCorpus: SAMPLE_INPUTS.currentCorpus,
-    householdSize: SAMPLE_INPUTS.householdSize,
-    retirementCity: SAMPLE_INPUTS.retirementCity,
-    annualExpensesOverride: SAMPLE_INPUTS.annualExpensesOverride,
+    savingsRate: inputs.savingsRate,
+    currentCorpus: inputs.currentCorpus,
+    householdSize: inputs.householdSize,
+    retirementCountry: inputs.retirementCountry,
+    retirementCity: inputs.retirementCity,
+    annualExpensesOverride: inputs.annualExpensesOverride,
   });
   const yearsAtCurrentRate = freedom.yearsToFreedomAtCurrentRate;
   const todayFireNumber = freedom.currentAnnualExpenses * 25;
   return {
+    home,
     country,
     freedom,
     /** Age they reach freedom if they keep saving at today's rate (null = never). */
@@ -59,7 +90,7 @@ export function computeSamplePlan() {
       yearsAtCurrentRate != null && complete.age + yearsAtCurrentRate <= freedom.freedomAge + 0.5,
     fiRatioPct:
       todayFireNumber > 0
-        ? Math.min(100, ((SAMPLE_INPUTS.currentCorpus ?? 0) / todayFireNumber) * 100)
+        ? Math.min(100, ((inputs.currentCorpus ?? 0) / todayFireNumber) * 100)
         : 0,
   };
 }

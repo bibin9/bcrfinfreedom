@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   Calendar,
@@ -19,6 +19,9 @@ import { calculateAllocation } from "@/lib/allocation";
 import { calculateFreedom } from "@/lib/freedom";
 import { convertCurrency } from "@/lib/fx";
 import { formatCurrency } from "@/lib/formatters";
+import { ageAtRate, computeSaveMore, extraPresets } from "@/lib/saveMore";
+import type { FreedomInput } from "@/lib/freedom";
+import type { CountryProfile, FreedomProjection } from "@/types";
 import { toUserInput, useUserStore } from "@/store/userStore";
 import { useI18n } from "@/i18n";
 
@@ -54,8 +57,8 @@ export function Reveal() {
   const isExpatMode =
     !!destinationCountry && !!country && destinationCountry.code !== country.code;
 
-  const { allocation, freedom } = useMemo(() => {
-    if (!complete || !country) return { allocation: null, freedom: null };
+  const { allocation, freedom, baseInput } = useMemo(() => {
+    if (!complete || !country) return { allocation: null, freedom: null, baseInput: null };
     const a = calculateAllocation({
       age: complete.age,
       risk: complete.risk,
@@ -64,7 +67,7 @@ export function Reveal() {
       retirementCountry: destinationCountry ?? undefined,
       freedomAge: freedomAgeInput,
     });
-    const f = calculateFreedom({
+    const base: FreedomInput = {
       ...complete,
       expectedReturn: a.expectedReturn,
       savingsRate,
@@ -74,8 +77,8 @@ export function Reveal() {
       annualExpensesOverride,
       retirementCountry: retirementCountryCode,
       retirementCity: inputs.retirementCity,
-    });
-    return { allocation: a, freedom: f };
+    };
+    return { allocation: a, freedom: calculateFreedom(base), baseInput: base };
   }, [
     complete,
     country,
@@ -89,7 +92,7 @@ export function Reveal() {
     inputs.retirementCity,
   ]);
 
-  if (!complete || !country || !destinationCountry || !allocation || !freedom) {
+  if (!complete || !country || !destinationCountry || !allocation || !freedom || !baseInput) {
     // Should not happen — guard for safety, send back to onboarding.
     setPhase("onboarding");
     return null;
@@ -191,6 +194,16 @@ export function Reveal() {
         </div>
         <CardContent className="space-y-4 pt-4">
           <RevealStat
+            icon={<PiggyBank className="h-5 w-5 text-orange-500" />}
+            label={r("saveNowLabel")}
+            value={r("perMonth", { amount: formatCurrency(complete.monthlyIncome * savingsRate, country) })}
+            sub={r("saveNowSub", {
+              pct: (savingsRate * 100).toFixed(0),
+              income: formatCurrency(complete.monthlyIncome, country),
+            })}
+            accent="emerald"
+          />
+          <RevealStat
             icon={<Calendar className="h-5 w-5 text-orange-500" />}
             label={r("paceLabel")}
             value={
@@ -225,6 +238,14 @@ export function Reveal() {
                 : r("sipEnough", { saved: money(freedom.currentMonthlySavings) })
             }
             accent={freedom.monthlyShortfall > 0 ? "amber" : "emerald"}
+          />
+
+          <SaveMore
+            base={baseInput}
+            baseFreedom={freedom}
+            home={country}
+            dest={destinationCountry}
+            expectedReturn={allocation.expectedReturn}
           />
 
           {/* FI Ratio bar */}
@@ -372,5 +393,134 @@ function DecisionTile({
       <span className="text-sm font-semibold">{title}</span>
       <span className="text-xs text-muted-foreground">{sub}</span>
     </button>
+  );
+}
+
+// --------------------------------------------------------------------------
+
+/**
+ * "What if I saved a little more each month?" Same calculation, only the
+ * monthly saving changes, so the person can see exactly what the extra buys.
+ */
+function SaveMore({
+  base,
+  baseFreedom,
+  home,
+  dest,
+  expectedReturn,
+}: {
+  base: FreedomInput;
+  baseFreedom: FreedomProjection;
+  home: CountryProfile;
+  dest: CountryProfile;
+  expectedReturn: number;
+}) {
+  const { t } = useI18n();
+  const r = (key: string, vars?: Record<string, string | number>) => t(`reveal.${key}`, vars);
+  const presets = useMemo(() => extraPresets(base.monthlyIncome), [base.monthlyIncome]);
+  const [extra, setExtra] = useState<number>(presets[0] ?? 0);
+  const [typed, setTyped] = useState("");
+  const homeMoney = (n: number) => formatCurrency(n, home);
+
+  const badInput = typed !== "" && !(Number(typed) > 0);
+  const computed = useMemo(
+    () => computeSaveMore(base, baseFreedom, extra),
+    [base, baseFreedom, extra],
+  );
+  // An invalid typed amount shows only the hint, never a stale comparison.
+  const result = badInput ? null : computed;
+  const baseAge = ageAtRate(base.age, baseFreedom);
+  const capped = result != null && result.appliedExtra < extra - 0.5;
+
+  const ageText = (a: number | null) => (a != null ? r("whatIfAge", { age: a }) : r("whatIfNever"));
+  const verdict = !result
+    ? null
+    : result.age != null && baseAge == null
+      ? r("whatIfFirstTime")
+      : result.yearsSooner != null && result.yearsSooner >= 1
+        ? r("whatIfSooner", { years: result.yearsSooner })
+        : r("whatIfNoChange");
+
+  return (
+    <div className="rounded-md border border-border bg-background p-3">
+      <p className="text-sm font-semibold">{r("whatIfTitle")}</p>
+      <p className="mt-2 text-xs text-muted-foreground">{r("whatIfPick")}</p>
+      <div className="mt-1.5 flex flex-wrap gap-2">
+        {presets.map((p) => (
+          <button
+            key={p}
+            type="button"
+            aria-pressed={extra === p && typed === ""}
+            onClick={() => {
+              setExtra(p);
+              setTyped("");
+            }}
+            className={[
+              "min-h-10 rounded-full border px-4 text-sm font-medium tabular-nums transition",
+              extra === p && typed === ""
+                ? "border-orange-500 bg-orange-500/15 text-orange-700 dark:text-orange-300"
+                : "border-border hover:bg-secondary",
+            ].join(" ")}
+          >
+            +{homeMoney(p)}
+          </button>
+        ))}
+      </div>
+      <label className="mt-2 flex flex-col gap-1 text-xs text-muted-foreground">
+        {r("whatIfCustom", { currency: home.currency })}
+        <input
+          type="number"
+          inputMode="numeric"
+          min={1}
+          value={typed}
+          onChange={(e) => {
+            setTyped(e.target.value);
+            const n = Number(e.target.value);
+            if (n > 0) setExtra(n);
+          }}
+          className="h-10 w-40 rounded-md border border-border bg-background px-3 text-sm text-foreground"
+        />
+      </label>
+      {badInput && <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">{r("whatIfBad")}</p>}
+
+      {result && (
+        <>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-center">
+            <div className="rounded-md border border-border p-2">
+              <p className="text-xs font-medium text-muted-foreground">{r("whatIfNow")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{r("whatIfSaveRow")}</p>
+              <p className="text-sm font-bold tabular-nums">{homeMoney(base.monthlyIncome * (base.savingsRate ?? 0))}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{r("whatIfAgeRow")}</p>
+              <p className="text-sm font-bold">{ageText(baseAge)}</p>
+            </div>
+            <div className="rounded-md border border-emerald-500/50 bg-emerald-500/5 p-2">
+              <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                {r("whatIfWith", { amount: homeMoney(result.appliedExtra) })}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{r("whatIfSaveRow")}</p>
+              <p className="text-sm font-bold tabular-nums">
+                {homeMoney(base.monthlyIncome * result.newRate)}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{r("whatIfAgeRow")}</p>
+              <p className="text-sm font-bold">{ageText(result.age)}</p>
+            </div>
+          </div>
+          {verdict && <p className="mt-2 text-sm font-medium">{verdict}</p>}
+          {capped && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {r("whatIfCapped", { amount: homeMoney(result.appliedExtra) })}
+            </p>
+          )}
+          <p className="mt-2 text-xs text-muted-foreground">
+            {r("whatIfSame", {
+              age: baseFreedom.freedomAge,
+              ret: (expectedReturn * 100).toFixed(1),
+              infl: (dest.inflationRate * 100).toFixed(1),
+            })}
+          </p>
+        </>
+      )}
+      <p className="mt-2 text-xs text-muted-foreground">{r("whatIfBudget")}</p>
+    </div>
   );
 }

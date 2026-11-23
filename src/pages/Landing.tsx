@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   Calculator,
@@ -21,7 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Disclaimer } from "@/components/layout/Disclaimer";
 import { useI18n } from "@/i18n";
 import { useUserStore } from "@/store/userStore";
-import { SAMPLE_INPUTS, computeSamplePlan } from "@/lib/samplePlan";
+import { SAMPLES, computeSamplePlan, type SampleKey } from "@/lib/samplePlan";
 import { formatCurrency } from "@/lib/formatters";
 
 const featureIcons = [Globe2, GraduationCap, ShieldCheck] as const;
@@ -31,10 +31,11 @@ export function Landing() {
   const { t } = useI18n();
   const setPhase = useUserStore((s) => s.setPhase);
   /** One-click: fill a realistic sample persona and jump straight to the Reveal. */
-  const trySample = () => {
+  const [sampleKey, setSampleKey] = useState<SampleKey>("family");
+  const trySample = (key: SampleKey = sampleKey) => {
     // Replace every input (not just five) so leftovers from an earlier session
     // can't change the numbers: the plan that opens must match the preview card.
-    useUserStore.setState({ inputs: { ...SAMPLE_INPUTS }, phase: "reveal" });
+    useUserStore.setState({ inputs: { ...SAMPLES[key] }, phase: "reveal" });
   };
 
   return (
@@ -100,7 +101,7 @@ export function Landing() {
               {/* Sample link */}
               <button
                 type="button"
-                onClick={trySample}
+                onClick={() => trySample()}
                 className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
               >
                 <PlayCircle className="h-3.5 w-3.5" />
@@ -110,7 +111,30 @@ export function Landing() {
 
             {/* RIGHT — live preview card ("Arjun & Meera's plan") */}
             <div className="relative">
-              <LivePlanPreview onClick={trySample} />
+              <div
+                role="tablist"
+                aria-label={t("landing.sampleAria")}
+                className="mb-3 grid grid-cols-2 gap-2"
+              >
+                {(["family", "dubai"] as const).map((k) => (
+                  <button
+                    key={k}
+                    type="button"
+                    role="tab"
+                    aria-selected={sampleKey === k}
+                    onClick={() => setSampleKey(k)}
+                    className={[
+                      "min-h-11 rounded-xl border px-2 py-1 text-center text-sm font-medium leading-tight transition",
+                      sampleKey === k
+                        ? "border-orange-500 bg-orange-500/15 text-orange-700 dark:text-orange-300"
+                        : "border-border text-muted-foreground hover:bg-secondary",
+                    ].join(" ")}
+                  >
+                    {t(k === "family" ? "landing.sampleFamily" : "landing.sampleDubai")}
+                  </button>
+                ))}
+              </div>
+              <LivePlanPreview sampleKey={sampleKey} onClick={() => trySample(sampleKey)} />
             </div>
           </div>
         </div>
@@ -313,17 +337,20 @@ export function Landing() {
  * element because the user sees exactly what they'll build in 2 minutes.
  * Clickable → fills sample data → jumps to Reveal.
  */
-function LivePlanPreview({ onClick }: { onClick: () => void }) {
+function LivePlanPreview({ sampleKey, onClick }: { sampleKey: SampleKey; onClick: () => void }) {
   // Same engine and same inputs as the plan that opens on click.
-  const plan = useMemo(() => computeSamplePlan(), []);
-  const { freedom, country, onTrack, ageAtCurrentRate, yearsAtCurrentRate } = plan;
+  const { t } = useI18n();
+  const sample = SAMPLES[sampleKey];
+  const plan = useMemo(() => computeSamplePlan(sample), [sample]);
+  const { freedom, country, home, onTrack, ageAtCurrentRate, yearsAtCurrentRate } = plan;
   const money = (n: number) => formatCurrency(n, country, { compact: true });
+  const isDubai = sampleKey === "dubai";
   return (
     <button
       type="button"
       onClick={onClick}
       className="group block w-full text-left transition hover:scale-[1.02]"
-      aria-label="See a sample plan — Arjun and Meera, 32, Bangalore"
+      aria-label={isDubai ? t("landing.sampleDubaiWho") : "See a sample plan — Arjun and Meera, 32, Bangalore"}
     >
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-orange-500/5">
         {/* Header strip */}
@@ -334,7 +361,9 @@ function LivePlanPreview({ onClick }: { onClick: () => void }) {
             </div>
             <div>
               <p className="text-xs text-muted-foreground leading-none">Sample plan</p>
-              <p className="text-sm font-semibold leading-tight">🇮🇳 Arjun & Meera, 32 · Bangalore</p>
+              <p className="text-sm font-semibold leading-tight">
+                {isDubai ? `🇦🇪 ${t("landing.sampleDubaiWho")}` : "🇮🇳 Arjun & Meera, 32 · Bangalore"}
+              </p>
             </div>
           </div>
           <span
@@ -358,8 +387,8 @@ function LivePlanPreview({ onClick }: { onClick: () => void }) {
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             {ageAtCurrentRate != null
-              ? `Saving ${(SAMPLE_INPUTS.savingsRate! * 100).toFixed(0)}% of income, they get there at ${ageAtCurrentRate}`
-              : `Saving ${(SAMPLE_INPUTS.savingsRate! * 100).toFixed(0)}% of income, they don't get there`}
+              ? `Saving ${(sample.savingsRate! * 100).toFixed(0)}% of income, they get there at ${ageAtCurrentRate}`
+              : `Saving ${(sample.savingsRate! * 100).toFixed(0)}% of income, they don't get there`}
           </p>
         </div>
 
@@ -378,11 +407,20 @@ function LivePlanPreview({ onClick }: { onClick: () => void }) {
           />
         </div>
 
+        {isDubai && (
+          <p className="border-t border-border bg-muted/20 px-4 py-2 text-xs text-muted-foreground">
+            {t("landing.sampleDubaiNote", {
+              saved: formatCurrency(sample.monthlyIncome! * sample.savingsRate!, home),
+              income: formatCurrency(sample.monthlyIncome!, home),
+            })}
+          </p>
+        )}
+
         {/* Mini chart — growth curve */}
         <div className="border-t border-border px-3 pt-2">
           <MiniGrowthChart />
           <p className="pb-3 text-center text-xs text-muted-foreground">
-            Projected wealth · age 32 → 95
+            Projected wealth · age {sample.age} → 95
           </p>
         </div>
 
