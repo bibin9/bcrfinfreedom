@@ -80,7 +80,7 @@ const PRESETS_BY_COUNTRY: Partial<Record<CountryCode, AssetPreset[]>> = {
     { name: "Home-country property", category: "real_estate", liquid: false },
   ],
   SA: [
-    { name: "GOSI pension", category: "retirement", liquid: true },
+    { name: "GOSI pension", category: "retirement", liquid: false },
     { name: "End-of-Service award", category: "gratuity", liquid: true },
     { name: "Al Rajhi mutual funds", category: "stocks_mf", liquid: true },
     { name: "Saudi stocks (Tadawul)", category: "stocks_mf", liquid: true },
@@ -88,8 +88,8 @@ const PRESETS_BY_COUNTRY: Partial<Record<CountryCode, AssetPreset[]>> = {
     { name: "Gold", category: "gold", liquid: true },
   ],
   US: [
-    { name: "401(k)", category: "retirement", liquid: true },
-    { name: "Traditional IRA", category: "retirement", liquid: true },
+    { name: "401(k)", category: "retirement", liquid: false },
+    { name: "Traditional IRA", category: "retirement", liquid: false },
     { name: "Roth IRA", category: "retirement", liquid: true },
     { name: "HSA", category: "retirement", liquid: true },
     { name: "Vanguard / Fidelity brokerage", category: "stocks_mf", liquid: true },
@@ -99,15 +99,15 @@ const PRESETS_BY_COUNTRY: Partial<Record<CountryCode, AssetPreset[]>> = {
   ],
   GB: [
     { name: "Stocks & Shares ISA", category: "retirement", liquid: true },
-    { name: "SIPP", category: "retirement", liquid: true },
-    { name: "Workplace pension", category: "retirement", liquid: true },
+    { name: "SIPP", category: "retirement", liquid: false },
+    { name: "Workplace pension", category: "retirement", liquid: false },
     { name: "Vanguard portfolio", category: "stocks_mf", liquid: true },
     { name: "Premium Bonds", category: "fd_bonds", liquid: true },
     { name: "UK property", category: "real_estate", liquid: false },
     { name: "Cash savings", category: "cash", liquid: true },
   ],
   CA: [
-    { name: "RRSP", category: "retirement", liquid: true },
+    { name: "RRSP", category: "retirement", liquid: false },
     { name: "TFSA", category: "retirement", liquid: true },
     { name: "FHSA", category: "retirement", liquid: true },
     { name: "Non-registered brokerage", category: "stocks_mf", liquid: true },
@@ -115,7 +115,7 @@ const PRESETS_BY_COUNTRY: Partial<Record<CountryCode, AssetPreset[]>> = {
     { name: "GIC", category: "fd_bonds", liquid: true },
   ],
   SG: [
-    { name: "CPF", category: "retirement", liquid: true },
+    { name: "CPF", category: "retirement", liquid: false },
     { name: "SRS", category: "retirement", liquid: true },
     { name: "Endowus / Syfe", category: "stocks_mf", liquid: true },
     { name: "SGD fixed deposit", category: "fd_bonds", liquid: true },

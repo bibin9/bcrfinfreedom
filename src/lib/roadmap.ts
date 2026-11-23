@@ -27,9 +27,14 @@ export function generateRoadmap(
   allocation: AllocationResult,
   freedom: FreedomProjection,
   destination: CountryProfile = getCountryProfile(freedom.expenseCountry ?? country.code),
+  /** What the person spends per month today, in `country` currency. When absent, the retirement budget is used as a rough stand-in. */
+  currentMonthlySpending?: number,
 ): RoadmapStep[] {
   const steps: RoadmapStep[] = [];
-  const monthlyExpense = convertCurrency(freedom.currentAnnualExpenses / 12, destination, country) || 0;
+  const monthlyExpense =
+    currentMonthlySpending != null && currentMonthlySpending > 0
+      ? currentMonthlySpending
+      : convertCurrency(freedom.currentAnnualExpenses / 12, destination, country) || 0;
   const emergencyTarget = monthlyExpense * country.emergencyFundMonths;
 
   // 1. Emergency fund first — always.

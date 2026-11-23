@@ -94,6 +94,8 @@ interface UserState {
     householdSize?: HouseholdSize;
     /** User-entered annual expenses in local currency. Overrides benchmark/income. */
     annualExpensesOverride?: number;
+    /** What they spend per month TODAY (home-country currency). Optional; used for the emergency fund. */
+    currentMonthlySpending?: number;
     /** Country the user plans to retire in. If absent, equals `country`. */
     retirementCountry?: CountryCode;
     /** City (id from data/cities.ts) they'll live in after they stop working. */
@@ -123,6 +125,7 @@ interface UserState {
   setFreedomAge: (age: number | undefined) => void;
   setHouseholdSize: (size: HouseholdSize) => void;
   setAnnualExpensesOverride: (expenses: number | undefined) => void;
+  setCurrentMonthlySpending: (amount: number | undefined) => void;
   /** Override the country the user plans to retire in (expat dual-country mode). */
   setRetirementCountry: (code: CountryCode | undefined) => void;
   setRetirementCity: (cityId: string | undefined) => void;
@@ -224,6 +227,8 @@ export const useUserStore = create<UserState>()(
         set((s) => ({ inputs: { ...s.inputs, householdSize } })),
       setAnnualExpensesOverride: (annualExpensesOverride) =>
         set((s) => ({ inputs: { ...s.inputs, annualExpensesOverride } })),
+      setCurrentMonthlySpending: (currentMonthlySpending) =>
+        set((s) => ({ inputs: { ...s.inputs, currentMonthlySpending } })),
       setRetirementCountry: (retirementCountry) =>
         set((s) => ({ inputs: { ...s.inputs, retirementCountry, retirementCity: undefined } })),
       setRetirementCity: (retirementCity) =>

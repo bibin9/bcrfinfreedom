@@ -331,6 +331,11 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
                           {p.monthlySIP != null
                             ? formatCurrency(p.monthlySIP, destinationCountry, { compact: true })
                             : "—"}
+                          {p.yearsToTarget === 0 && (
+                            <span className="block text-xs font-normal text-amber-700 dark:text-amber-400">
+                              {t("tune.dueNow")}
+                            </span>
+                          )}
                         </td>
                         <td className="px-2 py-1.5 text-end">
                           <Button

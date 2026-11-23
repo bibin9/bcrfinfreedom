@@ -31,6 +31,8 @@ interface Props {
   currentAge: number;
   householdSize: HouseholdSize;
   annualExpensesOverride: number | undefined;
+  currentMonthlySpending: number | undefined;
+  onCurrentMonthlySpending: (amount: number | undefined) => void;
   onSavingsRate: (rate: number) => void;
   onCurrentCorpus: (corpus: number) => void;
   onFreedomAge: (age: number) => void;
@@ -53,6 +55,8 @@ export function TunePanel({
   currentAge,
   householdSize,
   annualExpensesOverride,
+  currentMonthlySpending,
+  onCurrentMonthlySpending,
   onSavingsRate,
   onCurrentCorpus,
   onFreedomAge,
@@ -263,6 +267,27 @@ export function TunePanel({
           <p className="text-xs text-muted-foreground">
             {d(householdSize === "family" ? "expensesHintFamily" : "expensesHintSingle")}
           </p>
+          {!annualExpensesOverride && (
+            <p className="text-xs text-amber-700 dark:text-amber-400">{t("tune.benchmarkNote")}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="current-spending">
+            {t("tune.currentSpendingLabel", { currency: country.currency })}
+          </Label>
+          <Input
+            id="current-spending"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={currentMonthlySpending || ""}
+            onChange={(e) => {
+              const v = Number(e.target.value);
+              onCurrentMonthlySpending(v > 0 ? v : undefined);
+            }}
+          />
+          <p className="text-xs text-muted-foreground">{t("tune.currentSpendingHint")}</p>
         </div>
 
         <div className="space-y-2">

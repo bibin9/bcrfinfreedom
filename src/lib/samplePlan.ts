@@ -22,6 +22,10 @@ export const SAMPLE_INPUTS: UserStateInputs = {
   retirementCity: "bengaluru",
   savingsRate: 0.3,
   currentCorpus: 0,
+  // What they plan to spend per year in retirement, in today's money (₹70,000/month).
+  // Matches the monthly spending shown in their cash-flow view, so the sample does not
+  // rely on the generic Bengaluru family benchmark (which is far above their income).
+  annualExpensesOverride: 840_000,
 };
 
 export function computeSamplePlan() {
@@ -40,6 +44,7 @@ export function computeSamplePlan() {
     currentCorpus: SAMPLE_INPUTS.currentCorpus,
     householdSize: SAMPLE_INPUTS.householdSize,
     retirementCity: SAMPLE_INPUTS.retirementCity,
+    annualExpensesOverride: SAMPLE_INPUTS.annualExpensesOverride,
   });
   const yearsAtCurrentRate = freedom.yearsToFreedomAtCurrentRate;
   const todayFireNumber = freedom.currentAnnualExpenses * 25;

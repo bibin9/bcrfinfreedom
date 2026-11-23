@@ -234,6 +234,16 @@ export const en = {
       "built by a UAE-based banking-payments IT developer who built the FIRE tool he needed himself.",
     disclaimer: "Educational use only · Not financial advice · © BibinCutRiver",
   },
+  tune: {
+    dueNow:
+      "Due now: one-off cash needed, not a monthly saving",
+    benchmarkNote:
+      "The default figure is a rough estimate, not survey data. Enter your own spending for a plan that fits you.",
+    currentSpendingLabel:
+      "What you spend per month today ({currency}) — optional",
+    currentSpendingHint:
+      "Used for your emergency fund. If you leave this blank, we use your retirement budget as a rough stand-in.",
+  },
   aiChat: {
     consent:
       "I agree to send my question, chat history and plan details (including income, savings, age and goals) to Pollinations, an external AI service. Replies may be wrong.",

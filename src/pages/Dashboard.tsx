@@ -54,6 +54,7 @@ export function Dashboard() {
   const setFreedomAge = useUserStore((s) => s.setFreedomAge);
   const setHouseholdSize = useUserStore((s) => s.setHouseholdSize);
   const setAnnualExpensesOverride = useUserStore((s) => s.setAnnualExpensesOverride);
+  const setCurrentMonthlySpending = useUserStore((s) => s.setCurrentMonthlySpending);
   const setRetirementCountry = useUserStore((s) => s.setRetirementCountry);
   const setRetirementCity = useUserStore((s) => s.setRetirementCity);
   const dashboardTab = useUserStore((s) => s.dashboardTab);
@@ -73,6 +74,7 @@ export function Dashboard() {
   const freedomAge = inputs.freedomAge;
   const householdSize = inputs.householdSize ?? "single";
   const annualExpensesOverride = inputs.annualExpensesOverride;
+  const currentMonthlySpending = inputs.currentMonthlySpending;
   const retirementCountryCode = inputs.retirementCountry;
   const monthlyInvestment = complete
     ? Math.max(0, Math.round(complete.monthlyIncome * savingsRate))
@@ -156,8 +158,8 @@ export function Dashboard() {
 
   const roadmap = useMemo(() => {
     if (!complete || !country || !allocation || !freedom) return null;
-    return generateRoadmap(complete, country, allocation, freedom, destinationCountry ?? country);
-  }, [complete, country, allocation, freedom, destinationCountry]);
+    return generateRoadmap(complete, country, allocation, freedom, destinationCountry ?? country, currentMonthlySpending);
+  }, [complete, country, allocation, freedom, destinationCountry, currentMonthlySpending]);
 
   if (!complete || !country || !allocation || !freedom || !roadmap || !mfAllocation) {
     return (
@@ -419,6 +421,13 @@ export function Dashboard() {
               expectedReturn={allocation.expectedReturn}
               savingsRate={savingsRate}
               currentCorpus={currentCorpus}
+              retirementAge={freedom.freedomAge}
+              annualExpenses={
+                freedom.expenseBasis === "override" &&
+                (destinationCountry ?? country).code === country.code
+                  ? freedom.currentAnnualExpenses
+                  : undefined
+              }
             />
           )}
 
@@ -470,6 +479,8 @@ export function Dashboard() {
             currentAge={complete.age}
             householdSize={householdSize}
             annualExpensesOverride={annualExpensesOverride}
+            currentMonthlySpending={currentMonthlySpending}
+            onCurrentMonthlySpending={setCurrentMonthlySpending}
             onSavingsRate={setSavingsRate}
             onCurrentCorpus={setCurrentCorpus}
             onFreedomAge={setFreedomAge}

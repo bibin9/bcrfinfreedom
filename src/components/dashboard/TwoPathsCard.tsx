@@ -23,6 +23,10 @@ interface Props {
   expectedReturn: number;
   savingsRate: number;
   currentCorpus: number;
+  /** Same retirement age as the main plan. */
+  retirementAge?: number;
+  /** Same yearly spending (today's money) as the main plan, when the user set one. */
+  annualExpenses?: number;
 }
 
 export function TwoPathsCard({
@@ -31,6 +35,8 @@ export function TwoPathsCard({
   expectedReturn,
   savingsRate,
   currentCorpus,
+  retirementAge,
+  annualExpenses,
 }: Props) {
   const paths = useMemo(
     () =>
@@ -41,8 +47,10 @@ export function TwoPathsCard({
         savingsRate,
         expectedReturn,
         country,
+        retirementAge,
+        annualExpenses,
       }),
-    [complete, country, expectedReturn, savingsRate, currentCorpus],
+    [complete, country, expectedReturn, savingsRate, currentCorpus, retirementAge, annualExpenses],
   );
 
   const gap = paths.disciplined.finalAtRetirement - paths.drift.finalAtRetirement;

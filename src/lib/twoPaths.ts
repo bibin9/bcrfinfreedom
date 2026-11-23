@@ -22,6 +22,10 @@ export interface TwoPathsInput {
   savingsRate: number;
   expectedReturn: number;
   country: CountryProfile;
+  /** Retirement age chosen in the main plan. Falls back to the country default. */
+  retirementAge?: number;
+  /** Yearly spending in today's money (home currency), e.g. the main plan's own figure. Falls back to income x (1 - savings rate). */
+  annualExpenses?: number;
 }
 
 export interface PathPoint {
@@ -58,13 +62,16 @@ const SWR = 0.04;
 
 export function computeTwoPaths(input: TwoPathsInput): TwoPathsResult {
   const { age, monthlyIncome, currentCorpus, savingsRate, expectedReturn, country } = input;
-  const retirementAge = Math.max(age + 1, country.retirementAge ?? 60);
+  const retirementAge = Math.max(age + 1, input.retirementAge ?? country.retirementAge ?? 60);
   const endAge = 85;
 
   const discMonthly = monthlyIncome * savingsRate;
   const driftMonthly = monthlyIncome * DRIFT_SAVINGS_RATE;
   // Both paths try to maintain the disciplined lifestyle in retirement.
-  const annualExpenses = monthlyIncome * 12 * (1 - savingsRate);
+  const annualExpenses =
+    input.annualExpenses != null && input.annualExpenses > 0
+      ? input.annualExpenses
+      : monthlyIncome * 12 * (1 - savingsRate);
   const monthlyWithdrawal = annualExpenses / 12 * Math.pow(1 + country.inflationRate, retirementAge - age);
 
   let disciplined = currentCorpus;
