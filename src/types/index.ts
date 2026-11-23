@@ -377,6 +377,8 @@ export interface MutualFund {
   shariaCompliant?: boolean;
   /** AMFI scheme code (India). When set, returns are refreshed live from mfapi.in. */
   schemeCode?: number;
+  /** US exchange ticker. When set, returns are refreshed from public/data/us-etf-returns.json. */
+  ticker?: string;
   /** True when the growth numbers were computed from live NAV history. */
   live?: boolean;
 }

@@ -1,0 +1,56 @@
+{
+  "source": "Yahoo Finance adjusted close (dividends reinvested)",
+  "updated": "2026-11-23T03:16:31.600Z",
+  "funds": {
+    "VTI": {
+      "threeYearCagr": 0.16265390691640502,
+      "fiveYearCagr": 0.08582543454728109,
+      "navDate": "2026-11-20"
+    },
+    "VOO": {
+      "threeYearCagr": 0.1650895070947651,
+      "fiveYearCagr": 0.09601473403494909,
+      "navDate": "2026-11-20"
+    },
+    "VXUS": {
+      "threeYearCagr": 0.1382712480102417,
+      "fiveYearCagr": 0.06204061538984251,
+      "navDate": "2026-11-20"
+    },
+    "BND": {
+      "threeYearCagr": 0.041853958972391414,
+      "fiveYearCagr": -0.0016123244344178334,
+      "navDate": "2026-11-20"
+    },
+    "VO": {
+      "threeYearCagr": 0.14133254191939115,
+      "fiveYearCagr": 0.051142439777729365,
+      "navDate": "2026-11-20"
+    },
+    "VB": {
+      "threeYearCagr": 0.1357364124795264,
+      "fiveYearCagr": 0.0467883953333863,
+      "navDate": "2026-11-20"
+    },
+    "SCHD": {
+      "threeYearCagr": 0.16692912728796583,
+      "fiveYearCagr": 0.0926208508979749,
+      "navDate": "2026-11-20"
+    },
+    "QQQ": {
+      "threeYearCagr": 0.1656269202992069,
+      "fiveYearCagr": 0.09185988181438454,
+      "navDate": "2026-11-20"
+    },
+    "VNQ": {
+      "threeYearCagr": 0.09320961986878973,
+      "fiveYearCagr": 0.005470892847039721,
+      "navDate": "2026-11-20"
+    },
+    "VWO": {
+      "threeYearCagr": 0.1050576197779527,
+      "fiveYearCagr": 0.02836912446658113,
+      "navDate": "2026-11-20"
+    }
+  }
+}

@@ -158,3 +158,25 @@ export async function fetchLiveReturns(
   writeCache(cache);
   return out;
 }
+
+interface EtfFile {
+  funds?: Record<string, LiveReturns>;
+}
+
+/**
+ * Live returns for US ETFs, keyed by ticker. The numbers are prepared a few
+ * times a week by scripts/update-etf-returns.mjs and served from our own site,
+ * because browsers cannot call the price sources directly. Any failure returns
+ * an empty result and the curated numbers stay in place.
+ */
+export async function fetchEtfReturns(signal?: AbortSignal): Promise<Record<string, LiveReturns>> {
+  try {
+    const day = new Date().toISOString().slice(0, 10); // new URL each day so a CDN copy is never stale
+    const r = await fetch(`${import.meta.env.BASE_URL}data/us-etf-returns.json?d=${day}`, { signal });
+    if (!r.ok) return {};
+    const file = (await r.json()) as EtfFile;
+    return file.funds ?? {};
+  } catch {
+    return {};
+  }
+}

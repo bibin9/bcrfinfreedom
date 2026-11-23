@@ -100,9 +100,9 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
         <CardDescription>
           {ml ? "ഇത് വാങ്ങാനുള്ള ശുപാർശയല്ല. ഫണ്ടിന്റെ പേരോ തരമോ നൽകി തിരയാം. ചെലവും നഷ്ടസാധ്യതയും കൂടി നോക്കണം. " : "Examples for learning, not a buy list. Search by name or type and compare costs and risk. "}
           {liveCount > 0 && asOf
-            ? (ml ? `${liveCount} ഫണ്ടുകളുടെ വളർച്ച NAV വിലകളിൽ നിന്ന് mfapi.in വഴി കണക്കാക്കി; ഏറ്റവും പുതിയ തീയതി ${asOf}. മറ്റുള്ളവ ${FUND_CATALOGUE_UPDATED_AT}-ലെ ഏകദേശ വിവരങ്ങളാണ്.` : `Returns for ${liveCount} funds use NAV history via mfapi.in (latest ${asOf}); other numbers are approximate as of ${FUND_CATALOGUE_UPDATED_AT}.`)
+            ? (ml ? `${liveCount} ഫണ്ടുകളുടെ വളർച്ച സമീപകാല ദൈനംദിന വിലകളിൽ നിന്ന് കണക്കാക്കി (ഏറ്റവും പുതിയ തീയതി ${asOf}). മറ്റുള്ളവ ${FUND_CATALOGUE_UPDATED_AT}-ലെ ഏകദേശ വിവരങ്ങളാണ്.` : `Growth for ${liveCount} funds is worked out from recent daily prices (latest ${asOf}). The other numbers are rough, as of ${FUND_CATALOGUE_UPDATED_AT}.`)
             : loading
-              ? (ml ? "പുതിയ വിലവിവരങ്ങൾ പരിശോധിക്കുന്നു…" : "Checking available NAV history…")
+              ? (ml ? "പുതിയ വിലവിവരങ്ങൾ പരിശോധിക്കുന്നു…" : "Checking the latest prices…")
               : (ml ? `${FUND_CATALOGUE_UPDATED_AT}-ലെ ഏകദേശ വിവരങ്ങൾ. നിക്ഷേപിക്കും മുമ്പ് ഫണ്ട് സ്ഥാപനത്തിന്റെ പുതിയ വിവരങ്ങൾ പരിശോധിക്കുക.` : `Numbers approximate as of ${FUND_CATALOGUE_UPDATED_AT}. Verify the fund house's current factsheet before acting.`)}
         </CardDescription>
       </CardHeader>
@@ -237,10 +237,10 @@ function FundRow({ fund }: { fund: MutualFund }) {
           </span>
           {fund.live && (
             <span
-              title="Both return periods computed from recent NAV history via mfapi.in; not a real-time price feed"
+              title={ml ? "3, 5 വർഷത്തെ വളർച്ച സമീപകാല ദൈനംദിന വിലകളിൽ നിന്ന് കണക്കാക്കിയത്. തത്സമയ വിലയല്ല." : "3-year and 5-year growth worked out from recent daily prices. Not a live price feed."}
               className="rounded bg-sky-500/15 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-sky-500"
             >
-              {ml ? "പുതിയ NAV കണക്ക്" : "Recent NAV"}
+              {ml ? "പുതിയ വിലക്കണക്ക്" : "Recent prices"}
             </span>
           )}
           {fund.shariaCompliant && (

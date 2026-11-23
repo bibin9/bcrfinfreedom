@@ -38,16 +38,16 @@ export const fundCatalog: Record<CountryCode, MutualFund[]> = {
   ],
 
   US: [
-    { name: "Vanguard Total Stock Market ETF (VTI)", category: "etf", threeYearCagr: 0.1, fiveYearCagr: 0.135, expenseRatio: 0.0003, risk: "medium", note: "Entire US equity market in one ticker. The bedrock US portfolio holding." },
-    { name: "Vanguard S&P 500 ETF (VOO)", category: "large_cap", threeYearCagr: 0.105, fiveYearCagr: 0.14, expenseRatio: 0.0003, risk: "medium", note: "500 largest US companies; the default benchmark most active funds fail to beat." },
-    { name: "Vanguard Total International Stock ETF (VXUS)", category: "international", threeYearCagr: 0.04, fiveYearCagr: 0.06, expenseRatio: 0.0007, risk: "medium", note: "Non-US developed + emerging markets. Global diversification." },
-    { name: "Vanguard Total Bond Market ETF (BND)", category: "debt", threeYearCagr: -0.005, fiveYearCagr: 0.01, expenseRatio: 0.0003, risk: "low", note: "US investment-grade bond benchmark — the stability sleeve's core holding." },
-    { name: "Vanguard Mid-Cap ETF (VO)", category: "mid_cap", threeYearCagr: 0.08, fiveYearCagr: 0.11, expenseRatio: 0.0004, risk: "high", note: "Mid-cap US equities — often under-represented in S&P 500 allocations." },
-    { name: "Vanguard Small-Cap ETF (VB)", category: "small_cap", threeYearCagr: 0.06, fiveYearCagr: 0.105, expenseRatio: 0.0005, risk: "high", note: "Broad US small-cap exposure with a large-sample factor tilt." },
-    { name: "Schwab US Dividend Equity ETF (SCHD)", category: "large_cap", threeYearCagr: 0.08, fiveYearCagr: 0.13, expenseRatio: 0.0006, risk: "medium", note: "Quality dividend growers — better downside capture than the S&P 500." },
-    { name: "Invesco QQQ Trust (QQQ)", category: "large_cap", threeYearCagr: 0.14, fiveYearCagr: 0.2, expenseRatio: 0.002, risk: "high", note: "Nasdaq-100 — tech-heavy; strong cycles but deeper drawdowns." },
-    { name: "Vanguard Real Estate ETF (VNQ)", category: "etf", threeYearCagr: 0.02, fiveYearCagr: 0.05, expenseRatio: 0.0012, risk: "medium", note: "US REIT basket — inflation-linked income layer." },
-    { name: "Vanguard Emerging Markets ETF (VWO)", category: "international", threeYearCagr: 0.02, fiveYearCagr: 0.04, expenseRatio: 0.0008, risk: "high", note: "Emerging markets exposure including China, India, Brazil — high beta diversifier." },
+    { name: "Vanguard Total Stock Market ETF (VTI)", ticker: "VTI", category: "etf", threeYearCagr: 0.1, fiveYearCagr: 0.135, expenseRatio: 0.0003, risk: "medium", note: "Entire US equity market in one ticker. The bedrock US portfolio holding." },
+    { name: "Vanguard S&P 500 ETF (VOO)", ticker: "VOO", category: "large_cap", threeYearCagr: 0.105, fiveYearCagr: 0.14, expenseRatio: 0.0003, risk: "medium", note: "500 largest US companies; the default benchmark most active funds fail to beat." },
+    { name: "Vanguard Total International Stock ETF (VXUS)", ticker: "VXUS", category: "international", threeYearCagr: 0.04, fiveYearCagr: 0.06, expenseRatio: 0.0007, risk: "medium", note: "Non-US developed + emerging markets. Global diversification." },
+    { name: "Vanguard Total Bond Market ETF (BND)", ticker: "BND", category: "debt", threeYearCagr: -0.005, fiveYearCagr: 0.01, expenseRatio: 0.0003, risk: "low", note: "US investment-grade bond benchmark — the stability sleeve's core holding." },
+    { name: "Vanguard Mid-Cap ETF (VO)", ticker: "VO", category: "mid_cap", threeYearCagr: 0.08, fiveYearCagr: 0.11, expenseRatio: 0.0004, risk: "high", note: "Mid-cap US equities — often under-represented in S&P 500 allocations." },
+    { name: "Vanguard Small-Cap ETF (VB)", ticker: "VB", category: "small_cap", threeYearCagr: 0.06, fiveYearCagr: 0.105, expenseRatio: 0.0005, risk: "high", note: "Broad US small-cap exposure with a large-sample factor tilt." },
+    { name: "Schwab US Dividend Equity ETF (SCHD)", ticker: "SCHD", category: "large_cap", threeYearCagr: 0.08, fiveYearCagr: 0.13, expenseRatio: 0.0006, risk: "medium", note: "Quality dividend growers — better downside capture than the S&P 500." },
+    { name: "Invesco QQQ Trust (QQQ)", ticker: "QQQ", category: "large_cap", threeYearCagr: 0.14, fiveYearCagr: 0.2, expenseRatio: 0.002, risk: "high", note: "Nasdaq-100 — tech-heavy; strong cycles but deeper drawdowns." },
+    { name: "Vanguard Real Estate ETF (VNQ)", ticker: "VNQ", category: "etf", threeYearCagr: 0.02, fiveYearCagr: 0.05, expenseRatio: 0.0012, risk: "medium", note: "US REIT basket — inflation-linked income layer." },
+    { name: "Vanguard Emerging Markets ETF (VWO)", ticker: "VWO", category: "international", threeYearCagr: 0.02, fiveYearCagr: 0.04, expenseRatio: 0.0008, risk: "high", note: "Emerging markets exposure including China, India, Brazil — high beta diversifier." },
   ],
 
   GB: [
