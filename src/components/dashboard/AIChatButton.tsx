@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, MessageSquare, Send, Sparkles, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n";
 import { askAI, SUGGESTED_PROMPTS, type PlanContext } from "@/lib/aiChat";
 import { getCountryProfile } from "@/data/countryProfiles";
 import { calculateAllocation } from "@/lib/allocation";
@@ -52,6 +53,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const { t } = useI18n();
   const [consent, setConsent] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -109,7 +111,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
 
   const send = async (text: string) => {
     if (!text.trim() || busy || !context) return;
-    if (!consent) { setErr("Confirm that you want to share the plan details with Pollinations before sending."); return; }
+    if (!consent) { setErr(t("aiChat.consentRequired")); return; }
     setErr(null);
     const userMsg = text.trim();
     addMessage({ role: "user", content: userMsg });
@@ -214,7 +216,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
         <div className="border-t border-border p-3">
           <label className="mb-2 flex items-start gap-2 text-xs text-muted-foreground">
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-            <span>I agree to send my question, chat history and plan details (including income, savings, age and goals) to Pollinations, an external AI service. Replies may be wrong.</span>
+            <span>{t("aiChat.consent")}</span>
           </label>
           <div className="flex items-center gap-2">
             <Input

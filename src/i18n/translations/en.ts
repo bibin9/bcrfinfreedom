@@ -234,6 +234,12 @@ export const en = {
       "built by a UAE-based banking-payments IT developer who built the FIRE tool he needed himself.",
     disclaimer: "Educational use only · Not financial advice · © BibinCutRiver",
   },
+  aiChat: {
+    consent:
+      "I agree to send my question, chat history and plan details (including income, savings, age and goals) to Pollinations, an external AI service. Replies may be wrong.",
+    consentRequired:
+      "Confirm that you want to share the plan details with Pollinations before sending.",
+  },
   languageSwitcher: {
     label: "Change language",
   },
