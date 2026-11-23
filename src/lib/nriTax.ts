@@ -23,6 +23,9 @@ export interface ResidencyInput {
   daysInPrecedingFYs: [number, number, number, number];
   /** Is the user an Indian citizen or Person of Indian Origin (PIO)? */
   isIndianCitizenOrPIO: boolean;
+  /** Deemed residence applies only to citizens, not foreign citizens of Indian origin. */
+  isIndianCitizen?: boolean;
+  visitPurpose?: "visit" | "permanent_return" | "leaving_employment" | "ordinary";
   /** Returning permanently (took up employment outside India then returned)? */
   returningFromEmployment: boolean;
   /**
@@ -72,21 +75,6 @@ const RNOR_LAST_7YR_DAYS_LIMIT = 729;
 export function assessResidency(i: ResidencyInput): ResidencyResult {
   const totalPreceding4 = i.daysInPrecedingFYs.reduce((a, b) => a + b, 0);
 
-  // ----- Deemed resident (Section 6(1A), Finance Act 2020) --------------
-  if (
-    i.isIndianCitizenOrPIO &&
-    i.indianIncomeINR > DEEMED_RES_INCOME_THRESHOLD_INR &&
-    !i.taxedInAnotherCountry
-  ) {
-    return {
-      status: "RNOR",
-      explanation:
-        "You are a 'deemed resident' under Section 6(1A) — an Indian citizen with Indian income over ₹15 L and not liable to tax in any other country. You are automatically treated as RNOR: Indian income is fully taxed, foreign income is not.",
-      triggeredBy: "Section 6(1A) — deemed resident",
-      deemedResident: true,
-    };
-  }
-
   // ----- Primary resident test ------------------------------------------
   if (i.daysInCurrentFY >= FY_RESIDENT_DAYS_PRIMARY) {
     return rnor_or_ror(
@@ -101,11 +89,15 @@ export function assessResidency(i: ResidencyInput): ResidencyResult {
   // (secondary test disabled). Finance Act 2020 lowered that to 120 for
   // Indian citizens with Indian income > ₹15L.
   let secondaryThreshold = FY_RESIDENT_DAYS_SECONDARY;
-  if (i.isIndianCitizenOrPIO) {
+  const purpose = i.visitPurpose ?? (i.returningFromEmployment ? "permanent_return" : "visit");
+  if (i.isIndianCitizenOrPIO && purpose === "visit") {
     secondaryThreshold = FY_RESIDENT_DAYS_PRIMARY; // 182
     if (i.indianIncomeINR > DEEMED_RES_INCOME_THRESHOLD_INR) {
       secondaryThreshold = DEEMED_RES_DAYS_LOWER; // 120 — the Finance Act 2020 change
     }
+  }
+  if (purpose === "leaving_employment" && (i.isIndianCitizen ?? i.isIndianCitizenOrPIO)) {
+    secondaryThreshold = FY_RESIDENT_DAYS_PRIMARY;
   }
   if (
     i.daysInCurrentFY >= secondaryThreshold &&
@@ -115,6 +107,15 @@ export function assessResidency(i: ResidencyInput): ResidencyResult {
       i,
       `≥ ${secondaryThreshold} days this FY + ≥ 365 days in preceding 4 FYs (Section 6(1)(c))`,
     );
+  }
+
+  // The deemed-resident provision is an exception for someone who has not
+  // already become resident under the ordinary day-count tests.
+  if ((i.isIndianCitizen ?? i.isIndianCitizenOrPIO) &&
+      i.indianIncomeINR > DEEMED_RES_INCOME_THRESHOLD_INR && !i.taxedInAnotherCountry) {
+    return { status: "RNOR", deemedResident: true,
+      triggeredBy: "Section 6 — deemed resident",
+      explanation: "Deemed resident (RNOR): Indian citizen with non-foreign-source income over ₹15 lakh who is not liable to tax elsewhere by residence or similar criteria. Foreign-income relief has exceptions, including an India-controlled business or India-set-up profession. Confirm the facts with a CA." };
   }
 
   // ----- Non-resident ----------------------------------------------------
@@ -133,7 +134,7 @@ function rnor_or_ror(i: ResidencyInput, triggeredBy: string): ResidencyResult {
   const rnorByDays = i.daysInLast7Years <= RNOR_LAST_7YR_DAYS_LIMIT;
   // Deemed-resident 15L/120-day branch (Indian income > 15L + 120-181 days):
   const rnorBy120DayBranch =
-    i.isIndianCitizenOrPIO &&
+    i.isIndianCitizenOrPIO && (i.visitPurpose ?? (i.returningFromEmployment ? "permanent_return" : "visit")) === "visit" &&
     i.indianIncomeINR > DEEMED_RES_INCOME_THRESHOLD_INR &&
     i.daysInCurrentFY >= DEEMED_RES_DAYS_LOWER &&
     i.daysInCurrentFY < FY_RESIDENT_DAYS_PRIMARY;
@@ -146,7 +147,7 @@ function rnor_or_ror(i: ResidencyInput, triggeredBy: string): ResidencyResult {
       reasons.push("Indian citizen earning > ₹15 L, 120–181 days in India (Finance Act 2020)");
     return {
       status: "RNOR",
-      explanation: `You are a Resident but Not Ordinarily Resident (RNOR). Indian income is fully taxed; foreign income is NOT taxed. Qualifying because: ${reasons.join("; ")}.`,
+      explanation: `Resident but Not Ordinarily Resident (RNOR). Foreign income may qualify for relief, but Indian-source or India-received income and foreign income from an India-controlled business or India-set-up profession require separate checks. Qualifying because: ${reasons.join("; ")}. Confirm with a CA.`,
       triggeredBy,
       deemedResident: false,
     };
@@ -196,7 +197,7 @@ export function projectRNORWindow(i: RNORWindowInput): RNORWindowProjection {
       rnorFYs: [i.returnFY, i.returnFY + 1],
       rorFromFY: i.returnFY + 2,
       explanation:
-        "Classic long-term NRI return — 2 full RNOR FYs starting with the return year. Repatriate and liquidate foreign assets during this window to avoid Indian tax.",
+        "Illustrative estimate: about 2 RNOR years if the assumed history and return timing apply. Exact arrival dates, year-by-year day counts, income sources and treaty rules can change this. Confirm before selling or moving assets.",
     };
   }
   // Shorter NRI history or more India-days → likely only 1 RNOR FY.
@@ -206,7 +207,7 @@ export function projectRNORWindow(i: RNORWindowInput): RNORWindowProjection {
       rnorFYs: [i.returnFY],
       rorFromFY: i.returnFY + 1,
       explanation:
-        "Partial RNOR qualification — one FY of RNOR status, then full ROR from the following FY. Act on foreign-asset moves fast.",
+        "Illustrative estimate: about one RNOR year. The summary inputs cannot establish an exact tax-residency window; verify actual dates and residency history with a CA.",
     };
   }
   return {
@@ -247,8 +248,8 @@ export function compareNREvsNRO(i: NREvsNROInput): NREvsNROResult {
     grossAnnualInterest: gross,
     nreNetInterest: nreNet,
     nroNetInterest: nroNet,
-    nreEffectiveYield: nreNet / i.principalINR,
-    nroEffectiveYield: nroNet / i.principalINR,
+    nreEffectiveYield: i.principalINR > 0 ? nreNet / i.principalINR : 0,
+    nroEffectiveYield: i.principalINR > 0 ? nroNet / i.principalINR : 0,
   };
 }
 
@@ -285,10 +286,11 @@ export function estimateRNORTaxSavings(i: RNORTaxSavingsInput): RNORTaxSavingsRe
 
 /** New-regime slab marginal rate for a given total income. */
 export function marginalRateForIncome(incomeINR: number): number {
-  if (incomeINR <= 3_00_000) return 0;
-  if (incomeINR <= 7_00_000) return 0.05;
-  if (incomeINR <= 10_00_000) return 0.1;
-  if (incomeINR <= 12_00_000) return 0.15;
-  if (incomeINR <= 15_00_000) return 0.2;
+  if (incomeINR <= 4_00_000) return 0;
+  if (incomeINR <= 8_00_000) return 0.05;
+  if (incomeINR <= 12_00_000) return 0.1;
+  if (incomeINR <= 16_00_000) return 0.15;
+  if (incomeINR <= 20_00_000) return 0.2;
+  if (incomeINR <= 24_00_000) return 0.25;
   return 0.3;
 }

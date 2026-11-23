@@ -50,7 +50,7 @@ export function projectSIP(
       year: y,
       age: startingAge + y,
       principalInvested,
-      gains: Math.max(0, wealth - principalInvested),
+      gains: wealth - principalInvested,
       total: wealth,
     });
   }

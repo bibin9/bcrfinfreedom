@@ -38,7 +38,7 @@ export function saudiEndOfService(
     monthlyWage * Math.max(0, yearsOfService - 5);
   if (reason === "termination") return full;
   if (yearsOfService < 2) return 0;
-  if (yearsOfService < 5) return full / 3;
+  if (yearsOfService <= 5) return full / 3;
   if (yearsOfService < 10) return (full * 2) / 3;
   return full;
 }

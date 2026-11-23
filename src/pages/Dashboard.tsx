@@ -156,8 +156,8 @@ export function Dashboard() {
 
   const roadmap = useMemo(() => {
     if (!complete || !country || !allocation || !freedom) return null;
-    return generateRoadmap(complete, country, allocation, freedom);
-  }, [complete, country, allocation, freedom]);
+    return generateRoadmap(complete, country, allocation, freedom, destinationCountry ?? country);
+  }, [complete, country, allocation, freedom, destinationCountry]);
 
   if (!complete || !country || !allocation || !freedom || !roadmap || !mfAllocation) {
     return (

@@ -2,7 +2,6 @@ import {
   CartesianGrid,
   Line,
   LineChart,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -19,7 +18,11 @@ interface Props {
 
 export function WealthProjection({ projection, country }: Props) {
   const { t } = useI18n();
-  const data = projection.projection;
+  const startAge = projection.projection[0]?.age ?? 0;
+  const data = projection.projection.map((p) => {
+    const expense = projection.currentAnnualExpenses * Math.pow(1 + projection.inflationRateUsed, p.age - startAge);
+    return { ...p, leanTarget: expense * 15, fireTarget: expense * 25, fatTarget: expense * 33 };
+  });
 
   return (
     <div className="h-72 w-full" role="img" aria-label={t("dash.charts.wealthAria")}>
@@ -53,38 +56,20 @@ export function WealthProjection({ projection, country }: Props) {
             formatter={(value: number) => [formatCurrency(value, country), t("dash.charts.wealth")]}
             labelFormatter={(age: number) => t("dash.charts.ageN", { age })}
           />
-          <ReferenceLine
-            y={projection.fireTiers.lean.targetCorpus}
+          <Line
+            dataKey="leanTarget" name={t("dash.charts.lean")} dot={false}
             stroke="hsl(var(--muted-foreground))"
             strokeDasharray="2 4"
-            label={{
-              value: t("dash.charts.lean"),
-              fill: "hsl(var(--muted-foreground))",
-              fontSize: 10,
-              position: "insideTopRight",
-            }}
           />
-          <ReferenceLine
-            y={projection.targetCorpus}
+          <Line
+            dataKey="fireTarget" name="FIRE 25x (rises with prices)" dot={false}
             stroke="hsl(var(--primary))"
             strokeDasharray="4 4"
-            label={{
-              value: "FIRE 25×",
-              fill: "hsl(var(--primary))",
-              fontSize: 11,
-              position: "insideTopRight",
-            }}
           />
-          <ReferenceLine
-            y={projection.fireTiers.fat.targetCorpus}
+          <Line
+            dataKey="fatTarget" name={t("dash.charts.fat")} dot={false}
             stroke="hsl(var(--chart-3, 142 71% 45%))"
             strokeDasharray="2 4"
-            label={{
-              value: t("dash.charts.fat"),
-              fill: "hsl(142 71% 45%)",
-              fontSize: 10,
-              position: "insideTopRight",
-            }}
           />
           <Line
             type="monotone"

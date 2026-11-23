@@ -172,7 +172,7 @@ export const countryProfiles: Record<CountryCode, CountryProfile> = {
     expectedEquityReturn: 0.11,
     expectedBondReturn: 0.07,
     disclaimer:
-      "Mutual funds are subject to market risk. Read all scheme-related documents carefully. Registered with SEBI.",
+      "Mutual funds are subject to market risk. Read scheme documents and verify the provider's SEBI registration. This educational app does not claim investment-adviser registration.",
     averageAnnualExpensesSingle: 600000,
     averageAnnualExpensesFamily: 1400000,
     fxRateToUSD: 83,

@@ -15,6 +15,8 @@ import type {
   UserInput,
 } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
+import { convertCurrency } from "@/lib/fx";
+import { getCountryProfile } from "@/data/countryProfiles";
 import { msg } from "@/i18n/msg";
 
 const R = (key: string, vars?: Record<string, string | number>) => msg(`dash.roadmap.${key}`, vars);
@@ -24,9 +26,10 @@ export function generateRoadmap(
   country: CountryProfile,
   allocation: AllocationResult,
   freedom: FreedomProjection,
+  destination: CountryProfile = getCountryProfile(freedom.expenseCountry ?? country.code),
 ): RoadmapStep[] {
   const steps: RoadmapStep[] = [];
-  const monthlyExpense = (freedom.annualExpenses / 12) || 0;
+  const monthlyExpense = convertCurrency(freedom.currentAnnualExpenses / 12, destination, country) || 0;
   const emergencyTarget = monthlyExpense * country.emergencyFundMonths;
 
   // 1. Emergency fund first — always.

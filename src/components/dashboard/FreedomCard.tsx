@@ -10,6 +10,7 @@ import type { CountryProfile, FreedomProjection } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
 import { useI18n } from "@/i18n";
 import { citiesFor } from "@/data/cities";
+import { useUserStore } from "@/store/userStore";
 
 interface Props {
   country: CountryProfile;
@@ -142,7 +143,9 @@ export function FreedomCard({
   savingsRate = 0.3,
   currentCorpus = 0,
 }: Props) {
-  const { f, years, countryName, cityName } = useFreedomText();
+  const { f, years, countryName, cityName, lang } = useFreedomText();
+  const setFreedomAge = useUserStore((s) => s.setFreedomAge);
+  const setDashboardTab = useUserStore((s) => s.setDashboardTab);
   const yearsLeft = projection.yearsToFreedomAtCurrentRate;
   const freedomAge = projection.freedomAge;
   const money = (n: number) => formatCurrency(n, country, { compact: true });
@@ -183,6 +186,21 @@ export function FreedomCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
+        <div className="space-y-2 rounded-lg border border-blue-500/30 bg-blue-500/5 p-3 text-xs">
+          <p className="font-semibold">{lang === "ml" ? "ഈ കണക്ക് എങ്ങനെ വന്നു?" : "What this estimate assumes"}</p>
+          <p>{lang === "ml"
+            ? `ഇന്നത്തെ വിലയിൽ നിങ്ങളുടെ മാസച്ചെലവ് ${money(projection.currentAnnualExpenses / 12)}. വില വർഷം ${(projection.inflationRateUsed * 100).toFixed(1)}% കൂടുമെന്ന് കണക്കാക്കി, ${freedomAge} വയസ്സിലെ വാർഷിക ചെലവിന്റെ 25 മടങ്ങാണ് ലക്ഷ്യം.`
+            : `Spending today: ${money(projection.currentAnnualExpenses / 12)}/month. Prices are assumed to rise ${(projection.inflationRateUsed * 100).toFixed(1)}% a year. The target is 25 times annual spending at age ${freedomAge}.`}</p>
+          <p>{lang === "ml"
+            ? `പണത്തിന്റെ വളർച്ച ${(100 * (projection.nominalReturnUsed ?? 0)).toFixed(1)}% എന്ന ഏകദേശ നിരക്കിലാണ്. നികുതിയും നിക്ഷേപച്ചാർജും ഇവിടെ കുറച്ചിട്ടില്ല. ഇത് ഉറപ്പുള്ള തുകയോ ജോലി നിർത്താനുള്ള അനുമതിയോ അല്ല.`
+            : `Assumed nominal return: ${(100 * (projection.nominalReturnUsed ?? 0)).toFixed(1)}%, compounded monthly. Taxes and fees are not deducted. This is an estimate, not confirmation that it is safe to stop working.`}</p>
+          <p>{lang === "ml" ? "ആദ്യം ചെലവ് ശരിയാണെന്ന് ഉറപ്പാക്കൂ. ശേഷം പ്രായം മാറ്റി താരതമ്യം ചെയ്യാം." : "First confirm your spending. Then compare target ages using the same inputs."}</p>
+          <div className="flex flex-wrap gap-2">
+            {age < 50 && <button type="button" onClick={() => setFreedomAge(50)} className="rounded-md border px-3 py-2">{lang === "ml" ? "50 വയസ്സിൽ നിർത്തിയാലോ?" : "Try retiring at 50"}</button>}
+            {age < 60 && <button type="button" onClick={() => setFreedomAge(60)} className="rounded-md border px-3 py-2">{lang === "ml" ? "60 വയസ്സിൽ നിർത്തിയാലോ?" : "Try retiring at 60"}</button>}
+            <button type="button" onClick={() => setDashboardTab("reality")} className="rounded-md border px-3 py-2">{lang === "ml" ? "പണം എത്രകാലം മതിയാകും?" : "Check how long the money may last"}</button>
+          </div>
+        </div>
         {/* Plain-English verdict — the ONE sentence a finance newbie needs to hear first */}
         <PlainVerdict
           onTrack={onTrack}

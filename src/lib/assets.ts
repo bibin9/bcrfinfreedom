@@ -58,7 +58,7 @@ const PRESETS_BY_COUNTRY: Partial<Record<CountryCode, AssetPreset[]>> = {
   IN: [
     { name: "EPF (Employee Provident Fund)", category: "retirement", liquid: true },
     { name: "PPF (Public Provident Fund)", category: "retirement", liquid: true },
-    { name: "NPS (National Pension System)", category: "retirement", liquid: true },
+    { name: "NPS (National Pension System)", category: "retirement", liquid: false },
     { name: "ELSS Mutual Funds", category: "stocks_mf", liquid: true },
     { name: "Mutual Fund portfolio", category: "stocks_mf", liquid: true },
     { name: "Stocks (Zerodha / Groww)", category: "stocks_mf", liquid: true },

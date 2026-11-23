@@ -36,7 +36,7 @@ function slabTax(taxable: number, slabs: Array<[number, number]>): number {
 export function newRegimeTax(grossAnnual: number): number {
   const taxable = Math.max(0, grossAnnual - 75_000);
   if (taxable <= 12_00_000) return 0;
-  return (
+  const beforeCess = (
     slabTax(taxable, [
       [4_00_000, 0],
       [8_00_000, 0.05],
@@ -45,8 +45,10 @@ export function newRegimeTax(grossAnnual: number): number {
       [20_00_000, 0.2],
       [24_00_000, 0.25],
       [Infinity, 0.3],
-    ]) * CESS
+    ])
   );
+  // Section 87A marginal relief for ordinary slab income above INR 12 lakh.
+  return Math.min(beforeCess, taxable - 12_00_000) * CESS;
 }
 
 export function oldRegimeTax(grossAnnual: number, deductions: number): number {

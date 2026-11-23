@@ -109,9 +109,24 @@ export function yearsToTarget(
   return n / 12;
 }
 
+/** First month wealth covers that month's inflation-adjusted spending target.
+ * Unlike yearsToTarget, the target keeps moving as prices rise. */
+export function yearsToInflationAdjustedTarget(
+  current: number, currentTarget: number, monthly: number,
+  annualReturn: number, inflation: number,
+): number | null {
+  let wealth = Math.max(0, current);
+  if (wealth >= currentTarget) return 0;
+  for (let month = 1; month <= 120 * 12; month++) {
+    wealth = wealth * (1 + annualReturn / 12) + Math.max(0, monthly);
+    if (wealth >= currentTarget * Math.pow(1 + inflation, month / 12)) return month / 12;
+  }
+  return null;
+}
+
 export function calculateFreedom(input: FreedomInput): FreedomProjection {
   const { country, age, monthlyIncome, expectedReturn } = input;
-  const savingsRate = input.savingsRate ?? DEFAULT_SAVINGS_RATE;
+  const savingsRate = Math.min(1, Math.max(0, input.savingsRate ?? DEFAULT_SAVINGS_RATE));
 
   const profile = getCountryProfile(country);
   const retireProfile = input.retirementCountry
@@ -127,7 +142,7 @@ export function calculateFreedom(input: FreedomInput): FreedomProjection {
   // no-op since convertCurrency returns the input when from === to.
   const monthlyIncomeRetCcy = convertCurrency(monthlyIncome, profile, retireProfile);
   const currentCorpusRetCcy = convertCurrency(
-    input.currentCorpus ?? 0,
+    Math.max(0, input.currentCorpus ?? 0),
     profile,
     retireProfile,
   );
@@ -173,7 +188,8 @@ export function calculateFreedom(input: FreedomInput): FreedomProjection {
       ? monthlyInvestmentFor(
           currentCorpusRetCcy,
           // Target scales with the chosen target age since expenses inflate further.
-          (currentAnnualExpenses * Math.pow(1 + inflation, targetAge - age)) / SWR,
+          Math.max(0, (currentAnnualExpenses * Math.pow(1 + inflation, targetAge - age)) / SWR -
+            (targetAge === freedomAge ? Math.max(0, input.windfallsAtRetirement ?? 0) : 0)),
           targetAge - age,
           expectedReturn,
         )
@@ -198,11 +214,12 @@ export function calculateFreedom(input: FreedomInput): FreedomProjection {
 
   // Will the user reach the inflation-adjusted target by freedom age at their
   // current savings? Years is measured against the same inflation-adjusted target.
-  const yearsToFreedomAtCurrentRate = yearsToTarget(
+  const yearsToFreedomAtCurrentRate = yearsToInflationAdjustedTarget(
     currentCorpusRetCcy,
-    targetCorpus,
+    currentAnnualExpenses / SWR,
     monthlySavings,
     expectedReturn,
+    inflation,
   );
 
   // If the user's savings aren't enough, what annual income growth is needed
@@ -221,8 +238,24 @@ export function calculateFreedom(input: FreedomInput): FreedomProjection {
     savingsRate > 0 &&
     monthlyIncomeRetCcy > 0
   ) {
-    const ratio = requiredMonthlySIP / monthlySavings; // >1
-    requiredAnnualIncomeGrowth = Math.pow(ratio, 1 / yearsToFreedom) - 1;
+    // Solve the FUTURE VALUE of every contribution, not just the final year's SIP.
+    const futureValueWithRaises = (growth: number) => {
+      let balance = currentCorpusRetCcy;
+      for (let month = 0; month < yearsToFreedom * 12; month++) {
+        const contribution = monthlySavings * Math.pow(1 + growth, Math.floor(month / 12));
+        balance = balance * (1 + expectedReturn / 12) + contribution;
+      }
+      return balance;
+    };
+    let low = 0;
+    let high = 1;
+    while (futureValueWithRaises(high) < targetCorpusAfterWindfalls && high < 100) high *= 2;
+    for (let iteration = 0; iteration < 70; iteration++) {
+      const mid = (low + high) / 2;
+      if (futureValueWithRaises(mid) < targetCorpusAfterWindfalls) low = mid;
+      else high = mid;
+    }
+    requiredAnnualIncomeGrowth = high;
     requiredMonthlyIncomeAtFreedom =
       monthlyIncomeRetCcy * Math.pow(1 + requiredAnnualIncomeGrowth, yearsToFreedom);
   }
@@ -263,28 +296,29 @@ export function calculateFreedom(input: FreedomInput): FreedomProjection {
   // ---- FIRE tier breakdown ------------------------------------------------
   // Each tier is a multiple of FUTURE annual expenses (already inflation-adjusted).
   const tierTarget = (mult: number) => futureAnnualExpenses * mult;
-  const yearsAt = (target: number) =>
-    yearsToTarget(currentCorpusRetCcy, target, monthlySavings, expectedReturn);
+  const yearsAt = (multiple: number) =>
+    yearsToInflationAdjustedTarget(currentCorpusRetCcy, currentAnnualExpenses * multiple,
+      monthlySavings, expectedReturn, inflation);
 
   const lean = {
     multiple: 15,
     targetCorpus: tierTarget(15),
-    yearsAtCurrentSavings: yearsAt(tierTarget(15)),
+    yearsAtCurrentSavings: yearsAt(15),
   };
   const standard = {
     multiple: 25,
     targetCorpus: tierTarget(25),
-    yearsAtCurrentSavings: yearsAt(tierTarget(25)),
+    yearsAtCurrentSavings: yearsAt(25),
   };
   const fat = {
     multiple: 33,
     targetCorpus: tierTarget(33),
-    yearsAtCurrentSavings: yearsAt(tierTarget(33)),
+    yearsAtCurrentSavings: yearsAt(33),
   };
   // CoastFIRE: corpus needed TODAY that compounds (no contributions) into the
   // standard FIRE number by the chosen freedom age.
   const coastTodayCorpus =
-    yearsToFreedom > 0 ? targetCorpus / Math.pow(1 + expectedReturn, yearsToFreedom) : targetCorpus;
+    yearsToFreedom > 0 ? targetCorpus / Math.pow(1 + expectedReturn / 12, yearsToFreedom * 12) : targetCorpus;
 
   // ---- Savings-rate curve (Mr Money Mustache classic) ---------------------
   // For each savings rate, compute years-to-FI assuming user keeps current
@@ -304,6 +338,8 @@ export function calculateFreedom(input: FreedomInput): FreedomProjection {
   }
 
   return {
+    expenseCountry: retireProfile.code,
+    nominalReturnUsed: expectedReturn,
     targetCorpus,
     annualExpenses: futureAnnualExpenses,
     currentAnnualExpenses,

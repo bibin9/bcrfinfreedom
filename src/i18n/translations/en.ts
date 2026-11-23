@@ -41,11 +41,11 @@ export const en = {
     heroHighlight: "stop working",
     heroEnd: "?",
     heroSub:
-      "Answer a few simple questions and we'll show you the exact number you need, how long it takes, and what to do every decade — in plain English, no finance jargon required.",
+      "Explore an estimated retirement target, the savings it may take, and what changes when you adjust your plan. The result depends on your spending and assumptions.",
     ctaPrimary: "Show me my FIRE number",
     ctaSecondary: "I'm completely new — explain it first",
     bullets:
-      "⏱ Takes 2 minutes · 🔒 No signup, data stays on your device · 🌍 Works in 15 countries",
+      "No signup · Plans saved in this browser · Optional AI shares plan details · 15 countries",
     builtByHeading: "Built by",
     builtByBody:
       "🇦🇪 A UAE-based banking-payments IT developer who built the FIRE tool he needed himself.",
@@ -61,7 +61,7 @@ export const en = {
       "Every jargon word has a tap-to-explain tooltip. Plain-English manual + downloadable PDF included.",
     featurePrivateTitle: "Private by design",
     featurePrivateBody:
-      "No signup, no tracking, no servers. Your numbers never leave your phone. Free forever.",
+      "Your plan is saved in this browser. Optional AI questions share plan details with Pollinations. Country detection and fund updates also contact external services.",
   },
   onboarding: {
     pageTitle: "Build your FIRE plan",

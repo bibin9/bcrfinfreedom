@@ -86,7 +86,8 @@ export function projectWindfalls(
     const yearsBetweenReceiptAndRetirement = Math.max(0, retirementYear - w.targetYear);
     // If received before retirement → compound to retirement.
     // If received AT or AFTER retirement → use nominal (already in retirement window).
-    const fv = w.amount * Math.pow(1 + expectedReturn, yearsBetweenReceiptAndRetirement);
+    const fv = w.targetYear > retirementYear ? 0 :
+      w.amount * Math.pow(1 + expectedReturn, yearsBetweenReceiptAndRetirement);
     return {
       windfall: w,
       yearsUntilReceipt,

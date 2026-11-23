@@ -121,7 +121,7 @@ function simulatePath(
   let spending = startSpend;
   let depletedAtAge: number | null = null;
 
-  for (let i = 0; i <= endAge - retireAge; i++) {
+  for (let i = 0; i < endAge - retireAge; i++) {
     const age = retireAge + i;
     // Withdraw at start of year.
     corpus -= spending;
@@ -130,7 +130,7 @@ function simulatePath(
       if (depletedAtAge == null) depletedAtAge = age;
     }
     // Grow the remainder at this year's return.
-    corpus = corpus * (1 + returnSeq[i]);
+    corpus = Math.max(0, corpus * (1 + returnSeq[i]));
     years.push({ age, corpus, spending });
     // Inflate next year's spend.
     spending = spending * (1 + inflationSeq[i]);
@@ -152,12 +152,16 @@ function simulatePath(
 //   WR  > 5.0%  → RED     (unsustainable, cut 20%+)
 
 function assessGuardrails(initialWR: number): DrawdownResult["guardrails"] {
+  if (!Number.isFinite(initialWR)) return {
+    initialWithdrawalRate: initialWR, zone: "red",
+    message: "No funded portfolio is available. A withdrawal percentage cannot establish safety.", suggestedAdjustmentPct: 0,
+  };
   if (initialWR <= 0.032) {
     return {
       initialWithdrawalRate: initialWR,
       zone: "bonus",
       message:
-        "Bonus — you're pulling less than 3.2% of your corpus. Historically you can safely increase spending by ~10% and still have the money outlive you.",
+        "Lower initial withdrawal percentage. This threshold alone does not establish that spending is safe; review the simulation, retirement length and essential costs.",
       suggestedAdjustmentPct: 10,
     };
   }
@@ -166,7 +170,7 @@ function assessGuardrails(initialWR: number): DrawdownResult["guardrails"] {
       initialWithdrawalRate: initialWR,
       zone: "green",
       message:
-        "Healthy — right at the classic 4% safe-withdrawal zone. Spend as planned; the portfolio should last a 30+ year retirement.",
+        "At or below the 4% starting guideline. This is not a safety verdict: longer retirements, market falls, taxes and costs can still exhaust the portfolio.",
       suggestedAdjustmentPct: 0,
     };
   }
@@ -195,7 +199,7 @@ export function simulateDrawdown(input: DrawdownInput): DrawdownResult {
   const endAge = input.endAge ?? 95;
   const nPaths = input.nPaths ?? 1000;
   const infVol = input.inflationVolatility ?? 0.015;
-  const years = endAge - input.retirementAge + 1;
+  const years = Math.max(0, endAge - input.retirementAge);
 
   // ---- 1. Deterministic path ----
   const detReturns = new Array(years).fill(input.expectedReturn);
@@ -267,7 +271,7 @@ export function simulateDrawdown(input: DrawdownInput): DrawdownResult {
 
   // ---- 3. Guardrails ----
   const initialWR =
-    input.startingCorpus > 0 ? input.firstYearExpenses / input.startingCorpus : 0;
+    input.startingCorpus > 0 ? input.firstYearExpenses / input.startingCorpus : Infinity;
   const guardrails = assessGuardrails(initialWR);
 
   return {

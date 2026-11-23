@@ -122,6 +122,8 @@ function ResidencyCalculator() {
     80, 60, 40, 40,
   ]);
   const [isIndianCitizen, setIsIndianCitizen] = useState(true);
+  const [isPIO, setIsPIO] = useState(false);
+  const [visitPurpose, setVisitPurpose] = useState<"visit" | "permanent_return" | "leaving_employment" | "ordinary">("visit");
   const [indianIncomeL, setIndianIncomeL] = useState(5); // ₹ lakhs
   const [taxedElsewhere, setTaxedElsewhere] = useState(true);
   const [nr9of10, setNr9of10] = useState(true);
@@ -132,14 +134,16 @@ function ResidencyCalculator() {
       assessResidency({
         daysInCurrentFY: daysThisFY,
         daysInPrecedingFYs: daysLast4,
-        isIndianCitizenOrPIO: isIndianCitizen,
-        returningFromEmployment: false,
+        isIndianCitizenOrPIO: isIndianCitizen || isPIO,
+        isIndianCitizen,
+        visitPurpose,
+        returningFromEmployment: visitPurpose === "permanent_return",
         indianIncomeINR: indianIncomeL * 1_00_000,
         taxedInAnotherCountry: taxedElsewhere,
         nonResidentIn9of10LastYrs: nr9of10,
         daysInLast7Years: daysLast7,
       }),
-    [daysThisFY, daysLast4, isIndianCitizen, indianIncomeL, taxedElsewhere, nr9of10, daysLast7],
+    [daysThisFY, daysLast4, isIndianCitizen, isPIO, visitPurpose, indianIncomeL, taxedElsewhere, nr9of10, daysLast7],
   );
 
   return (
@@ -199,15 +203,26 @@ function ResidencyCalculator() {
       {/* Flags */}
       <div className="grid gap-2 sm:grid-cols-2">
         <YesNoRow
-          label="Indian citizen or PIO?"
+          label="Indian citizen?"
           value={isIndianCitizen}
           onChange={setIsIndianCitizen}
         />
+        {!isIndianCitizen && <YesNoRow label="Person of Indian origin (PIO)?" value={isPIO} onChange={setIsPIO} />}
+        <div className="space-y-1">
+          <Label htmlFor="visit-purpose">Reason for your stay</Label>
+          <select id="visit-purpose" value={visitPurpose} className="w-full rounded-md border bg-background p-2 text-sm"
+            onChange={(e) => setVisitPurpose(e.target.value as typeof visitPurpose)}>
+            <option value="visit">Visiting India while normally abroad</option>
+            <option value="permanent_return">Returning to live in India</option>
+            <option value="leaving_employment">Indian citizen leaving for overseas employment</option>
+            <option value="ordinary">Other stay / living in India</option>
+          </select>
+        </div>
         <YesNoRow
-          label="Taxed as resident in another country?"
+          label="Liable to tax elsewhere by residence or similar criteria?"
           value={taxedElsewhere}
           onChange={setTaxedElsewhere}
-          hint="If NO + Indian income > ₹15L → deemed-resident rule may apply."
+          hint="This is not simply whether you paid tax. Treaty and liability rules need a CA's review."
         />
         <div className="space-y-1">
           <Label htmlFor="ind-inc" className="text-xs">

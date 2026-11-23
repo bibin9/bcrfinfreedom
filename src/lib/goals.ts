@@ -25,7 +25,9 @@ export function projectGoal(
   const futureAmount =
     goal.targetAmountToday * Math.pow(1 + inflationRate, yearsToTarget);
   // Sinking fund starts from 0 — the FIRE corpus stays untouched for the goal.
-  const monthlySIP = monthlyInvestmentFor(0, futureAmount, yearsToTarget, expectedReturn);
+  // A goal due now is an immediate cash requirement, not zero funding.
+  const monthlySIP = yearsToTarget === 0 ? futureAmount :
+    monthlyInvestmentFor(0, futureAmount, yearsToTarget, expectedReturn);
   return { goal, yearsToTarget, futureAmount, monthlySIP };
 }
 

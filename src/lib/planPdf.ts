@@ -460,7 +460,7 @@ export async function buildPlanPDF(input: PlanPDFInput, options: BuildOptions = 
     const explain =
       `At ${fr.freedomAge}, ${spendLine} will cost about ${dMoney(fr.annualExpenses)} a year ` +
       `(prices go up about ${(fr.inflationRateUsed * 100).toFixed(1)}% every year). ` +
-      `Save 25 times that and you can take out about 4% each year to live on, for the rest of your life.`;
+      `The 25-times spending target is a starting estimate, not a guarantee that money will last for life. Check a longer retirement, market losses, tax and fees before acting.`;
     font(9.5, "normal");
     const explainLines = wrap(explain, innerW);
     const heroH = 30 + (isExpat ? 6 : 0) + (explainLines.length - 1) * lineH(9.5) + 7;
@@ -799,8 +799,8 @@ export async function buildPlanPDF(input: PlanPDFInput, options: BuildOptions = 
 
   if (isExpat && dest.code === "IN") {
     callout(
-      "Moving back to India? Use your tax-free window",
-      "After many years abroad you usually get up to 2 financial years (sometimes 3) as an RNOR, when income and gains earned outside India are not taxed in India. Sell foreign investments and bring the money home in this window. Check the exact dates with a tax adviser before you move.",
+      "Moving back to India? Check your possible tax-free window",
+      "RNOR relief depends on your exact arrival dates and residency history. Some foreign income may qualify, but Indian-source or India-received income and income from an India-controlled business or India-set-up profession need separate checks. Ask a CA before selling or transferring assets; do not assume a fixed two-year exemption.",
       "info",
     );
   }

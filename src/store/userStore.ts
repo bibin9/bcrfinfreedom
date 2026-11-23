@@ -216,7 +216,7 @@ export const useUserStore = create<UserState>()(
       setRisk: (risk) => set((s) => ({ inputs: { ...s.inputs, risk } })),
       setGoal: (goal) => set((s) => ({ inputs: { ...s.inputs, goal } })),
       setSavingsRate: (savingsRate) => set((s) => ({ inputs: { ...s.inputs, savingsRate } })),
-      setCurrentCorpus: (currentCorpus) => set((s) => ({ inputs: { ...s.inputs, currentCorpus } })),
+      setCurrentCorpus: (currentCorpus) => set((s) => ({ inputs: { ...s.inputs, currentCorpus: Math.max(0, Number.isFinite(currentCorpus) ? currentCorpus : 0) } })),
       setIsNRI: (isNRI) => set((s) => ({ inputs: { ...s.inputs, isNRI } })),
       setFreedomAge: (freedomAge) =>
         set((s) => ({ inputs: { ...s.inputs, freedomAge } })),

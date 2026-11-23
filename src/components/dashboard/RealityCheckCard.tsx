@@ -12,7 +12,6 @@ import {
 } from "recharts";
 import {
   AlertTriangle,
-  CheckCircle2,
   Dice5,
   Flame,
   Info,
@@ -102,13 +101,13 @@ export function RealityCheckCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-blue-500" />
-          Retirement reality check
+          Retirement scenario check
           <span className="ml-auto rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
             Will my money last?
           </span>
         </CardTitle>
         <CardDescription>
-          You hit your <Term>FIRE number</Term> at age {retirementAge}. Now what? This simulates{" "}
+          If you build your full <Term>FIRE number</Term> by age {retirementAge}, what happens next? This assumes the target is fully funded; it does not mean your current savings will reach it. This simulates{" "}
           <strong>1,000 possible futures</strong> — different market returns, different
           inflation years — and tells you the odds your money actually lasts.
         </CardDescription>
@@ -146,16 +145,10 @@ export function RealityCheckCard({
           />
           <MetricTile
             icon={<ShieldCheck className="h-4 w-4" />}
-            label="Withdrawal zone"
-            value={result.guardrails.zone.toUpperCase()}
+            label="Starting withdrawal guideline"
+            value={survivalPct < 90 ? "REVIEW RISK" : "REVIEW ASSUMPTIONS"}
             hint={`WR ${(result.guardrails.initialWithdrawalRate * 100).toFixed(2)}% / yr`}
-            accent={
-              result.guardrails.zone === "bonus" || result.guardrails.zone === "green"
-                ? "emerald"
-                : result.guardrails.zone === "amber"
-                  ? "amber"
-                  : "red"
-            }
+            accent={headlineTone}
           />
         </div>
 
@@ -177,6 +170,7 @@ export function RealityCheckCard({
 
         {/* GUARDRAIL CALLOUT */}
         <GuardrailBanner guardrails={result.guardrails} />
+        <p className="text-xs text-muted-foreground">These are model scenarios, not real-world odds or a guarantee. Returns, inflation, taxes, fees and exchange rates may differ. The withdrawal guideline is a static threshold, not a dynamic spending strategy.</p>
 
         {/* CONTROLS */}
         <div className="rounded-lg border border-border p-3">
@@ -187,7 +181,7 @@ export function RealityCheckCard({
           <div className="space-y-4">
             <div>
               <div className="mb-1 flex items-center justify-between">
-                <Label htmlFor="wr">Withdrawal rate per year</Label>
+                <Label htmlFor="wr">Annual spending as a share of the assumed portfolio</Label>
                 <span className="text-sm font-semibold text-primary tabular-nums">
                   {withdrawalPct.toFixed(1)}%
                 </span>
@@ -202,8 +196,7 @@ export function RealityCheckCard({
                 aria-label="Withdrawal rate"
               />
               <p className="mt-1 text-[11px] text-muted-foreground">
-                4% is the classic FIRE anchor. Try 3% for an ultra-safe plan, 5% to see when
-                things get risky.
+                Lowering this percentage cuts the spending budget in this scenario; it does not add savings. Check that the lower budget still covers your needs.
               </p>
             </div>
             <div>
@@ -256,8 +249,7 @@ export function RealityCheckCard({
               paths that still have money at age {endAge}.
             </li>
             <li>
-              <strong>Guardrails:</strong> based on <Term k="4% rule">Guyton-Klinger</Term>{" "}
-              dynamic withdrawal rules.
+              <strong>Withdrawal guideline:</strong> a static comparison with 4%. No dynamic Guyton-Klinger spending changes are simulated.
             </li>
           </ul>
         </details>
@@ -332,13 +324,8 @@ function GuardrailBanner({
 }: {
   guardrails: ReturnType<typeof simulateDrawdown>["guardrails"];
 }) {
-  const tone =
-    guardrails.zone === "bonus" || guardrails.zone === "green"
-      ? "emerald"
-      : guardrails.zone === "amber"
-        ? "amber"
-        : "red";
-  const Icon = tone === "emerald" ? CheckCircle2 : AlertTriangle;
+  const tone = guardrails.zone === "red" ? "red" : "amber";
+  const Icon = AlertTriangle;
   const colors = {
     emerald: "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300",
     amber: "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-300",
@@ -349,7 +336,7 @@ function GuardrailBanner({
       <Icon className="mt-0.5 h-5 w-5 shrink-0" />
       <div>
         <p className="text-sm font-semibold">
-          Guyton-Klinger zone: {guardrails.zone.toUpperCase()}
+          Starting-percentage guideline - not a safety verdict
         </p>
         <p className="mt-0.5 text-xs text-muted-foreground">{guardrails.message}</p>
       </div>

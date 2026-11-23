@@ -65,7 +65,7 @@ export function computeTwoPaths(input: TwoPathsInput): TwoPathsResult {
   const driftMonthly = monthlyIncome * DRIFT_SAVINGS_RATE;
   // Both paths try to maintain the disciplined lifestyle in retirement.
   const annualExpenses = monthlyIncome * 12 * (1 - savingsRate);
-  const monthlyWithdrawal = annualExpenses / 12;
+  const monthlyWithdrawal = annualExpenses / 12 * Math.pow(1 + country.inflationRate, retirementAge - age);
 
   let disciplined = currentCorpus;
   let drift = currentCorpus;
@@ -95,9 +95,10 @@ export function computeTwoPaths(input: TwoPathsInput): TwoPathsResult {
     } else {
       // Retirement drawdown — same expenses for both
       const r = DRAWDOWN_RETURN / 12;
+      const withdrawal = monthlyWithdrawal * Math.pow(1 + country.inflationRate, a - retirementAge - 1);
       for (let m = 0; m < 12; m++) {
-        disciplined = Math.max(0, disciplined * (1 + r) - monthlyWithdrawal);
-        drift = Math.max(0, drift * (1 + r) - monthlyWithdrawal);
+        disciplined = Math.max(0, disciplined * (1 + r) - withdrawal);
+        drift = Math.max(0, drift * (1 + r) - withdrawal);
       }
       if (driftAgeRunsOut === null && drift <= 0) {
         driftAgeRunsOut = a;

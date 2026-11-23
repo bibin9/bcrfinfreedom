@@ -237,6 +237,9 @@ export interface AllocationResult {
 }
 
 export interface FreedomProjection {
+  /** Currency jurisdiction of the expense and target amounts. */
+  expenseCountry?: CountryCode;
+  nominalReturnUsed?: number;
   /** Inflation-adjusted target corpus at the chosen freedom age (25× future expenses). */
   targetCorpus: number;
   /** Annual expenses at the freedom age (today's lifestyle inflated forward). */

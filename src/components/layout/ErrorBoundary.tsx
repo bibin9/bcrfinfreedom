@@ -28,7 +28,6 @@ export class ErrorBoundary extends React.Component<Props, State> {
   componentDidCatch(error: Error): void {
     // Surfaced in dev tools — we avoid console noise in production.
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.error("BCR ErrorBoundary:", error);
     }
   }

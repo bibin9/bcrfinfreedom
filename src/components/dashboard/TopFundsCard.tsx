@@ -18,6 +18,7 @@ import {
 } from "@/data/learningResources";
 import { LearnResources } from "./LearnResources";
 import { useLiveFunds } from "@/hooks/useLiveFunds";
+import { useI18n } from "@/i18n";
 
 interface Props {
   country: CountryCode;
@@ -27,7 +28,7 @@ interface Props {
 const CATEGORY_LABEL: Record<FundCategory, string> = {
   large_cap: "Large Cap · Big companies",
   mid_cap: "Mid Cap · Growing companies",
-  small_cap: "Small Cap · Early-stage",
+  small_cap: "Small Cap · Smaller listed companies",
   flexi_cap: "Flexi / Multi Cap",
   index: "Index · Whole market",
   international: "International",
@@ -47,10 +48,19 @@ const RISK_ORDER: Record<"low" | "medium" | "high", number> = {
   high: 3,
 };
 
+const CATEGORY_ML: Record<FundCategory, string> = {
+  large_cap: "വലിയ കമ്പനികൾ", mid_cap: "ഇടത്തരം കമ്പനികൾ", small_cap: "ചെറിയ കമ്പനികൾ",
+  flexi_cap: "പല വലുപ്പത്തിലുള്ള കമ്പനികൾ", index: "ഒരു കൂട്ടം കമ്പനികളെ പിന്തുടരുന്ന ഫണ്ട്",
+  international: "വിദേശ കമ്പനികൾ", debt: "കടപ്പത്രങ്ങൾ", hybrid: "ഓഹരിയും കടപ്പത്രവും",
+  elss: "പഴയ നികുതി രീതിയിൽ ഇളവ് ലഭിക്കാവുന്ന ഫണ്ട്", etf: "ഓഹരിപോലെ വാങ്ങാവുന്ന ഫണ്ട്", sukuk: "ഇസ്ലാമിക കടപ്പത്രങ്ങൾ",
+};
+
 export function TopFundsCard({ country, shariaMarket }: Props) {
+  const { lang } = useI18n();
+  const ml = lang === "ml";
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterCategory>("all");
-  const [sort, setSort] = useState<SortKey>("growth");
+  const [sort, setSort] = useState<SortKey>("cost");
   const [shariaOnly, setShariaOnly] = useState(false);
 
   const curated = useMemo(() => getTopFunds(country), [country]);
@@ -86,15 +96,14 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Search best funds in your country</CardTitle>
+        <CardTitle>{ml ? "ഫണ്ടുകളെക്കുറിച്ച് പഠിക്കാം, താരതമ്യം ചെയ്യാം" : "Learn about and compare funds"}</CardTitle>
         <CardDescription>
-          Hand-picked well-known funds across every category. Type to search, filter by type,
-          sort by what matters to you.{" "}
+          {ml ? "ഇത് വാങ്ങാനുള്ള ശുപാർശയല്ല. ഫണ്ടിന്റെ പേരോ തരമോ നൽകി തിരയാം. ചെലവും നഷ്ടസാധ്യതയും കൂടി നോക്കണം. " : "Examples for learning, not a buy list. Search by name or type and compare costs and risk. "}
           {liveCount > 0 && asOf
-            ? `Growth for ${liveCount} funds is live from official daily prices (latest ${asOf}); other numbers are approximate as of ${FUND_CATALOGUE_UPDATED_AT}.`
+            ? (ml ? `${liveCount} ഫണ്ടുകളുടെ വളർച്ച NAV വിലകളിൽ നിന്ന് mfapi.in വഴി കണക്കാക്കി; ഏറ്റവും പുതിയ തീയതി ${asOf}. മറ്റുള്ളവ ${FUND_CATALOGUE_UPDATED_AT}-ലെ ഏകദേശ വിവരങ്ങളാണ്.` : `Returns for ${liveCount} funds use NAV history via mfapi.in (latest ${asOf}); other numbers are approximate as of ${FUND_CATALOGUE_UPDATED_AT}.`)
             : loading
-              ? "Checking today's prices…"
-              : `Numbers approximate as of ${FUND_CATALOGUE_UPDATED_AT}.`}
+              ? (ml ? "പുതിയ വിലവിവരങ്ങൾ പരിശോധിക്കുന്നു…" : "Checking available NAV history…")
+              : (ml ? `${FUND_CATALOGUE_UPDATED_AT}-ലെ ഏകദേശ വിവരങ്ങൾ. നിക്ഷേപിക്കും മുമ്പ് ഫണ്ട് സ്ഥാപനത്തിന്റെ പുതിയ വിവരങ്ങൾ പരിശോധിക്കുക.` : `Numbers approximate as of ${FUND_CATALOGUE_UPDATED_AT}. Verify the fund house's current factsheet before acting.`)}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -103,7 +112,7 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
           <Input
             type="search"
             className="pl-9"
-            placeholder="Try: small cap, index, international, ETF, HDFC, Vanguard…"
+            placeholder={ml ? "ഫണ്ടിന്റെ പേര് നൽകൂ: HDFC, Vanguard…" : "Try: small cap, index, international, ETF, HDFC, Vanguard…"}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Search funds by name or category"
@@ -117,10 +126,10 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
                 <SelectValue placeholder="All categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All categories</SelectItem>
+                <SelectItem value="all">{ml ? "എല്ലാ തരങ്ങളും" : "All categories"}</SelectItem>
                 {availableCategories.map((c) => (
                   <SelectItem key={c} value={c}>
-                    {CATEGORY_LABEL[c]}
+                    {ml ? CATEGORY_ML[c] : CATEGORY_LABEL[c]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -132,9 +141,9 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="growth">Highest past growth</SelectItem>
-                <SelectItem value="cost">Cheapest fee</SelectItem>
-                <SelectItem value="risk">Lowest risk first</SelectItem>
+                <SelectItem value="growth">{ml ? "മുൻകാല വളർച്ച കൂടുതൽ" : "Highest past growth"}</SelectItem>
+                <SelectItem value="cost">{ml ? "വാർഷിക ചെലവ് കുറവ്" : "Cheapest fee"}</SelectItem>
+                <SelectItem value="risk">{ml ? "നഷ്ടസാധ്യത കുറവുള്ളവ ആദ്യം" : "Lowest risk first"}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -153,7 +162,7 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
 
         {filtered.length === 0 ? (
           <p className="rounded-md border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
-            No funds match your search. Try a different keyword or remove filters.
+            {ml ? "ഈ പേരിൽ ഫണ്ട് കണ്ടില്ല. മറ്റൊരു പേര് നൽകി നോക്കൂ." : "No funds match your search. Try a different keyword or remove filters."}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -181,20 +190,17 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
 
         <div className="space-y-1.5 rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs">
           <p className="font-medium text-amber-600 dark:text-amber-400">
-            Important before you invest
+            {ml ? "നിക്ഷേപിക്കും മുമ്പ് ശ്രദ്ധിക്കുക" : "Important before you invest"}
           </p>
           <ul className="ml-4 list-disc space-y-0.5 text-muted-foreground">
             <li>
-              Past performance does <strong>not</strong> guarantee future returns. A fund that
-              grew 25%/yr may grow 5% next year.
+              {ml ? "മുൻകാല ലാഭം ഇനിയും ലഭിക്കുമെന്ന് ഉറപ്പില്ല. പണം നഷ്ടപ്പെടാനും സാധ്യതയുണ്ട്." : "Past performance does not guarantee future returns. Losses are possible."}
             </li>
             <li>
-              Always check the latest factsheet on the fund house's website before putting
-              money in.
+              {ml ? "ഫണ്ട് സ്ഥാപനത്തിന്റെ വെബ്സൈറ്റിലെ പുതിയ വിവരങ്ങളും ചെലവും പരിശോധിക്കുക." : "Check the fund house's current factsheet, plan type and fees before investing."}
             </li>
             <li>
-              Start with one fund and a small amount. Don't buy 5 funds at once — it's harder
-              to manage and easier to over-diversify.
+              {ml ? "കൂടിയ മുൻകാല ലാഭമോ കുറഞ്ഞ ചെലവോ മാത്രം നോക്കി തീരുമാനിക്കരുത്. നിങ്ങളുടെ ആവശ്യവും സമയവും കൂടി കണക്കിലെടുക്കണം." : "High past growth or a low fee alone does not establish suitability. Consider your time horizon, needs and risk."}
             </li>
           </ul>
         </div>
@@ -204,6 +210,8 @@ export function TopFundsCard({ country, shariaMarket }: Props) {
 }
 
 function FundRow({ fund }: { fund: MutualFund }) {
+  const { lang } = useI18n();
+  const ml = lang === "ml";
   const riskColor =
     fund.risk === "low"
       ? "bg-blue-500/15 text-blue-500"
@@ -211,14 +219,14 @@ function FundRow({ fund }: { fund: MutualFund }) {
         ? "bg-amber-500/15 text-amber-500"
         : "bg-red-500/15 text-red-500";
   const riskLabel =
-    fund.risk === "low" ? "Low risk" : fund.risk === "medium" ? "Medium risk" : "High risk";
+    fund.risk === "low" ? (ml ? "നഷ്ടസാധ്യത കുറവ്" : "Low risk") : fund.risk === "medium" ? (ml ? "ഇടത്തരം നഷ്ടസാധ്യത" : "Medium risk") : (ml ? "നഷ്ടസാധ്യത കൂടുതൽ" : "High risk");
   return (
     <li className="rounded-lg border border-border p-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <p className="break-words text-sm font-semibold sm:text-base">{fund.name}</p>
           <p className="mt-0.5 text-[11px] text-muted-foreground sm:text-xs">
-            {CATEGORY_LABEL[fund.category]}
+            {ml ? CATEGORY_ML[fund.category] : CATEGORY_LABEL[fund.category]}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
@@ -229,10 +237,10 @@ function FundRow({ fund }: { fund: MutualFund }) {
           </span>
           {fund.live && (
             <span
-              title="Calculated today from the fund's official daily prices (NAV)"
+              title="Both return periods computed from recent NAV history via mfapi.in; not a real-time price feed"
               className="rounded bg-sky-500/15 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-sky-500"
             >
-              Live
+              {ml ? "പുതിയ NAV കണക്ക്" : "Recent NAV"}
             </span>
           )}
           {fund.shariaCompliant && (
@@ -245,24 +253,24 @@ function FundRow({ fund }: { fund: MutualFund }) {
 
       <div className="mt-3 grid grid-cols-3 gap-2 text-xs sm:gap-3">
         <Stat
-          label="5-year yearly growth"
+          label={ml ? "5 വർഷത്തെ വാർഷിക വളർച്ച" : "5-year yearly growth"}
           hint="Average yearly return over the past 5 years"
           value={`${(fund.fiveYearCagr * 100).toFixed(1)}%`}
           accent="emerald"
         />
         <Stat
-          label="3-year yearly growth"
+          label={ml ? "3 വർഷത്തെ വാർഷിക വളർച്ച" : "3-year yearly growth"}
           hint="Average yearly return over the past 3 years"
           value={`${(fund.threeYearCagr * 100).toFixed(1)}%`}
         />
         <Stat
-          label="Yearly fee"
+          label={ml ? "വാർഷിക ചെലവ്" : "Yearly fee"}
           hint="What the fund charges per year — lower is better"
           value={`${(fund.expenseRatio * 100).toFixed(2)}%`}
         />
       </div>
 
-      <p className="mt-2 text-sm">{fund.note}</p>
+      <p className="mt-2 text-sm">{ml ? "പലരുടെ പണം ഒന്നിച്ചുചേർത്ത് നിക്ഷേപിക്കുന്ന സംവിധാനമാണ് ഫണ്ട്. ഇതിലെ തുകയും ലാഭവും ഉറപ്പുള്ളതല്ല. വാങ്ങുന്നതിന് മുമ്പ് പുതിയ വിവരങ്ങൾ പരിശോധിക്കുക." : fund.note}</p>
     </li>
   );
 }

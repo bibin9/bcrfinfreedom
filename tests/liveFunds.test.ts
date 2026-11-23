@@ -37,10 +37,10 @@ describe("mergeLive", () => {
   it("keeps curated numbers when there is no live data", () => {
     expect(mergeLive({ ...fund }, undefined)).toEqual(fund);
   });
-  it("overlays live values and keeps curated ones where live is null", () => {
+  it("keeps curated values until both live periods are available", () => {
     const m = mergeLive({ ...fund }, { threeYearCagr: 0.3, fiveYearCagr: null, navDate: "2026-11-20" });
-    expect(m.threeYearCagr).toBe(0.3);
+    expect(m.threeYearCagr).toBe(0.1);
     expect(m.fiveYearCagr).toBe(0.2);
-    expect(m.live).toBe(true);
+    expect(m.live).toBe(false); // the five-year figure is still curated
   });
 });

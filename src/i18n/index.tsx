@@ -89,7 +89,6 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     const dict = TRANSLATIONS[lang] ?? en;
     const fill = (s: string, vars?: Record<string, string | number>) =>
       vars ? s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m)) : s;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const walk = (obj: any, key: string): any => {
       let cur = obj;
       for (const p of key.split(".")) {

@@ -79,6 +79,7 @@ export function Reveal() {
   }, [
     complete,
     country,
+    destinationCountry,
     savingsRate,
     currentCorpus,
     freedomAgeInput,

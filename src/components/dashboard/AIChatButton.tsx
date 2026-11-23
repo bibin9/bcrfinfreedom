@@ -6,6 +6,8 @@ import { askAI, SUGGESTED_PROMPTS, type PlanContext } from "@/lib/aiChat";
 import { getCountryProfile } from "@/data/countryProfiles";
 import { calculateAllocation } from "@/lib/allocation";
 import { calculateFreedom } from "@/lib/freedom";
+import { liquidAssetsValue } from "@/lib/assets";
+import { projectWindfalls, totalWindfallsAtRetirement } from "@/lib/windfalls";
 import { toUserInput, useUserStore } from "@/store/userStore";
 
 /**
@@ -42,6 +44,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
   const inputs = useUserStore((s) => s.inputs);
   const goals = useUserStore((s) => s.goals);
   const windfalls = useUserStore((s) => s.windfalls);
+  const assets = useUserStore((s) => s.assets);
   const messages = useUserStore((s) => s.aiMessages);
   const addMessage = useUserStore((s) => s.addAiMessage);
   const clearMessages = useUserStore((s) => s.clearAiMessages);
@@ -49,6 +52,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Compute plan context from current store state.
@@ -68,11 +72,16 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
       retirementCountry: destinationCountry,
       freedomAge: inputs.freedomAge,
     });
+    const currentCorpus = assets.length ? liquidAssetsValue(assets) : Math.max(0, inputs.currentCorpus ?? 0);
+    const year = new Date().getFullYear();
+    const retirementYear = year + Math.max(1, (inputs.freedomAge ?? destinationCountry.retirementAge) - complete.age);
+    const windfallCredit = totalWindfallsAtRetirement(projectWindfalls(windfalls, year, retirementYear, allocation.expectedReturn));
     const freedom = calculateFreedom({
       ...complete,
       expectedReturn: allocation.expectedReturn,
       savingsRate: inputs.savingsRate ?? 0.3,
-      currentCorpus: inputs.currentCorpus ?? 0,
+      currentCorpus,
+      windfallsAtRetirement: windfallCredit,
       freedomAge: inputs.freedomAge,
       householdSize: inputs.householdSize ?? "single",
       annualExpensesOverride: inputs.annualExpensesOverride,
@@ -87,11 +96,11 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
       freedom,
       savingsRate: inputs.savingsRate ?? 0.3,
       monthlyRemittance: inputs.monthlyRemittance ?? 0,
-      currentCorpus: inputs.currentCorpus ?? 0,
+      currentCorpus,
       goals,
       windfalls,
     };
-  }, [inputs, goals, windfalls]);
+  }, [inputs, goals, windfalls, assets]);
 
   // Auto-scroll to the latest message.
   useEffect(() => {
@@ -100,6 +109,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
 
   const send = async (text: string) => {
     if (!text.trim() || busy || !context) return;
+    if (!consent) { setErr("Confirm that you want to share the plan details with Pollinations before sending."); return; }
     setErr(null);
     const userMsg = text.trim();
     addMessage({ role: "user", content: userMsg });
@@ -202,6 +212,10 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
 
         {/* Input */}
         <div className="border-t border-border p-3">
+          <label className="mb-2 flex items-start gap-2 text-xs text-muted-foreground">
+            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+            <span>I agree to send my question, chat history and plan details (including income, savings, age and goals) to Pollinations, an external AI service. Replies may be wrong.</span>
+          </label>
           <div className="flex items-center gap-2">
             <Input
               value={input}
@@ -213,7 +227,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
             />
             <Button
               onClick={() => send(input)}
-              disabled={busy || !context || !input.trim()}
+              disabled={busy || !context || !input.trim() || !consent}
               className="bg-orange-600 hover:bg-orange-700"
               aria-label="Send message"
             >

@@ -32,7 +32,7 @@ describe("projectGoal", () => {
   it("years is 0 when target is in the past", () => {
     const p = projectGoal(makeGoal({ targetYear: 2020 }), 2026, 0.06, 0.1);
     expect(p.yearsToTarget).toBe(0);
-    expect(p.monthlySIP).toBeNull(); // unreachable — no time
+    expect(p.monthlySIP).toBe(4_000_000); // due-now cash requirement
   });
 
   it("shorter horizon → bigger monthly SIP for same target", () => {
@@ -52,8 +52,8 @@ describe("totalGoalsMonthlySIP", () => {
     );
   });
 
-  it("treats unreachable goals as zero", () => {
+  it("retains past-due goals as immediate funding needs", () => {
     const past = projectGoal(makeGoal({ targetYear: 2020 }), 2026, 0.06, 0.1);
-    expect(totalGoalsMonthlySIP([past])).toBe(0);
+    expect(totalGoalsMonthlySIP([past])).toBe(4_000_000);
   });
 });

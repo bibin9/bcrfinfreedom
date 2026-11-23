@@ -125,7 +125,7 @@ export function Landing() {
             <StatBlock number="15" label="countries" icon={<Globe2 className="h-4 w-4" />} />
             <StatBlock number="4" label="languages" icon={<Users className="h-4 w-4" />} />
             <StatBlock number="100%" label="free, forever" icon={<Sparkles className="h-4 w-4" />} />
-            <StatBlock number="0" label="data leaves device" icon={<ShieldCheck className="h-4 w-4" />} />
+            <StatBlock number="Local" label="plan storage; AI sharing is optional" icon={<ShieldCheck className="h-4 w-4" />} />
           </div>
           <CountryStrip />
         </div>
@@ -155,7 +155,7 @@ export function Landing() {
           <FeatureCard
             icon={<Zap className="h-5 w-5" />}
             title="Will my money last?"
-            body="Monte Carlo simulation across 1,000 possible futures tells you the odds your savings survive to age 95."
+            body="Compare 1,000 simulated market paths after assuming the target is fully funded. Model results are not guaranteed real-world odds."
             accent="red"
           />
           <FeatureCard
@@ -167,7 +167,7 @@ export function Landing() {
           <FeatureCard
             icon={<ShieldCheck className="h-5 w-5" />}
             title="Can I spend safely?"
-            body="Guyton-Klinger withdrawal guardrails tell you when to spend more and when to pull back."
+            body="Compare spending levels and retirement lengths. A starting withdrawal percentage alone does not establish safety."
             accent="blue"
           />
           <FeatureCard
@@ -284,7 +284,7 @@ export function Landing() {
             </span>
           </h2>
           <p className="mt-4 text-muted-foreground">
-            2 minutes. No signup. Your data stays on your device.
+            No signup. Your plan is saved in this browser. Optional AI questions share your plan with an external service.
           </p>
           <Button
             size="lg"

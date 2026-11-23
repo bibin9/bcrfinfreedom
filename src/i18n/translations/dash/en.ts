@@ -187,7 +187,7 @@ export const dashEn = {
     title: "Your FIRE number",
     badge: "Financial Independence · Retire Early",
     desc:
-      "The FIRE idea: save steadily, invest in low-cost index funds, and stop working when your savings reach 25 times your yearly spending (the 4% rule). Numbers below are grown to age {age} with prices in {country} rising {inflation}% a year.",
+      "This estimate uses a target of 25 times annual spending (a 4% starting withdrawal guideline). It does not guarantee a safe retirement. Numbers below are projected to age {age}, assuming prices in {country} rise {inflation}% a year.",
     verdict: {
       onTrackHead: "✅ Your savings are on pace to reach FIRE by age {age}.",
       onTrackAdvice:
@@ -197,7 +197,7 @@ export const dashEn = {
         "Two things matter most: save a bigger part of your salary (biggest impact), or push your freedom age 5–10 years later. Try both on the sliders and watch this box change.",
       lateHead: "⏳ At this pace you'll reach FIRE around age {paceAge}, not {age}.",
       lateAdvice:
-        "That's {years} years later than your target. Save 5% more of your salary or pick a later freedom age — the app updates instantly.",
+        "That's {years} years later than your target under these assumptions. Try a higher savings rate or a later target age and compare the result.",
       closeHead: "🎯 Close — your savings pace falls just short of FIRE by age {age}.",
       closeAdvice:
         "Adjust your savings on the right to close the gap. Every extra 1% you save brings your freedom date closer.",
@@ -212,11 +212,11 @@ export const dashEn = {
     basisOverride: "your own expenses",
     basisFamily: "typical family in {place}",
     basisSingle: "typical single person in {place}",
-    fiHint: "Reach 100% and you could stop working at today's lifestyle.",
+    fiHint: "100% means the current 25-times spending target is covered, not that retirement is guaranteed safe.",
     phase1: "Early days — how much you save matters more than returns.",
     phase2: "Foundation phase — growth on your growth is starting to kick in.",
     phase3: "Speeding up — the last 50% comes much faster than the first.",
-    phase4: "Congratulations — at today's spending you've reached FIRE.",
+    phase4: "Current target covered. Review longevity, taxes, fees and accessible assets before acting.",
     mNumber: "FIRE number at {age}",
     mNumberHint: "25× future spend {amount}/yr",
     mSpend: "Future monthly spend",
@@ -226,7 +226,7 @@ export const dashEn = {
     mCovered: "You're covered at your current savings",
     mYears: "Years to FIRE",
     mYearsOk: "At current savings and growth",
-    mYearsSlow: "Too slow — save more",
+    mYearsSlow: "Compare with your chosen target age",
     chartTitle: "Your money vs FIRE levels",
     chartHint: "Where your line crosses each dashed level is the year you reach it.",
     tiersTitle: "FIRE levels (Lean / Fat / Coast)",

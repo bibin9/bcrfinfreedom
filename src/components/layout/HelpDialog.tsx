@@ -94,7 +94,7 @@ function Manual() {
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
           Every country, every goal, every edge case here comes from solving a real problem —
-          not a product manager guessing. Free, no signup, your data never leaves your device.
+          Free, no signup. Plans are stored in your browser. Optional AI questions share plan details with an external service.
         </p>
         <p className="mt-2 text-xs">
           Something confusing or missing? <FeedbackDialog />
@@ -327,20 +327,17 @@ function Manual() {
         </ul>
         <p className="text-muted-foreground">
           Once installed: orange flame icon on your home screen, launches
-          fullscreen, works offline. Your data stays on your device.
+          fullscreen, works offline for saved calculations. AI and fund updates need an internet connection.
         </p>
       </Section>
 
       {/* 10. FAQ */}
       <Section title="10. Frequently asked questions" icon={<HelpCircle className="h-4 w-4" />}>
         <FAQ q="Is my data sent anywhere?">
-          No. Everything lives in your browser's local storage. Nothing leaves
-          your phone. You can hit <em>Start over</em> in the header to wipe it.
+          Your saved plan lives in this browser. Country detection and fund updates contact external services. If you consent to Ask AI, your question and plan details go to Pollinations. You can hit <em>Start over</em> to remove the saved plan from this browser.
         </FAQ>
         <FAQ q="What if I'm an expat saving in one country, retiring in another?">
-          Right now, pick the country you'll <strong>retire in</strong> — that
-          drives your FIRE number. Use the NRI checkbox if you're an Indian
-          non-resident. A proper dual-country mode is on the roadmap.
+          Choose where you earn and where you will retire separately. Expenses use the retirement country's currency. Currency conversions use illustrative rates, not a guaranteed future exchange rate.
         </FAQ>
         <FAQ q="Why does my FIRE number look so big?">
           Inflation. ₹14L today becomes ₹36L in 18 years at 5.5% inflation. The

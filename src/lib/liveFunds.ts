@@ -31,7 +31,8 @@ interface MfApiResponse {
 function parseDate(dmy: string): Date | null {
   const [d, m, y] = dmy.split("-").map(Number);
   if (!d || !m || !y) return null;
-  return new Date(Date.UTC(y, m - 1, d));
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d ? date : null;
 }
 
 /** NAV on or just before the target date (series is newest-first). */
@@ -84,10 +85,13 @@ export function computeReturns(res: MfApiResponse): LiveReturns | null {
 /** Pure: overlay live numbers on a curated fund. Exported for tests. */
 export function mergeLive(fund: MutualFund, live: LiveReturns | undefined): MutualFund {
   if (!live) return fund;
+  const fresh = Number.isFinite(Date.parse(live.navDate)) && Date.now() - Date.parse(live.navDate) <= 7 * 86400000;
+  if (!fresh || live.threeYearCagr === null || live.fiveYearCagr === null) return { ...fund, live: false };
   return {
     ...fund,
     threeYearCagr: live.threeYearCagr ?? fund.threeYearCagr,
     fiveYearCagr: live.fiveYearCagr ?? fund.fiveYearCagr,
+    // A single card-level badge must never label a curated period as live.
     live: true,
   };
 }

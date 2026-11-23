@@ -33,7 +33,7 @@ export function useLiveFunds(curated: MutualFund[]): LiveFundsState {
 
   return useMemo(() => {
     const funds = curated.map((f) => mergeLive(f, f.schemeCode ? live[f.schemeCode] : undefined));
-    const dates = funds.flatMap((f) => (f.schemeCode && live[f.schemeCode] ? [live[f.schemeCode].navDate] : []));
+    const dates = funds.flatMap((f) => (f.live && f.schemeCode && live[f.schemeCode] ? [live[f.schemeCode].navDate] : []));
     return {
       funds,
       loading,
