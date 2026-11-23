@@ -131,7 +131,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
         <CardTitle className="flex items-center gap-2">
           <GoalIcon className="h-5 w-5 text-purple-500" />
           {g("title")}
-          <span className="ms-auto rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+          <span className="ms-auto rounded-full bg-purple-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
             {g("badge")}
           </span>
         </CardTitle>
@@ -168,7 +168,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
           <p className="text-xs font-semibold">{g("addTitle")}</p>
           <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[2fr_1fr_1fr_1fr_auto]">
             <div>
-              <Label htmlFor="g-name" className="text-[11px]">
+              <Label htmlFor="g-name" className="text-xs">
                 {g("name")}
               </Label>
               <Input
@@ -180,7 +180,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
               />
             </div>
             <div>
-              <Label htmlFor="g-category" className="text-[11px]">
+              <Label htmlFor="g-category" className="text-xs">
                 {g("category")}
               </Label>
               <Select value={category} onValueChange={(v) => setCategory(v as GoalCategory)}>
@@ -211,7 +211,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
               </Select>
             </div>
             <div>
-              <Label htmlFor="g-amount" className="text-[11px]">
+              <Label htmlFor="g-amount" className="text-xs">
                 {g("amountToday", { currency: destinationCountry.currency })}
               </Label>
               <Input
@@ -226,7 +226,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
               />
             </div>
             <div>
-              <Label htmlFor="g-year" className="text-[11px]">
+              <Label htmlFor="g-year" className="text-xs">
                 {g("targetYear")}
               </Label>
               <Input
@@ -254,7 +254,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
               <CheckCircle2 className="h-3.5 w-3.5" /> {g("added", { name: justAdded })}
             </p>
           )}
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-xs text-muted-foreground">
             {g("todayMoney", {
               country: countryName(destinationCountry.code, destinationCountry.name),
               inflation: (destinationCountry.inflationRate * 100).toFixed(1),
@@ -320,7 +320,7 @@ export function GoalsCard({ destinationCountry, expectedReturn, fireSIP, retirem
                         </td>
                         <td className="px-2 py-1.5 text-end tabular-nums">
                           {p.goal.targetYear}
-                          <span className="ms-1 text-[10px] text-muted-foreground">
+                          <span className="ms-1 text-xs text-muted-foreground">
                             ({g("plusYears", { n: p.yearsToTarget })})
                           </span>
                         </td>
@@ -407,9 +407,9 @@ function MetricTile({
     : "border border-border bg-card";
   return (
     <div className={`rounded-lg p-3 ${border}`}>
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className={`mt-1 text-base font-bold tabular-nums sm:text-lg ${color}`}>{value}</p>
-      <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
     </div>
   );
 }
@@ -494,7 +494,7 @@ function WindfallsSection({
               key={p.name}
               type="button"
               onClick={() => applyPreset(p, i)}
-              className="rounded-full border border-border bg-background px-2.5 py-1 text-[11px] hover:border-emerald-500/40 hover:bg-emerald-500/5"
+              className="rounded-full border border-border bg-background px-2.5 py-1 text-xs hover:border-emerald-500/40 hover:bg-emerald-500/5"
             >
               {m.emoji} {presetName(i)}
               <span className="ms-1 text-muted-foreground">
@@ -508,7 +508,7 @@ function WindfallsSection({
       {/* Add form */}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-[2fr_1fr_1fr_1fr_auto]">
         <div>
-          <Label htmlFor="w-name" className="text-[11px]">
+          <Label htmlFor="w-name" className="text-xs">
             {g("name")}
           </Label>
           <Input
@@ -520,7 +520,7 @@ function WindfallsSection({
           />
         </div>
         <div>
-          <Label htmlFor="w-cat" className="text-[11px]">
+          <Label htmlFor="w-cat" className="text-xs">
             {w("type")}
           </Label>
           <Select value={category} onValueChange={(v) => setCategory(v as WindfallCategory)}>
@@ -540,7 +540,7 @@ function WindfallsSection({
           </Select>
         </div>
         <div>
-          <Label htmlFor="w-amt" className="text-[11px]">
+          <Label htmlFor="w-amt" className="text-xs">
             {w("amount", { currency: destinationCountry.currency })}
           </Label>
           <Input
@@ -555,7 +555,7 @@ function WindfallsSection({
           />
         </div>
         <div>
-          <Label htmlFor="w-yr" className="text-[11px]">
+          <Label htmlFor="w-yr" className="text-xs">
             {w("year")}
           </Label>
           <Input
@@ -602,7 +602,7 @@ function WindfallsSection({
                     </td>
                     <td className="px-2 py-1.5 text-end tabular-nums">
                       {p.windfall.targetYear}
-                      <span className="ms-1 text-[10px] text-muted-foreground">
+                      <span className="ms-1 text-xs text-muted-foreground">
                         ({g("plusYears", { n: p.yearsUntilReceipt })})
                       </span>
                     </td>

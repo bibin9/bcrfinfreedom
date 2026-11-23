@@ -207,7 +207,7 @@ export function Dashboard() {
           <h1 className="truncate text-lg font-semibold tracking-tight sm:text-2xl">
             {d("shell.title")}
           </h1>
-          <p className="mt-0.5 text-[11px] text-muted-foreground sm:mt-1 sm:text-sm">
+          <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1 sm:text-sm">
             {d("shell.age", { age: complete.age })} · {riskLabel} ·{" "}
             {isExpatMode && destinationCountry ? (
               <span>
@@ -237,7 +237,7 @@ export function Dashboard() {
             <span className="sm:hidden">{t("header.edit")}</span>
           </Button>
           {/* NRI toggle demoted to a quiet checkbox — rare, once-set action */}
-          <label className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <label className="flex items-center gap-1 text-xs text-muted-foreground">
             <input
               type="checkbox"
               checked={isNRI}

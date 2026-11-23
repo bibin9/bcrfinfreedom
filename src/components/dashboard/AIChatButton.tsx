@@ -157,7 +157,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
             </div>
             <div>
               <p className="text-sm font-semibold">FIRE Assistant</p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Powered by Pollinations · free · may be slow
               </p>
             </div>
@@ -238,7 +238,7 @@ function ChatPanel({ onClose }: { onClose: () => void }) {
               )}
             </Button>
           </div>
-          <p className="mt-1.5 text-[10px] text-muted-foreground">
+          <p className="mt-1.5 text-xs text-muted-foreground">
             Educational only · Not financial advice · Confirm with a registered advisor
           </p>
         </div>
@@ -262,7 +262,7 @@ function WelcomeBlock({ onPick }: { onPick: (text: string) => void }) {
           number, suggest what to change, or help you understand the math.
         </p>
       </div>
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">
         Try asking:
       </p>
       <div className="flex flex-wrap gap-1.5">

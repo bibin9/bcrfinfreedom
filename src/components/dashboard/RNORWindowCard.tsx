@@ -95,7 +95,7 @@ export function RNORWindowCard({ age, freedomAge, residentCountryName }: Props) 
                     : "border-border bg-muted/30"
                 }`}
               >
-                <p className="text-[11px] text-muted-foreground">{r("fy", { y, y2: y + 1 })}</p>
+                <p className="text-xs text-muted-foreground">{r("fy", { y, y2: y + 1 })}</p>
                 <p
                   className={`text-xs font-semibold ${
                     taxFree ? "text-emerald-700 dark:text-emerald-300" : "text-muted-foreground"
@@ -134,7 +134,7 @@ export function RNORWindowCard({ age, freedomAge, residentCountryName }: Props) 
         )}
 
         <div className="flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {r("footnote")}
           </p>
           <div className="shrink-0">

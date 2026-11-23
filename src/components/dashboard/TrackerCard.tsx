@@ -176,7 +176,7 @@ function CurrentSummary({
   country: CountryProfile;
 }) {
   return (
-    <p className="mt-2 text-[11px] text-muted-foreground">
+    <p className="mt-2 text-xs text-muted-foreground">
       Current setup: FIRE number{" "}
       <strong className="text-foreground">
         {formatCurrency(projection.targetCorpus, country, { compact: true })}
@@ -228,13 +228,13 @@ function ScenarioRow({
       </label>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold">{scn.name}</p>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {scn.inputs.householdSize === "family" ? "Family" : "Single"} ·{" "}
           {((scn.inputs.savingsRate ?? 0.3) * 100).toFixed(0)}% savings · FIRE @{" "}
           {scn.inputs.freedomAge ?? country.retirementAge}
         </p>
         {proj && (
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Target{" "}
             <strong className="text-foreground">
               {formatCurrency(proj.targetCorpus, country, { compact: true })}
@@ -371,7 +371,7 @@ function CompareBlock({
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-[11px] text-muted-foreground">
+      <p className="mt-2 text-xs text-muted-foreground">
         Green = the better number for that metric. "Apply" any row to load that scenario
         back into your live inputs.
       </p>
@@ -482,7 +482,7 @@ function CheckinsSection({
           <CalendarCheck className="h-5 w-5 text-emerald-500" />
           Quarterly check-in
           {overdue && checkins.length > 0 && (
-            <span className="ml-auto rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+            <span className="ml-auto rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
               Time for a check-in
             </span>
           )}
@@ -498,7 +498,7 @@ function CheckinsSection({
           <p className="text-xs font-semibold">Log this quarter's numbers</p>
           <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_1fr_auto]">
             <div>
-              <Label htmlFor="ck-date" className="text-[11px]">
+              <Label htmlFor="ck-date" className="text-xs">
                 Date
               </Label>
               <Input
@@ -510,7 +510,7 @@ function CheckinsSection({
               />
             </div>
             <div>
-              <Label htmlFor="ck-corpus" className="text-[11px]">
+              <Label htmlFor="ck-corpus" className="text-xs">
                 Corpus ({country.currency})
               </Label>
               <Input
@@ -524,7 +524,7 @@ function CheckinsSection({
               />
             </div>
             <div>
-              <Label htmlFor="ck-income" className="text-[11px]">
+              <Label htmlFor="ck-income" className="text-xs">
                 Monthly income (optional)
               </Label>
               <Input
@@ -544,7 +544,7 @@ function CheckinsSection({
             </div>
           </div>
           <div className="mt-2">
-            <Label htmlFor="ck-note" className="text-[11px]">
+            <Label htmlFor="ck-note" className="text-xs">
               Note (optional — promotion, market move, etc.)
             </Label>
             <Input
@@ -564,7 +564,7 @@ function CheckinsSection({
               <TrendingUp className="h-4 w-4 text-emerald-500" /> FI Ratio over time
             </h3>
             <FiRatioChart data={chartData} />
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               FI Ratio = your reported corpus ÷ today's FIRE number (25× current spend).
               Cross 100% = FI at today's lifestyle.
             </p>

@@ -205,7 +205,7 @@ export function Onboarding() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {o("retireCountryNote", {
                         dest: countryName(inputs.retirementCountry),
                         home: selected ? countryName(selected.code, selected.name) : "",
@@ -338,16 +338,16 @@ export function Onboarding() {
                     <div className="mt-1 rounded-md border border-primary/30 bg-primary/5 p-2.5">
                       <p className="text-xs font-semibold text-primary">{o(riskKey[r])}</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">{o(`risk.${r}.line`)}</p>
-                      <p className="mt-1 text-[11px] text-muted-foreground">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         <strong>{o(`risk.${r}.example`)}</strong>
                       </p>
-                      <p className="mt-1 text-[11px] text-muted-foreground">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         <em>{o("riskSuitsPrefix")}</em> {o(`risk.${r}.suits`)}
                       </p>
                     </div>
                   );
                 })()}
-                <p className="text-[11px] text-muted-foreground">{o("riskNotSure")}</p>
+                <p className="text-xs text-muted-foreground">{o("riskNotSure")}</p>
               </div>
 
               <div className="space-y-2">
@@ -370,7 +370,7 @@ export function Onboarding() {
                 {inputs.goal && (
                   <div className="rounded-md border border-border bg-muted/30 p-2.5">
                     <p className="text-xs font-medium">{o(`goals.${inputs.goal}.blurb`)}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       <em>{o("goalPickIf")}</em> {o(`goals.${inputs.goal}.who`)}
                     </p>
                   </div>

@@ -84,7 +84,7 @@ export function FeedbackDialog({ variant = "link" }: Props) {
             {t("feedback.open")}
           </Button>
         ) : (
-          <button type="button" className="underline underline-offset-4 hover:text-foreground">
+          <button type="button" className="min-h-10 px-2 underline underline-offset-4 hover:text-foreground sm:min-h-0 sm:px-0">
             💬 {t("feedback.open")}
           </button>
         )}
@@ -136,7 +136,7 @@ export function FeedbackDialog({ variant = "link" }: Props) {
               placeholder={t("feedback.missingPlaceholder")}
             />
           </label>
-          <p className="text-[11px] text-muted-foreground">{t("feedback.privacy")}</p>
+          <p className="text-xs text-muted-foreground">{t("feedback.privacy")}</p>
           <div className="flex gap-2">
             <Button asChild={canSend} disabled={!canSend} className="flex-1 bg-orange-600 hover:bg-orange-700">
               {canSend ? (

@@ -40,7 +40,7 @@ export function LearnResources({ resources, heading, extraReadings }: Props) {
                 href={s.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs hover:border-primary hover:text-primary"
+                className="inline-flex min-h-10 items-center gap-1 rounded-md border border-border bg-background px-3 py-1 text-xs sm:min-h-0 sm:px-2 hover:border-primary hover:text-primary"
               >
                 <SearchIcon className="h-3 w-3" />
                 {s.query}
@@ -49,7 +49,7 @@ export function LearnResources({ resources, heading, extraReadings }: Props) {
             </li>
           ))}
         </ul>
-        <p className="mt-1 text-[10px] italic text-muted-foreground">
+        <p className="mt-1 text-xs italic text-muted-foreground">
           Opens YouTube ranked by view count — the top results are the most-watched videos.
         </p>
       </div>
@@ -67,7 +67,7 @@ export function LearnResources({ resources, heading, extraReadings }: Props) {
                   href={c.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-medium hover:text-primary"
+                  className="inline-flex min-h-10 items-center gap-1 font-medium hover:text-primary sm:min-h-0"
                 >
                   {c.name}
                   <ExternalLink className="h-3 w-3 opacity-60" />
@@ -92,10 +92,10 @@ export function LearnResources({ resources, heading, extraReadings }: Props) {
                   href={r.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 hover:text-primary"
+                  className="inline-flex min-h-10 items-center gap-1 hover:text-primary sm:min-h-0"
                 >
                   <span
-                    className={`rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${typeBadge(
+                    className={`rounded px-1.5 py-0.5 text-xs font-medium uppercase tracking-wide ${typeBadge(
                       r.type,
                     )}`}
                   >

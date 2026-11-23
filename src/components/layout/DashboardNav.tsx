@@ -129,7 +129,7 @@ export function DashboardNav({ active, onChange, showNRI }: Props) {
             >
               <Icon className="h-4 w-4" />
               <span>{t(`nav.${s.id}`)}</span>
-              <span className="hidden text-[10px] font-normal opacity-70 sm:inline">
+              <span className="hidden text-xs font-normal opacity-70 sm:inline">
                 · {t(`nav.${s.id}Tagline`)}
               </span>
             </button>
@@ -154,7 +154,7 @@ export function DashboardNav({ active, onChange, showNRI }: Props) {
               onClick={() => onChange(tab.id)}
               aria-current={isActive ? "page" : undefined}
               className={[
-                "flex flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition sm:text-sm",
+                "flex min-h-10 flex-none items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs sm:min-h-0 font-medium transition sm:text-sm",
                 isActive
                   ? "bg-orange-500/15 text-orange-700 ring-1 ring-orange-500/40 dark:text-orange-300"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground",

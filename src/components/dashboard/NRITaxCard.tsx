@@ -50,7 +50,7 @@ export function NRITaxCard() {
         <CardTitle className="flex items-center gap-2">
           <Flag className="h-5 w-5 text-saffron" style={{ color: "#ff9933" }} />
           NRI tax calculator
-          <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-primary">
             Section 6 + RNOR
           </span>
         </CardTitle>
@@ -193,7 +193,7 @@ function ResidencyCalculator() {
             />
           ))}
         </div>
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground">
           Total: <strong>{daysLast4.reduce((a, b) => a + b, 0)}</strong> days.{" "}
           {daysLast4.reduce((a, b) => a + b, 0) >= 365 ? "≥ 365 ✓" : "< 365"} — the 60+365
           test requires ≥ 365.
@@ -236,7 +236,7 @@ function ResidencyCalculator() {
             onChange={(e) => setIndianIncomeL(Number(e.target.value) || 0)}
             className="bg-background text-sm"
           />
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Interest on NRO, rent, Indian dividends. The ₹15 L mark triggers the Finance
             Act 2020 120-day rule.
           </p>
@@ -251,7 +251,7 @@ function ResidencyCalculator() {
 
       {/* RESULT */}
       <ResultBanner status={result.status} explanation={result.explanation}>
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground">
           Triggered by: <em>{result.triggeredBy}</em>
           {result.deemedResident && (
             <span className="ml-2 rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-300">
@@ -305,7 +305,7 @@ function RNORWindowCalculator() {
             onChange={(e) => setReturnFY(Number(e.target.value) || CURRENT_FY + 1)}
             className="bg-background"
           />
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             FY {returnFY}-{String(returnFY + 1).slice(2)} starts on 1 April {returnFY}.
           </p>
         </div>
@@ -343,7 +343,7 @@ function RNORWindowCalculator() {
             const label = isRNOR ? "RNOR" : isROR ? "ROR" : "—";
             return (
               <div key={offset} className={`border p-2 text-center ${bg}`}>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   FY {fy}-{String(fy + 1).slice(2)}
                 </p>
                 <p className="text-sm font-bold">{label}</p>
@@ -362,7 +362,7 @@ function RNORWindowCalculator() {
         </p>
         <p className="mt-1 text-xs text-muted-foreground">{projection.explanation}</p>
         {projection.rnorFYs.length > 0 && (
-          <ul className="mt-2 list-disc space-y-0.5 pl-5 text-[11px] text-muted-foreground">
+          <ul className="mt-2 list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
             <li>
               Repatriate foreign salary, bonuses, severance before FY {projection.rorFromFY}.
             </li>
@@ -592,7 +592,7 @@ function SliderBlock({
         className="mt-2"
         aria-label={label}
       />
-      {hint && <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
@@ -620,7 +620,7 @@ function YesNoRow({
           <SelectItem value="no">No</SelectItem>
         </SelectContent>
       </Select>
-      {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
@@ -682,9 +682,9 @@ function MetricTile({
     : "border border-border bg-card";
   return (
     <div className={`rounded-lg p-3 ${border}`}>
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className={`mt-1 text-base font-bold tabular-nums sm:text-lg ${color}`}>{value}</p>
-      <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
     </div>
   );
 }

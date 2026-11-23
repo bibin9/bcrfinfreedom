@@ -165,7 +165,7 @@ export function CryptoInsightsCard({
                       href={s.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs hover:border-primary hover:text-primary"
+                      className="inline-flex min-h-10 items-center gap-1 rounded-md border border-border bg-background px-3 py-1 text-xs sm:min-h-0 sm:px-2 hover:border-primary hover:text-primary"
                     >
                       <SearchIcon className="h-3 w-3" />
                       {s.title}
@@ -174,7 +174,7 @@ export function CryptoInsightsCard({
                   </li>
                 ))}
               </ul>
-              <p className="mt-1 text-[10px] italic text-muted-foreground">
+              <p className="mt-1 text-xs italic text-muted-foreground">
                 Opens YouTube ranked by view count.
               </p>
             </div>
@@ -191,7 +191,7 @@ export function CryptoInsightsCard({
                       href={c.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-medium hover:text-primary"
+                      className="inline-flex min-h-10 items-center gap-1 font-medium hover:text-primary sm:min-h-0"
                     >
                       {c.title}
                       <ExternalLink className="h-3 w-3 opacity-60" />
@@ -213,10 +213,10 @@ export function CryptoInsightsCard({
                       href={r.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 hover:text-primary"
+                      className="inline-flex min-h-10 items-center gap-1 hover:text-primary sm:min-h-0"
                     >
                       <span
-                        className={`rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ${typeBadge(
+                        className={`rounded px-1.5 py-0.5 text-xs font-medium uppercase tracking-wide ${typeBadge(
                           r.type,
                         )}`}
                       >
@@ -257,7 +257,7 @@ function StatusPill({ status }: { status: CryptoStatus }) {
   const x = map[status];
   return (
     <span
-      className={`rounded px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${x.cls}`}
+      className={`rounded px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ${x.cls}`}
     >
       {x.label}
     </span>
@@ -267,7 +267,7 @@ function StatusPill({ status }: { status: CryptoStatus }) {
 function KV({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="text-sm">{children}</p>
     </div>
   );

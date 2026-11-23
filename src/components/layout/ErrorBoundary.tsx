@@ -59,7 +59,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
             BCR Fin Freedom hit an unexpected error while rendering. Your saved data is still
             on this device — you can try to recover, or reset everything and start over.
           </p>
-          <pre className="mt-3 max-h-32 overflow-auto rounded-md bg-muted p-2 text-[11px] text-muted-foreground">
+          <pre className="mt-3 max-h-32 overflow-auto rounded-md bg-muted p-2 text-xs text-muted-foreground">
             {this.state.error.message}
           </pre>
           <div className="mt-4 flex flex-wrap gap-2">

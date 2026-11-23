@@ -129,7 +129,7 @@ export function ExportPlanButton({ size = "sm", compact = false }: Props) {
           </>
         )}
       </Button>
-      {err && <span className="text-[10px] text-red-500">{err}</span>}
+      {err && <span className="text-xs text-red-500">{err}</span>}
     </div>
   );
 }

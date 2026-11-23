@@ -84,7 +84,7 @@ export function LifePlanCard({ age, freedomAge, country, projection }: Props) {
         <CardTitle className="flex items-center gap-2">
           <HeartPulse className="h-5 w-5 text-red-500" />
           {l("title")}
-          <span className="ms-auto rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
+          <span className="ms-auto rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
             {l("badge")}
           </span>
         </CardTitle>
@@ -103,7 +103,7 @@ export function LifePlanCard({ age, freedomAge, country, projection }: Props) {
             </span>
           </div>
           <Progress value={lifePct} aria-label={l("livedAria")} />
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-xs text-muted-foreground">
             {l("ahead", { life: Math.max(0, 85 - age), work: Math.max(0, freedomAge - age) })}
           </p>
         </div>
@@ -321,7 +321,7 @@ function CurrentFocus({
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
             {l("inPhase", { phase: cur.name })}
           </p>
           <p className="mt-0.5 text-lg font-bold" style={{ color: `hsl(${phase.hsl})` }}>
@@ -330,7 +330,7 @@ function CurrentFocus({
           </p>
         </div>
         <div className="text-end">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
             {l("yearsInPhase")}
           </p>
           <p className="text-lg font-bold tabular-nums" style={{ color: `hsl(${phase.hsl})` }}>
@@ -347,7 +347,7 @@ function CurrentFocus({
 
       {nextPhase && next && (
         <div className="mt-3 rounded-md border border-border bg-background/60 p-2.5">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
             {l("upNext", { age: nextPhase.startAge })}
           </p>
           <p className="text-xs font-medium">
@@ -356,7 +356,7 @@ function CurrentFocus({
         </div>
       )}
 
-      <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-muted-foreground sm:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground sm:grid-cols-4">
         <Stat label={l("statCountry")} value={countryName(country.code, country.name)} />
         <Stat label={l("statTarget")} value={l("statTargetValue", { age: projection.freedomAge })} />
         <Stat
@@ -376,7 +376,7 @@ function CurrentFocus({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-border bg-background/60 p-1.5">
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="text-xs font-semibold text-foreground">{value}</p>
     </div>
   );
@@ -403,7 +403,7 @@ function FocusColumn({
       </p>
       <ul className="space-y-1">
         {items.map((item) => (
-          <li key={item} className="flex gap-1.5 text-[11px] text-muted-foreground">
+          <li key={item} className="flex gap-1.5 text-xs text-muted-foreground">
             <span style={{ color: `hsl(${hsl})` }}>•</span>
             <span>{item}</span>
           </li>
@@ -439,7 +439,7 @@ function PhaseAccordion({ phase, isCurrent }: { phase: Phase; isCurrent: boolean
               · {t("dash.life.ages", { from: phase.startAge, to: phase.endAge })}
             </span>
             {isCurrent && (
-              <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-[10px] font-semibold text-orange-600 dark:text-orange-400">
+              <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-xs font-semibold text-orange-600 dark:text-orange-400">
                 {t("dash.life.youAreHere")}
               </span>
             )}

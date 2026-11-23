@@ -118,7 +118,7 @@ export function Reveal() {
   return (
     <div className="container max-w-2xl py-10 animate-fade-in">
       {/* Eyebrow */}
-      <p className="mb-2 flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+      <p className="mb-2 flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
         <Sparkles className="h-3.5 w-3.5" />
         <Term hint k="FIRE number">{r("eyebrow")}</Term>
       </p>
@@ -238,7 +238,7 @@ export function Reveal() {
               </span>
             </div>
             <Progress value={fiRatio} aria-label={r("progressLabel")} />
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               {r("progressBody", {
                 have: money(corpusInRetCcy),
                 need: money(todayFireNumber),
@@ -302,7 +302,7 @@ export function Reveal() {
         </button>
       </div>
 
-      <p className="mt-8 text-center text-[11px] text-muted-foreground">
+      <p className="mt-8 text-center text-xs text-muted-foreground">
         {r("disclaimer")}
       </p>
     </div>
@@ -334,7 +334,7 @@ function RevealStat({
       <div className="min-w-0 flex-1">
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className={`text-lg font-bold tabular-nums ${accentClass}`}>{value}</p>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">{sub}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>
       </div>
     </div>
   );

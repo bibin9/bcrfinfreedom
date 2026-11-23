@@ -116,7 +116,7 @@ export function AllocationCard({
                     </div>
                     <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
                       <div>
-                        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
                           {d("monthly")}
                         </p>
                         <p className="font-semibold tabular-nums">
@@ -125,7 +125,7 @@ export function AllocationCard({
                       </div>
                       {currentCorpus > 0 && (
                         <div>
-                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
                             {d("ofCorpus")}
                           </p>
                           <p className="font-semibold tabular-nums">

@@ -43,7 +43,7 @@ export function GrowthSectorsCard({ country }: Props) {
             </CardTitle>
             <CardDescription>{t("dash.growth.desc", { country: name })}</CardDescription>
           </div>
-          <span className="rounded-md border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+          <span className="rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
             {t("dash.growth.updated", { date: GROWTH_SECTORS_UPDATED_AT })}
           </span>
         </div>

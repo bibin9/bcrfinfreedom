@@ -36,7 +36,7 @@ export function RoadmapCard({ steps }: Props) {
                   {step.detailMsg ? tm(step.detailMsg) : step.detail}
                 </p>
                 {step.reference && (
-                  <p className="mt-2 inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
+                  <p className="mt-2 inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
                     <CheckCircle2 className="h-3 w-3" />
                     {step.referenceMsg ? tm(step.referenceMsg) : step.reference}
                   </p>

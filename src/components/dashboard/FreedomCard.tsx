@@ -60,7 +60,7 @@ function Metric({
     <div className="rounded-lg border border-border p-3">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className={`mt-1 text-base font-semibold tabular-nums sm:text-lg ${color}`}>{value}</p>
-      {hint && <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>}
+      {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
@@ -125,7 +125,7 @@ function PlainVerdict({
     <div className={`rounded-lg border-2 p-3 sm:p-4 ${borderClass}`}>
       <p className={`text-sm font-bold sm:text-base ${textClass}`}>{headline}</p>
       <p className="mt-1 text-xs text-muted-foreground sm:text-sm">{advice}</p>
-      <p className="mt-1.5 text-[11px] text-muted-foreground">
+      <p className="mt-1.5 text-xs text-muted-foreground">
         <strong className="text-foreground">{v("progressLabel")}</strong>{" "}
         {v("progressBody", { pct: fiRatio.toFixed(1) })}
         {onTrack && fiRatio < 10 && <> {v("earlyNote")}</>}
@@ -173,7 +173,7 @@ export function FreedomCard({
         <CardTitle className="flex items-center gap-2">
           <Flame className="h-5 w-5 text-orange-500" />
           {f("title")}
-          <span className="ms-auto rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+          <span className="ms-auto rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
             {f("badge")}
           </span>
         </CardTitle>
@@ -215,7 +215,7 @@ export function FreedomCard({
         <div className="rounded-lg border border-orange-500/30 bg-gradient-to-br from-orange-500/10 to-amber-500/5 p-4">
           <div className="mb-2 flex items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">
                 <Term hint k="FI Ratio">
                   {f("fiLabel")}
                 </Term>
@@ -225,11 +225,11 @@ export function FreedomCard({
               </p>
             </div>
             <div className="text-end">
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">
                 {f("todayNumber")}
               </p>
               <p className="text-base font-semibold tabular-nums">{money(todayFireNumber)}</p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {f("todayBasis", {
                   amount: money(projection.currentAnnualExpenses),
                   basis:
@@ -243,7 +243,7 @@ export function FreedomCard({
             </div>
           </div>
           <Progress value={fiRatio} aria-label={f("fiLabel")} />
-          <p className="mt-2 text-[11px] text-muted-foreground">
+          <p className="mt-2 text-xs text-muted-foreground">
             {f("fiHint")}{" "}
             {fiRatio < 25
               ? f("phase1")
@@ -288,7 +288,7 @@ export function FreedomCard({
         {/* PRIMARY CHART — stays visible, the one anchor the eye needs */}
         <div>
           <h3 className="mb-2 text-sm font-medium">{f("chartTitle")}</h3>
-          <p className="mb-2 text-[11px] text-muted-foreground">{f("chartHint")}</p>
+          <p className="mb-2 text-xs text-muted-foreground">{f("chartHint")}</p>
           <WealthProjection projection={projection} country={country} />
         </div>
 
@@ -300,7 +300,7 @@ export function FreedomCard({
         </Collapsible>
 
         <Collapsible title={f("curveTitle")} subtitle={f("curveSub")}>
-          <p className="mb-2 text-[11px] text-muted-foreground">
+          <p className="mb-2 text-xs text-muted-foreground">
             {f("curveHint", {
               real: (Math.max(0.01, country.expectedEquityReturn - country.inflationRate) * 100).toFixed(1),
             })}
@@ -393,7 +393,7 @@ function FireTiers({
           coastNote
         />
       </div>
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         {f("tiers.legend", { age: projection.freedomAge })}
       </p>
     </div>
@@ -431,11 +431,11 @@ function TierCard({
         {icon}
         <p className="text-sm font-semibold">{name}</p>
       </div>
-      <p className="text-[11px] text-muted-foreground">{subtitle}</p>
+      <p className="text-xs text-muted-foreground">{subtitle}</p>
       <p className="mt-1.5 text-base font-bold tabular-nums sm:text-lg">
         {formatCurrency(target, country, { compact: true })}
       </p>
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         {coastNote
           ? f("tiers.coastNote")
           : years != null

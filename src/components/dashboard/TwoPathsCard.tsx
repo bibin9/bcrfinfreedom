@@ -291,13 +291,13 @@ function LifeTimeline({ age, retirementAge }: { age: number; retirementAge: numb
             </div>
             <div className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
               <div className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
                   Disciplined
                 </p>
                 <p className="mt-0.5 text-xs">{m.disciplined}</p>
               </div>
               <div className="rounded-md border border-red-500/30 bg-red-500/5 p-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-red-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-red-500">
                   Drifting
                 </p>
                 <p className="mt-0.5 text-xs">{m.drift}</p>
@@ -375,7 +375,7 @@ function ComparisonTable({
             <tr key={r.label} className="border-t border-border align-top">
               <td className="px-3 py-2">
                 <p className="font-medium">{r.label}</p>
-                {r.hint && <p className="mt-0.5 text-[11px] text-muted-foreground">{r.hint}</p>}
+                {r.hint && <p className="mt-0.5 text-xs text-muted-foreground">{r.hint}</p>}
               </td>
               <td className="px-3 py-2 text-right font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
                 {r.disciplined}

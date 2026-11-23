@@ -79,7 +79,7 @@ export function TunePanel({
   const place = city ? cityName(destinationCountry.code, city.id, city.name) : destName;
 
   const toggleClass = (on: boolean, tone: "orange" | "primary") =>
-    `rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
+    `min-h-10 rounded-md border px-3 py-2 text-xs font-medium transition sm:min-h-0 sm:px-2.5 sm:py-1.5 ${
       on
         ? tone === "orange"
           ? "border-orange-500 bg-orange-500/10 text-orange-700 dark:text-orange-300"
@@ -198,7 +198,7 @@ export function TunePanel({
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {d("destNote", { dest: destName, home: homeName })}
               </p>
             </>

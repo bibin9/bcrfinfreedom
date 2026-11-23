@@ -84,7 +84,7 @@ export function CashFlowCard({
         <CardTitle className="flex items-center gap-2">
           <Waves className="h-5 w-5 text-orange-500" />
           {d("title")}
-          <span className="ms-auto rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+          <span className="ms-auto rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
             {d("badge")}
           </span>
         </CardTitle>
@@ -114,7 +114,7 @@ export function CashFlowCard({
           </div>
         )}
 
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t.remittance > 0 ? `${d("noteRemit")} ` : ""}
           {d("noteSplit")}
         </p>
@@ -142,7 +142,7 @@ function Stat({
           : "text-foreground";
   return (
     <div className="rounded-md border border-border bg-card p-2">
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className={`text-sm font-bold tabular-nums sm:text-base ${color}`}>{value}</p>
     </div>
   );

@@ -86,7 +86,7 @@ function Manual() {
     <div className="space-y-8 text-sm leading-relaxed">
       {/* Origin story — the thing that makes this not another SaaS */}
       <div className="rounded-lg border border-orange-500/30 bg-orange-500/5 p-3">
-        <p className="text-[11px] uppercase tracking-wider text-orange-600 dark:text-orange-400">
+        <p className="text-xs uppercase tracking-wider text-orange-600 dark:text-orange-400">
           Who built this
         </p>
         <p className="mt-1 text-sm font-medium">
@@ -442,7 +442,7 @@ function TierRow({ name, mult, plain }: { name: string; mult: string; plain: str
     <div className="rounded-md border border-border p-2.5">
       <div className="flex items-baseline justify-between">
         <span className="text-sm font-semibold">{name}</span>
-        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{mult}</span>
+        <span className="text-xs uppercase tracking-wide text-muted-foreground">{mult}</span>
       </div>
       <p className="mt-0.5 text-xs text-muted-foreground">{plain}</p>
     </div>

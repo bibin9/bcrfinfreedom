@@ -258,7 +258,7 @@ export function Landing() {
               🇦🇪
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-orange-600 dark:text-orange-400">
+              <p className="text-xs uppercase tracking-wider text-orange-600 dark:text-orange-400">
                 {t("landing.builtByHeading")}
               </p>
               <p className="mt-1 font-medium">{t("landing.builtByBody")}</p>
@@ -333,12 +333,12 @@ function LivePlanPreview({ onClick }: { onClick: () => void }) {
               <Flame className="h-3.5 w-3.5 text-white" />
             </div>
             <div>
-              <p className="text-[11px] text-muted-foreground leading-none">Sample plan</p>
+              <p className="text-xs text-muted-foreground leading-none">Sample plan</p>
               <p className="text-sm font-semibold leading-tight">🇮🇳 Arjun & Meera, 32 · Bangalore</p>
             </div>
           </div>
           <span
-            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+            className={`rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wider ${
               onTrack
                 ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
                 : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
@@ -350,7 +350,7 @@ function LivePlanPreview({ onClick }: { onClick: () => void }) {
 
         {/* FIRE number hero */}
         <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/5 px-4 py-5 text-center">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
             Their FIRE number — needed by age {freedom.freedomAge}
           </p>
           <p className="mt-1 bg-gradient-to-br from-orange-500 to-red-600 bg-clip-text text-4xl font-extrabold tabular-nums text-transparent sm:text-5xl">
@@ -381,7 +381,7 @@ function LivePlanPreview({ onClick }: { onClick: () => void }) {
         {/* Mini chart — growth curve */}
         <div className="border-t border-border px-3 pt-2">
           <MiniGrowthChart />
-          <p className="pb-3 text-center text-[10px] text-muted-foreground">
+          <p className="pb-3 text-center text-xs text-muted-foreground">
             Projected wealth · age 32 → 95
           </p>
         </div>
@@ -399,9 +399,9 @@ function LivePlanPreview({ onClick }: { onClick: () => void }) {
 function MiniStat({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
     <div className="rounded-md border border-border bg-background px-2 py-1.5 text-center">
-      <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="text-sm font-bold tabular-nums">{value}</p>
-      <p className="text-[9px] text-muted-foreground">{sub}</p>
+      <p className="text-xs text-muted-foreground">{sub}</p>
     </div>
   );
 }

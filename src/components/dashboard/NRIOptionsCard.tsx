@@ -123,7 +123,7 @@ export function NRIOptionsCard({ residenceCountryCode, taxCalculator }: Props) {
                     <p className="mt-0.5 text-sm text-muted-foreground">{a.purpose}</p>
                   </div>
                   <span
-                    className={`rounded px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+                    className={`rounded px-2 py-0.5 text-xs font-medium uppercase tracking-wide ${
                       a.repatriable
                         ? "bg-emerald-500/15 text-emerald-500"
                         : "bg-red-500/15 text-red-500"
@@ -280,7 +280,7 @@ function KV({
         : "text-foreground";
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className={color}>{children}</p>
     </div>
   );

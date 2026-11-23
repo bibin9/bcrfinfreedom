@@ -24,7 +24,7 @@ export function Header() {
             <Flame className="h-4 w-4" />
           </span>
           <span className="flex flex-col leading-none">
-            <span className="text-[11px] font-normal text-muted-foreground">BibinCutRiver</span>
+            <span className="text-xs font-normal text-muted-foreground">BibinCutRiver</span>
             <span className="text-sm sm:text-base">BCR FIRE</span>
           </span>
         </button>

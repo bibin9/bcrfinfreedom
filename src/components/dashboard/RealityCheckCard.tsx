@@ -102,7 +102,7 @@ export function RealityCheckCard({
         <CardTitle className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-blue-500" />
           Retirement scenario check
-          <span className="ml-auto rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+          <span className="ml-auto rounded-full bg-blue-500/10 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
             Will my money last?
           </span>
         </CardTitle>
@@ -158,7 +158,7 @@ export function RealityCheckCard({
             <Dice5 className="h-4 w-4 text-blue-500" />
             Corpus over time — 10 / 50 / 90 percentile bands
           </h3>
-          <p className="mb-2 text-[11px] text-muted-foreground">
+          <p className="mb-2 text-xs text-muted-foreground">
             The band shows the range of possible outcomes.
             <strong className="text-foreground"> P10 = bad-luck case</strong> (worst 10%),{" "}
             <strong className="text-foreground">P50 = median</strong>,{" "}
@@ -195,7 +195,7 @@ export function RealityCheckCard({
                 onValueChange={([v]) => setWithdrawalPct(v / 10)}
                 aria-label="Withdrawal rate"
               />
-              <p className="mt-1 text-[11px] text-muted-foreground">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Lowering this percentage cuts the spending budget in this scenario; it does not add savings. Check that the lower budget still covers your needs.
               </p>
             </div>
@@ -215,7 +215,7 @@ export function RealityCheckCard({
                 onValueChange={([v]) => setEndAge(v)}
                 aria-label="End age"
               />
-              <p className="mt-1 text-[11px] text-muted-foreground">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Default 95. If you have long-lived parents, consider 100+.
               </p>
             </div>
@@ -310,11 +310,11 @@ function MetricTile({
         : "text-amber-600 dark:text-amber-400";
   return (
     <div className="rounded-md border border-border bg-card p-3">
-      <p className="flex items-center gap-1 text-[11px] uppercase tracking-wider text-muted-foreground">
+      <p className="flex items-center gap-1 text-xs uppercase tracking-wider text-muted-foreground">
         {icon} {label}
       </p>
       <p className={`mt-1 text-base font-bold tabular-nums sm:text-lg ${color}`}>{value}</p>
-      <p className="mt-0.5 text-[11px] text-muted-foreground">{hint}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
     </div>
   );
 }
@@ -453,7 +453,7 @@ function MonteCarloChart({
           />
         </ComposedChart>
       </ResponsiveContainer>
-      <div className="mt-1 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+      <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-3 bg-blue-500/30 rounded" />
           10–90% range

@@ -225,26 +225,26 @@ function FundRow({ fund }: { fund: MutualFund }) {
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <p className="break-words text-sm font-semibold sm:text-base">{fund.name}</p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground sm:text-xs">
+          <p className="mt-0.5 text-xs text-muted-foreground sm:text-xs">
             {ml ? CATEGORY_ML[fund.category] : CATEGORY_LABEL[fund.category]}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           <span
-            className={`rounded px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${riskColor}`}
+            className={`rounded px-2 py-0.5 text-xs font-medium uppercase tracking-wide ${riskColor}`}
           >
             {riskLabel}
           </span>
           {fund.live && (
             <span
               title="Both return periods computed from recent NAV history via mfapi.in; not a real-time price feed"
-              className="rounded bg-sky-500/15 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-sky-500"
+              className="rounded bg-sky-500/15 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-sky-500"
             >
               {ml ? "പുതിയ NAV കണക്ക്" : "Recent NAV"}
             </span>
           )}
           {fund.shariaCompliant && (
-            <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-emerald-500">
+            <span className="rounded bg-emerald-500/15 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-emerald-500">
               Sharia
             </span>
           )}
@@ -289,7 +289,7 @@ function Stat({
   const accentClass = accent === "emerald" ? "text-emerald-500" : "text-foreground";
   return (
     <div title={hint} className="rounded-md border border-border px-2 py-1.5">
-      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className={`mt-0.5 text-base font-semibold tabular-nums ${accentClass}`}>{value}</p>
     </div>
   );

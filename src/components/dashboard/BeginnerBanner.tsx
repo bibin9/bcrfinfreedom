@@ -32,11 +32,11 @@ export function BeginnerBanner({ onOpenHelp }: { onOpenHelp?: () => void }) {
         type="button"
         onClick={dismiss}
         aria-label="Dismiss beginner guide"
-        className="absolute end-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="absolute end-0 top-0 rounded-md p-3 text-muted-foreground hover:bg-muted hover:text-foreground"
       >
         <X className="h-4 w-4" />
       </button>
-      <div className="flex items-start gap-3 pe-6">
+      <div className="flex items-start gap-3 pe-8">
         <div className="rounded-lg bg-orange-500/20 p-2">
           <GraduationCap className="h-5 w-5 text-orange-600 dark:text-orange-400" />
         </div>
