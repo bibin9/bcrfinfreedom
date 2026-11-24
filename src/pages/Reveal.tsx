@@ -116,6 +116,8 @@ export function Reveal() {
     Math.min(freedom.freedomAge - 5, 50),
   );
   const slowerAge = Math.min(70, freedom.freedomAge + 5);
+  // True when today's savings already reach the earlier target age.
+  const fasterOnPace = fireAgeAtCurrentRate != null && fireAgeAtCurrentRate <= fasterAge;
   const money = (n: number, c = destinationCountry) => formatCurrency(n, c, { compact: true });
 
   return (
@@ -193,6 +195,9 @@ export function Reveal() {
           </div>
         </div>
         <CardContent className="space-y-4 pt-4">
+          <p className="rounded-md bg-orange-500/10 px-3 py-2 text-sm">
+            {r("targetLine", { age: freedom.freedomAge })}
+          </p>
           <RevealStat
             icon={<PiggyBank className="h-5 w-5 text-orange-500" />}
             label={r("saveNowLabel")}
@@ -278,10 +283,11 @@ export function Reveal() {
           <DecisionTile
             icon={<TrendingDown className="h-4 w-4" />}
             title={r("retireAt", { age: fasterAge })}
-            sub={r("faster")}
+            sub={fasterOnPace ? r("fasterOnPace") : r("faster")}
             onClick={() => {
               setFreedomAge(fasterAge);
-              setSavingsRate(Math.min(0.6, savingsRate + 0.1));
+              // Only ask for more saving when today's savings would not already get there.
+              if (!fasterOnPace) setSavingsRate(Math.min(0.6, savingsRate + 0.1));
               setPhase("dashboard");
             }}
           />

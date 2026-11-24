@@ -191,7 +191,7 @@ export const en = {
     whatMeans4:
       "It looks big partly because prices rise every year. What costs {today} a year today will cost about {future} by the time you're {age}. The app builds that in.",
     atAGlance: "At a glance",
-    paceLabel: "At the rate you save now, you can stop working around",
+    paceLabel: "Estimate at what you save now: you could stop working around",
     paceValue: "age {age}",
     paceNever: "more than 60 years away",
     paceSub: "{years} years from today (saving {pct}% of your salary)",
@@ -202,11 +202,11 @@ export const en = {
     sipEnough: "You already save enough: {saved}/month",
     progressLabel: "Your progress today",
     progressBody: "You have {have} of the {need} you'd need to stop working today.",
-    decisionHeader: "Want it sooner or later? Pick one — you can change anything later.",
-    retireAt: "Retire at {age}",
-    stickWith: "Stick with {age}",
-    faster: "Faster — you'll need to save more",
-    slower: "Slower — a smaller monthly amount",
+    decisionHeader: "Want a different target age? Pick one — you can change anything later.",
+    retireAt: "Set my target to age {age}",
+    stickWith: "Keep my target at age {age}",
+    faster: "Earlier target — you'd need to save more each month",
+    slower: "Later target — a smaller monthly amount",
     showFullPlan: "Show me the full plan",
     seeFullPlan: "See my full plan",
     waitChange: "Wait, let me change my answers",
@@ -248,6 +248,10 @@ export const en = {
       "That is more than most budgets allow, so we used {amount}.",
     whatIfBad:
       "Type a number above zero.",
+    fasterOnPace:
+      "Earlier target — and you're already on pace at today's savings",
+    targetLine:
+      "Your target is age {age} — the age you chose to stop working. The ages below are estimates of when your savings could get you there.",
   },
   disclaimer: {
     title: "Educational purposes only — not financial advice.",
