@@ -1,56 +1,56 @@
 {
   "source": "Yahoo Finance adjusted close (dividends reinvested)",
-  "updated": "2026-11-24T06:12:21.439Z",
+  "updated": "2026-11-25T04:57:22.714Z",
   "funds": {
     "VTI": {
-      "threeYearCagr": 0.17917043058263227,
-      "fiveYearCagr": 0.09637767778788286,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.17716801901427082,
+      "fiveYearCagr": 0.09475686431264663,
+      "navDate": "2026-11-24"
     },
     "VOO": {
-      "threeYearCagr": 0.18150449391554613,
-      "fiveYearCagr": 0.10592735974801304,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.1793870162607576,
+      "fiveYearCagr": 0.10431592406080137,
+      "navDate": "2026-11-24"
     },
     "VXUS": {
-      "threeYearCagr": 0.15391714133467227,
-      "fiveYearCagr": 0.07149484869671885,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.15032752055106102,
+      "fiveYearCagr": 0.07150895104335953,
+      "navDate": "2026-11-24"
     },
     "BND": {
-      "threeYearCagr": 0.04121563585710053,
-      "fiveYearCagr": 0.00026203864499962926,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.04288526256277736,
+      "fiveYearCagr": -0.0002110645213542206,
+      "navDate": "2026-11-24"
     },
     "VO": {
-      "threeYearCagr": 0.15126456564536328,
-      "fiveYearCagr": 0.058600158703379535,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.15036823169158486,
+      "fiveYearCagr": 0.05792669353395752,
+      "navDate": "2026-11-24"
     },
     "VB": {
-      "threeYearCagr": 0.14891867657383973,
-      "fiveYearCagr": 0.05430962529585526,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.14761646996472977,
+      "fiveYearCagr": 0.05438137132800547,
+      "navDate": "2026-11-24"
     },
     "SCHD": {
-      "threeYearCagr": 0.1718452629824878,
-      "fiveYearCagr": 0.09324640048123323,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.17601942912874136,
+      "fiveYearCagr": 0.09707469632675436,
+      "navDate": "2026-11-24"
     },
     "QQQ": {
-      "threeYearCagr": 0.19289933803896941,
-      "fiveYearCagr": 0.11033290640112559,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.18550660016008935,
+      "fiveYearCagr": 0.10517613393178205,
+      "navDate": "2026-11-24"
     },
     "VNQ": {
-      "threeYearCagr": 0.09834364165769083,
-      "fiveYearCagr": 0.007245743082528344,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.10160429099130575,
+      "fiveYearCagr": 0.007192571356187116,
+      "navDate": "2026-11-24"
     },
     "VWO": {
-      "threeYearCagr": 0.1292168194937129,
-      "fiveYearCagr": 0.04197406470868015,
-      "navDate": "2026-11-23"
+      "threeYearCagr": 0.1232152427531008,
+      "fiveYearCagr": 0.03956095448558816,
+      "navDate": "2026-11-24"
     }
   }
 }
